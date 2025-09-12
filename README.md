@@ -19,3 +19,5 @@ O editor de fases é a parte mais especial do projeto.
 5. Screenshots
 
 Adicionados no repositório
+
+<img width="957" height="534" alt="image" src="https://github.com/user-attachments/assets/daccf6dc-fcca-43e2-9727-f4375673a971" />
