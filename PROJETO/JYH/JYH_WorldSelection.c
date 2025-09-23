@@ -34,12 +34,27 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderPresent(jogo->ren);
 	
+    FILE* arq = fopen("mundos.txt","r");
+    assert(arq != NULL);
 	jogo->worlds.title = (SDL_Rect){450,100,300,90};
 	jogo->worlds.botao_voltar = (SDL_Rect){25,25,50,50};
-	jogo->worlds.n_mundos = 5;//numero arbitrario temporario para testar a interface
-	//jogo->selP.mundos
-	
-	
+
+    fscanf(arq,"%d",&jogo->worlds.n_mundos);
+    jogo->worlds.mundos =(JYH_Mundo*)malloc(sizeof(JYH_Mundo)*(jogo->worlds.n_mundos));
+    for(int i = 0; i < jogo->worlds.n_mundos;i++){
+        fscanf(arq,"%s",jogo->worlds.mundos[i].nome);
+        printf("Mundo inserido: %s\n",jogo->worlds.mundos[i].nome);
+    }
+
+	fclose(arq);
 	printf("Mundos\n");
 	jogo->estado = JYH_WORLD_SELECTION;
 }
+
+void JYH_GameDestroyWorlds(JYH_GameState* jogo){
+    free(jogo->worlds.mundos);
+}
+
+
+
+
