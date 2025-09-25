@@ -6,20 +6,22 @@
 #define JYH_GAME
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <SDL2/SDL.h>
 #include <assert.h>
-
 
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//lista dos niveis do mundo e estética na hora de seleção
 	char nome[50];//Nome do mundo
-	char path[50];//path para a lista de níveis
+	char pathW[50];//path para a lista de níveis(Windows)
+    char pathL[50];//path Linux
 	SDL_Texture* capa;//textura
 }JYH_Mundo;
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
 	char nome[50];
-	char path[50];
+	char pathW[50];
+    char pathL[50];
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -47,6 +49,7 @@ enum GAME_STATE{
 };
 
 typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
+    Uint32 estado_tela;//estado da tela
 	SDL_Rect title;
 	SDL_Rect botao_worlds;//vai para modo seleção de mundos
 	SDL_Rect botao_edit  ;//vai para modo editor
@@ -56,6 +59,7 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 }JYH_Menu;
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
+    Uint32 estado_tela;//estado da tela
 	JYH_Nivel lvl;        //Nivel a ser editado
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair, salvar, executar, etc)
 	SDL_Rect side_bar;    //barra lateral(onde ficam os itens)
@@ -67,6 +71,7 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 }JYH_Editor;
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
+    Uint32 estado_tela;
 	JYH_Nivel lvl;//Nivel que está sendo jogado
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair e reiniciar, assim como a contagem de tempo e de gemas)
 	SDL_Rect icone_gemas;
@@ -82,8 +87,10 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 }JYH_Level_Runner;
 
 typedef struct JYH_World_Selection{//Guarda os elementos necessários para a seleção de mundo
-	Uint32 n_mundos;//quantidade de mundos
+    Uint32 estado_tela;
+	Uint32 n;//quantidade de mundos
 	Uint32 idx;//indice do mundo de menor indice
+    Uint32 i_sel;//mundo selecionado
 	JYH_Mundo* mundos;//lista de mundos
 	SDL_Rect botao_voltar;//botão para voltar atrás
 	SDL_Rect botao_dir;
@@ -92,6 +99,7 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 }JYH_World_Selection;
 
 typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a seleção de níveis criados pelo jogador
+    Uint32 estado_tela;//estado da tela
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de niveis
 	SDL_Rect title;//"Meus niveis"
@@ -99,10 +107,12 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 }JYH_Level_Selection_P;
 
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis
+    Uint32 estado_tela;//estado da tela
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de níveis
 	SDL_Rect title;//nome do mundo
-	char path[50];//path do mundo
+	char pathW[50];//path do mundo
+    char pathL[50];
 	SDL_Rect botao_voltar;//botão para voltar atrás
 }JYH_Level_Selection;
 
@@ -135,6 +145,8 @@ void JYH_GameLvlExecution(JYH_GameState* jogo);
 void JYH_GameLvlSelection(JYH_GameState* jogo);
 void JYH_GameLvlSelection_P(JYH_GameState* jogo);
 void JYH_GameWorldSelection(JYH_GameState* jogo);
+
+void JYH_WS(JYH_GameState* jogo);
 
 //Estados de Transição
 void JYH_GameLoadMenu(JYH_GameState* jogo);

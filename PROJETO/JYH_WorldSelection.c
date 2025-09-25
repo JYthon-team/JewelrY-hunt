@@ -22,18 +22,20 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 				if (SDL_PointInRect(&p,&jogo->worlds.botao_voltar)){//botão de voltar atrás
 					jogo->estado = JYH_LOAD_MENU;
 					break;
-				}else if(jogo->worlds.idx && jogo->worlds.n_mundos > 3 && SDL_PointInRect(&p,&jogo->worlds.botao_esq)){
+				}else if(jogo->worlds.idx && jogo->worlds.n > 3 && SDL_PointInRect(&p,&jogo->worlds.botao_esq)){
 					jogo->worlds.idx--;
 					break;
-				}else if(jogo->worlds.idx < jogo->worlds.n_mundos-3 && SDL_PointInRect(&p,&jogo->worlds.botao_dir)){
+				}else if(jogo->worlds.idx < jogo->worlds.n-3 && SDL_PointInRect(&p,&jogo->worlds.botao_dir)){
 					jogo->worlds.idx++;
 					break;					
 				}
 				
-				for(int i = 0; i < jogo->worlds.n_mundos; i++){//Botões de entrar em um mundo
+				for(int i = 0; i < /*jogo->worlds.n*/3; i++){//Botões de entrar em um mundo
 					r.x = (75)+i*375;
 					if(SDL_PointInRect(&p,&r)){//se existe a colisão, então vai para os níveis do mundo
 						printf("%s\n",jogo->worlds.mundos[i + jogo->worlds.idx].nome);
+                        jogo->worlds.i_sel = i + jogo->worlds.idx;
+                        jogo->worlds.estado_tela = 3;
 						break;
 					}
 				}
@@ -51,12 +53,12 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 	
 	SDL_SetRenderDrawColor(jogo->ren,0x00,0xff,0x00,0x00);
 	//só mostra botão de ir para esquerda se dá para ir para a esquerda
-	if(jogo->worlds.idx && jogo->worlds.n_mundos > 3)SDL_RenderFillRect(jogo->ren,&jogo->worlds.botao_esq);
+	if(jogo->worlds.idx && jogo->worlds.n > 3)SDL_RenderFillRect(jogo->ren,&jogo->worlds.botao_esq);
 	//só desenha na direita se dá para ir para direita
-	if(jogo->worlds.idx < jogo->worlds.n_mundos-3)SDL_RenderFillRect(jogo->ren,&jogo->worlds.botao_dir);
+	if(jogo->worlds.idx < jogo->worlds.n-3)SDL_RenderFillRect(jogo->ren,&jogo->worlds.botao_dir);
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0x00,0x00,0x00);
-	for(int i = 0; i < jogo->worlds.n_mundos; i++){//desenha os botões para selecionar o mundo
+	for(int i = 0; i < /*jogo->worlds.n*/3; i++){//desenha os botões para selecionar o mundo
 		r.x = (75)+i*375;
 		SDL_RenderFillRect(jogo->ren,&r);//trocar pela textura do mundo
 	}
@@ -69,7 +71,8 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderPresent(jogo->ren);
 	
-    FILE* arq = fopen("JYH\\mundos.txt","r");//arquivo fixo
+    //FILE* arq = fopen("JYH\\mundos.txt","r");//arquivo fixo Windows
+    FILE* arq = fopen("JYH/mundos.txt","r");//linux
     assert(arq != NULL);
 	jogo->worlds.title = (SDL_Rect){450,100,300,90};
 	jogo->worlds.botao_voltar = (SDL_Rect){25,25,50,50};
@@ -77,25 +80,59 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 	jogo->worlds.botao_dir = (SDL_Rect){1150,300,40,90};
 	jogo->worlds.idx = 0;
 
-    fscanf(arq,"%d",&jogo->worlds.n_mundos);
-    jogo->worlds.mundos =(JYH_Mundo*)malloc(sizeof(JYH_Mundo)*(jogo->worlds.n_mundos));
-    for(int i = 0; i < jogo->worlds.n_mundos;i++){
+    fscanf(arq,"%d",&jogo->worlds.n);
+    jogo->worlds.mundos =(JYH_Mundo*)malloc(sizeof(JYH_Mundo)*(jogo->worlds.n));
+
+    for(int i = 0; i < jogo->worlds.n;i++){//carrega as informações dos mundos pelos arquivos
         fscanf(arq,"%s",jogo->worlds.mundos[i].nome);
-        fscanf(arq,"%s",jogo->worlds.mundos[i].path);
-        fscanf(arq,"%s",S);//nome da textura
+        fscanf(arq,"%s",jogo->worlds.mundos[i].pathW);
+        fscanf(arq,"%s",jogo->worlds.mundos[i].pathL);
+        fscanf(arq,"%s",S);//nome da textura a ser carregada depois
         //jogo->worlds.mundos[i].capa = 
-        printf("Mundo inserido: %s e path %s\n",jogo->worlds.mundos[i].nome,jogo->worlds.mundos[i].path);
+        printf("Mundo inserido: %s e path %s\n",jogo->worlds.mundos[i].nome,jogo->worlds.mundos[i].pathW);
     }
 	fclose(arq);
 	printf("Mundos\n");
 	jogo->estado = JYH_WORLD_SELECTION;
+    jogo->worlds.estado_tela = 1;
 }
 
 void JYH_GameDestroyWorlds(JYH_GameState* jogo){
     free(jogo->worlds.mundos);
 }
 
+void JYH_WS_to_LS(JYH_GameState* jogo){
+    JYH_Level_Selection temp;
+    temp.estado_tela = 0;//mandapara o load daseleção de níveis
+    strcpy(temp.pathW,jogo->worlds.mundos[jogo->worlds.i_sel].pathW);//copia path para arquivo do mundo
+    strcpy(temp.pathL,jogo->worlds.mundos[jogo->worlds.i_sel].pathL);
+    JYH_GameDestroyWorlds(jogo);//eliminaoquefoialocado
+    jogo->estado = JYH_LOAD_WORLD;//trocar no futuro
+    jogo->sel = temp;//copiao estado
+}
+void JYH_WS_to_MM(JYH_GameState* jogo){
+    JYH_Menu temp;
+    JYH_GameDestroyWorlds(jogo);
+    jogo->estado =JYH_LOAD_MENU;//trocar no futuro
+    jogo->menu = temp;
+}
 
+void JYH_WS(JYH_GameState* jogo){//muda fluxo pelo estado da tela
+    switch(jogo->worlds.estado_tela){
+        case 0://Load da Tela
+            JYH_GameLoadWorlds(jogo);
+            break;
+        case 1://Execução Normal da Tela
+            JYH_GameWorldSelection(jogo);
+            break;
+        case 2://Volta Para Menu
+            JYH_WS_to_MM(jogo);
+            break;
+        case 3://Carrega mundo Específico
+            JYH_WS_to_LS(jogo);
+            break;
+    }
+}
 
 
 

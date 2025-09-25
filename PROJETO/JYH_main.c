@@ -54,7 +54,8 @@ void JYH_GameRender(JYH_GameState* jogo){
 			JYH_GameLvlSelection_P(jogo);
 			break;
 		case JYH_WORLD_SELECTION:
-			JYH_GameWorldSelection(jogo);
+			//JYH_GameWorldSelection(jogo);
+            JYH_WS(jogo);
 			break;
 		//estados de transição
 		case JYH_LOAD_MENU:
