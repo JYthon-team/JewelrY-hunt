@@ -12,11 +12,14 @@
 
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//lista dos niveis do mundo e estética na hora de seleção
-	char nome[30];
+	char nome[50];//Nome do mundo
+	char path[50];//path para a lista de níveis
+	SDL_Texture* capa;//textura
 }JYH_Mundo;
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
-	char nome[30];
+	char nome[50];
+	char path[50];
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -80,8 +83,11 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 
 typedef struct JYH_World_Selection{//Guarda os elementos necessários para a seleção de mundo
 	Uint32 n_mundos;//quantidade de mundos
+	Uint32 idx;//indice do mundo de menor indice
 	JYH_Mundo* mundos;//lista de mundos
 	SDL_Rect botao_voltar;//botão para voltar atrás
+	SDL_Rect botao_dir;
+	SDL_Rect botao_esq;
 	SDL_Rect title;//"Modo Historia"
 }JYH_World_Selection;
 
@@ -95,7 +101,8 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de níveis
-	SDL_Rect title;//nome do cumdo
+	SDL_Rect title;//nome do mundo
+	char path[50];//path do mundo
 	SDL_Rect botao_voltar;//botão para voltar atrás
 }JYH_Level_Selection;
 
