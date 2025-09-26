@@ -15,13 +15,9 @@ void JYH_GameMenu(JYH_GameState* jogo){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
-				if (SDL_PointInRect(&p,&jogo->menu.botao_worlds)){//temporario
-                    jogo->estado = JYH_WORLD_SELECTION/*JYH_LOAD_WORLD_SELECTION*/;
-                    jogo->worlds.estado_tela= 0;
-                }
-				else if (SDL_PointInRect(&p,&jogo->menu.botao_selP))jogo->estado = /*JYH_LVL_SELECTION_P*/JYH_LOAD_PLAYER_LIBRARY;
-				else if (SDL_PointInRect(&p,&jogo->menu.botao_edit))jogo->estado = /*JYH_LVL_EDITOR*/JYH_LOAD_EDITOR;
-				
+				if      (SDL_PointInRect(&p,&jogo->menu.botao_worlds))jogo->estado_tela = 2;
+				else if (SDL_PointInRect(&p,&jogo->menu.botao_selP  ))jogo->estado_tela = 3;//jogo->estado = /*JYH_LVL_SELECTION_P*/JYH_LOAD_PLAYER_LIBRARY;
+				else if (SDL_PointInRect(&p,&jogo->menu.botao_edit  ))jogo->estado_tela = 4;//jogo->estado = /*JYH_LVL_EDITOR*/JYH_LOAD_EDITOR;
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
@@ -50,19 +46,38 @@ void JYH_GameLoadMenu(JYH_GameState* jogo){
 	jogo->menu.botao_edit = (SDL_Rect){450,550,300,30};
 	
 	printf("Menu\n");
-	jogo->estado = JYH_MAIN_MENU;
+	jogo->estado_tela = 1;
 }
 
-void JYH_MM_to_WS(JYH_GameState* jogo){//desenvolver
+void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
+	printf("->WS\n");
     JYH_World_Selection temp;
-    temp.estado_tela = 0;
-
+    jogo->prev = jogo->estado;
+    jogo->estado_tela = 0;
     jogo->estado = JYH_WORLD_SELECTION;
     jogo->worlds = temp;
 }
 
-void JYH_MM(JYH_GameState* jogo){
-    switch(jogo->menu.estado_tela){
+void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
+	printf("->LE\n");
+	JYH_Editor temp;
+	jogo->prev = jogo->estado;
+	jogo->estado_tela = 0;
+	jogo->estado = JYH_LVL_EDITOR;
+	jogo->edit = temp;
+}
+
+void JYH_MM_to_PL(JYH_GameState* jogo){//Menu para Player Library
+	printf("->PL\n");
+	JYH_Level_Selection_P temp;
+	jogo->prev = jogo->estado;
+	jogo->estado_tela = 0;
+	jogo->estado = JYH_LVL_SELECTION_P;
+	jogo->selP = temp;
+}
+
+void JYH_MM(JYH_GameState* jogo){//Menu
+    switch(jogo->estado_tela){
         case 0://load
             JYH_GameLoadMenu(jogo);
             break;
@@ -70,22 +85,15 @@ void JYH_MM(JYH_GameState* jogo){
             JYH_GameMenu(jogo);
             break;
         case 2://vai para mundos
-            JYH_MM_to_WS(JYH_GameState* jogo);
+            JYH_MM_to_WS(jogo);
             break;
         case 3://vai para biblioteca
-
+			JYH_MM_to_PL(jogo);
             break;
         case 4://vai para editor
-
+			JYH_MM_to_LE(jogo);
             break;
-
-
-
-
     }
-
-
-
 }
 
 

@@ -37,19 +37,9 @@ enum GAME_STATE{
 	JYH_LVL_SELECTION,//seleção de níveis do jogo
 	JYH_LVL_SELECTION_P,//seleção de níveis do player
 	JYH_WORLD_SELECTION,//escolher mundo
-	
-	//Os Loads serão estados para carregar texturas e só apresentarão uma tela de loading - Implementar como estados transicionais
-	
-	JYH_LOAD_MENU,//carrega o menu principal
-	JYH_LOAD_EDITOR,//carrega o editor
-	JYH_LOAD_LEVEL,//carrega um nível para execução
-	JYH_LOAD_WORLD,//carrega um mundo
-	JYH_LOAD_WORLD_SELECTION,//carrega o seletor de mundos
-	JYH_LOAD_PLAYER_LIBRARY//carrega a seleção de níveis do jogador
 };
 
 typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
-    Uint32 estado_tela;//estado da tela
 	SDL_Rect title;
 	SDL_Rect botao_worlds;//vai para modo seleção de mundos
 	SDL_Rect botao_edit  ;//vai para modo editor
@@ -59,7 +49,6 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 }JYH_Menu;
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
-    Uint32 estado_tela;//estado da tela
 	JYH_Nivel lvl;        //Nivel a ser editado
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair, salvar, executar, etc)
 	SDL_Rect side_bar;    //barra lateral(onde ficam os itens)
@@ -71,7 +60,6 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 }JYH_Editor;
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
-    Uint32 estado_tela;
 	JYH_Nivel lvl;//Nivel que está sendo jogado
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair e reiniciar, assim como a contagem de tempo e de gemas)
 	SDL_Rect icone_gemas;
@@ -87,7 +75,6 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 }JYH_Level_Runner;
 
 typedef struct JYH_World_Selection{//Guarda os elementos necessários para a seleção de mundo
-    Uint32 estado_tela;
 	Uint32 n;//quantidade de mundos
 	Uint32 idx;//indice do mundo de menor indice
     Uint32 i_sel;//mundo selecionado
@@ -99,7 +86,6 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 }JYH_World_Selection;
 
 typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a seleção de níveis criados pelo jogador
-    Uint32 estado_tela;//estado da tela
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de niveis
 	SDL_Rect title;//"Meus niveis"
@@ -107,7 +93,6 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 }JYH_Level_Selection_P;
 
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis
-    Uint32 estado_tela;//estado da tela
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de níveis
 	SDL_Rect title;//nome do mundo
@@ -119,7 +104,9 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 typedef struct JYH_GameState{
 	enum GAME_STATE estado;//estado do jogo
 	enum GAME_STATE estado_anterior;//estado do jogo anterior
+	Uint32 estado_tela;
 	Uint32 espera;//coordena o tempo de atualização do jogo
+	Uint32 prev;
 	Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
 	SDL_Window* win;//janela
 	SDL_Renderer* ren;//renderizador
@@ -138,23 +125,13 @@ typedef struct JYH_GameState{
 JYH_GameState* JYH_Init();
 void JYH_EndGame(JYH_GameState* jogo);
 
-//Estados do Jogo
-void JYH_GameMenu(JYH_GameState* jogo);
-void JYH_GameLvlEditor(JYH_GameState* jogo);
-void JYH_GameLvlExecution(JYH_GameState* jogo);
-void JYH_GameLvlSelection(JYH_GameState* jogo);
-void JYH_GameLvlSelection_P(JYH_GameState* jogo);
-void JYH_GameWorldSelection(JYH_GameState* jogo);
-
 void JYH_WS(JYH_GameState* jogo);
-
-//Estados de Transição
-void JYH_GameLoadMenu(JYH_GameState* jogo);
-void JYH_GameLoadEditor(JYH_GameState* jogo);
-void JYH_GameLoadExec(JYH_GameState* jogo);
-void JYH_GameLoadSel(JYH_GameState* jogo);
-void JYH_GameLoadSelP(JYH_GameState* jogo);
-void JYH_GameLoadWorlds(JYH_GameState* jogo);
+void JYH_MM(JYH_GameState* jogo);
+void JYH_WS(JYH_GameState* jogo);
+void JYH_LS(JYH_GameState* jogo);
+void JYH_EX(JYH_GameState* jogo);
+void JYH_PL(JYH_GameState* jogo);
+void JYH_LE(JYH_GameState* jogo);
 
 //Controle principal
 void JYH_GameRender(JYH_GameState* jogo);

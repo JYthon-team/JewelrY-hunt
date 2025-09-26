@@ -23,7 +23,7 @@ void JYH_GameLvlExecution(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
-				if (SDL_PointInRect(&p,&jogo->exec.botao_voltar))jogo->estado = JYH_LOAD_MENU;
+				if (SDL_PointInRect(&p,&jogo->exec.botao_voltar))jogo->estado_tela = 2/*jogo->estado = JYH_LOAD_MENU*/;
 				else if (SDL_PointInRect(&p,&jogo->exec.botao_voltar)){/*Reinicia o nivel*/}
 				
 				break;
@@ -58,5 +58,37 @@ void JYH_GameLoadExec(JYH_GameState* jogo){
 	jogo->exec.tempo_de_jogo = 0;
 	
 	printf("Execucao\n");
-	jogo->estado = JYH_LVL_EXEC;
+	jogo->estado_tela = 1;
+}
+
+
+
+void JYH_EX_goback(JYH_GameState* jogo){
+	/*switch(estado->prev){
+		
+		
+		
+		
+	}*/
+	printf("L->MM\n");
+	//temporario durante o debug
+	JYH_Menu temp;
+	jogo->prev = jogo->estado;
+	jogo->estado_tela = 0;
+	jogo->estado = JYH_MAIN_MENU;
+	jogo->menu = temp;
+}
+
+void JYH_EX(JYH_GameState* jogo){
+	switch(jogo->estado_tela){
+		case 0:
+			JYH_GameLoadExec(jogo);
+			break;
+		case 1:
+			JYH_GameLvlExecution(jogo);
+			break;
+		case 2:
+			JYH_EX_goback(jogo);
+			break;
+	}
 }

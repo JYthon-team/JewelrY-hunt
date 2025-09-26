@@ -4,7 +4,8 @@
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms){
 	Uint32 antes = SDL_GetTicks();
 	int temEvento = SDL_WaitEventTimeout(evt,*ms);
-	(*ms) = (temEvento)?(*ms)- (SDL_GetTicks()-antes):TEMPO_UPDATE;
+	(*ms) = (*ms)- (SDL_GetTicks()-antes);
+	if(*ms > 10000) (*ms) = 0;//elimina underflow(trava o jogo)
 	return temEvento;
 }
 
@@ -16,7 +17,8 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
     jogo->ren = SDL_CreateRenderer(jogo->win, -1, 0);
     
     //outras inicializações abaixo
-    jogo->estado = JYH_LOAD_MENU;
+    jogo->estado = JYH_MAIN_MENU;
+    jogo->estado_tela = 0;
     jogo->espera = TEMPO_UPDATE;
     jogo->w_tela = JYH_SCREEN_WIDTH;
     jogo->h_tela = JYH_SCREEN_HEIGHT;
@@ -25,7 +27,6 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 
 void JYH_EndGame(JYH_GameState* jogo){//todas as terminações do jogo vão aqui
 	//outros encerramentos 
-	
 	//encerra o SDL
 	SDL_DestroyRenderer(jogo->ren);
     SDL_DestroyWindow(jogo->win);
@@ -39,42 +40,28 @@ void JYH_GameRender(JYH_GameState* jogo){
 	switch(jogo->estado){
 		//estados do jogo
 		case JYH_MAIN_MENU:
-			JYH_GameMenu(jogo);
+			//JYH_GameMenu(jogo);
+			JYH_MM(jogo);
 			break;
 		case JYH_LVL_EDITOR:
-			JYH_GameLvlEditor(jogo);
+			//JYH_GameLvlEditor(jogo);
+			JYH_LE(jogo);
 			break;
 		case JYH_LVL_EXEC:
-			JYH_GameLvlExecution(jogo);
+			//JYH_GameLvlExecution(jogo);
+			JYH_EX(jogo);
 			break;
 		case JYH_LVL_SELECTION:
-			JYH_GameLvlSelection(jogo);
+			//JYH_GameLvlSelection(jogo);
+			JYH_LS(jogo);
 			break;
 		case JYH_LVL_SELECTION_P:
-			JYH_GameLvlSelection_P(jogo);
+			//JYH_GameLvlSelection_P(jogo);
+			JYH_PL(jogo);
 			break;
 		case JYH_WORLD_SELECTION:
 			//JYH_GameWorldSelection(jogo);
             JYH_WS(jogo);
-			break;
-		//estados de transição
-		case JYH_LOAD_MENU:
-			JYH_GameLoadMenu(jogo);
-			break;
-		case JYH_LOAD_EDITOR:
-			JYH_GameLoadEditor(jogo);
-			break;
-		case JYH_LOAD_LEVEL:
-			JYH_GameLoadExec(jogo);
-			break;
-		case JYH_LOAD_WORLD_SELECTION:
-			JYH_GameLoadWorlds(jogo);
-			break;
-		case JYH_LOAD_WORLD:
-			JYH_GameLoadSel(jogo);
-			break;
-		case JYH_LOAD_PLAYER_LIBRARY:
-			JYH_GameLoadSelP(jogo);
 			break;
 	}
 	SDL_RenderPresent(jogo->ren);
