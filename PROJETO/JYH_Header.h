@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <assert.h>
 
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
@@ -28,6 +30,7 @@ typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma f
 }JYH_Objeto;
 
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
+SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 
 enum GAME_STATE{
 	JYH_END_GAME = 0,//estado para encerrar o jogo
@@ -41,9 +44,15 @@ enum GAME_STATE{
 
 typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 	SDL_Rect title;
+	SDL_Texture* txt_title;
 	SDL_Rect botao_worlds;//vai para modo seleção de mundos
+	SDL_Texture* txt_worlds;
 	SDL_Rect botao_edit  ;//vai para modo editor
+	SDL_Texture* txt_edit;
 	SDL_Rect botao_selP  ;//vai para modo seleção de níveis do jogador
+	SDL_Texture* txt_selP;
+	SDL_Rect r_background;
+	SDL_Texture* txt_background;
 	Uint32 estado;
 	//adicionar texturas dos botões
 }JYH_Menu;

@@ -1,1 +1,1 @@
-gcc JYH_main.c JYH_Editor.c JYH_LvlRunner.c JYH_Menu.c JYH_PlayerLvlSelection.c JYH_WorldSelection.c JYH_LvlSelection.c -I .\include\ -L .\lib\ -lmingw32 -lSDL2main -lSDL2
+gcc JYH_main.c JYH_Editor.c JYH_LvlRunner.c JYH_Menu.c JYH_PlayerLvlSelection.c JYH_WorldSelection.c JYH_LvlSelection.c -I .\include\ -L .\lib\ -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image

@@ -8,6 +8,15 @@ int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms){
 	if(*ms > 10000) (*ms) = 0;//elimina underflow(trava o jogo)
 	return temEvento;
 }
+SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr){
+    SDL_Surface* sfc = TTF_RenderText_Blended(fnt, str, clr);
+    assert(sfc != NULL);
+    SDL_Texture* txt = SDL_CreateTextureFromSurface(ren, sfc);
+    assert(txt != NULL);
+    SDL_FreeSurface(sfc);
+    return txt;
+}
+
 
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 	//INICIAR SDL
