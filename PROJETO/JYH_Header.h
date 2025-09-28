@@ -89,9 +89,15 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
     Uint32 i_sel;//mundo selecionado
 	JYH_Mundo* mundos;//lista de mundos
 	SDL_Rect botao_voltar;//botão para voltar atrás
+	SDL_Texture* txt_voltar;
 	SDL_Rect botao_dir;
+	SDL_Texture* txt_dir;
 	SDL_Rect botao_esq;
+	SDL_Texture* txt_esq;
 	SDL_Rect title;//"Modo Historia"
+	SDL_Texture* txt_title;
+	SDL_Rect r_background;
+	SDL_Texture* txt_background;
 }JYH_World_Selection;
 
 typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a seleção de níveis criados pelo jogador
