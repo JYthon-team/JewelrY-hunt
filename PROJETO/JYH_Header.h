@@ -15,15 +15,13 @@
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//lista dos niveis do mundo e estética na hora de seleção
 	char nome[50];//Nome do mundo
-	char pathW[50];//path para a lista de níveis(Windows)
-    char pathL[50];//path Linux
+    char path[50];//path para arquivo de níveis do mundo
 	SDL_Texture* capa;//textura
 }JYH_Mundo;
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
-	char nome[50];
-	char pathW[50];
-    char pathL[50];
+	char nome[50];//nome do nível
+    char path[50];//path para o arquivo do lvl
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -111,8 +109,7 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 	Uint32 n_niveis;//quantidade de niveis
 	JYH_Nivel* niveis;//lista de níveis
 	SDL_Rect title;//nome do mundo
-	char pathW[50];//path do mundo
-    char pathL[50];
+    char path[50];//path do mundo
 	SDL_Rect botao_voltar;//botão para voltar atrás
 }JYH_Level_Selection;
 

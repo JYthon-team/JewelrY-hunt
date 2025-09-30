@@ -15,7 +15,6 @@ void JYH_GameMenu(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,&jogo->menu.r_background);
-	//SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0x00,0x00);
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_title,NULL,&jogo->menu.title);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){
@@ -24,8 +23,8 @@ void JYH_GameMenu(JYH_GameState* jogo){
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
 				if      (SDL_PointInRect(&p,&jogo->menu.botao_worlds))jogo->estado_tela = 2;
-				else if (SDL_PointInRect(&p,&jogo->menu.botao_selP  ))jogo->estado_tela = 3;//jogo->estado = /*JYH_LVL_SELECTION_P*/JYH_LOAD_PLAYER_LIBRARY;
-				else if (SDL_PointInRect(&p,&jogo->menu.botao_edit  ))jogo->estado_tela = 4;//jogo->estado = /*JYH_LVL_EDITOR*/JYH_LOAD_EDITOR;
+				else if (SDL_PointInRect(&p,&jogo->menu.botao_selP  ))jogo->estado_tela = 3;
+				else if (SDL_PointInRect(&p,&jogo->menu.botao_edit  ))jogo->estado_tela = 4;
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
@@ -49,30 +48,41 @@ void JYH_GameLoadMenu(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
 	SDL_RenderClear(jogo->ren);
 	
-	
 	SDL_RenderPresent(jogo->ren);
 	
 	jogo->menu.title = (SDL_Rect){450,200,300,90};
+    jogo->menu.botao_worlds = (SDL_Rect){450,450,300,30};
+    jogo->menu.botao_selP = (SDL_Rect){450,500,300,30};
+    jogo->menu.botao_edit = (SDL_Rect){450,550,300,30};
+    jogo->menu.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
+
+    #ifdef _WIN32
+
 	jogo->menu.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");
-	assert(jogo->menu.txt_title != NULL);
-	jogo->menu.botao_worlds = (SDL_Rect){450,450,300,30};
 	jogo->menu.txt_worlds = IMG_LoadTexture(jogo->ren,"img\\Menu\\Modo_Historia_JYH.png");
-	assert(jogo->menu.txt_title != NULL);
-	jogo->menu.botao_selP = (SDL_Rect){450,500,300,30};
 	jogo->menu.txt_selP = IMG_LoadTexture(jogo->ren,"img\\Menu\\Player_Library_JYH.png");
-	assert(jogo->menu.txt_title != NULL);
-	jogo->menu.botao_edit = (SDL_Rect){450,550,300,30};
 	jogo->menu.txt_edit = IMG_LoadTexture(jogo->ren,"img\\Menu\\Editor_JYH.png");
-	jogo->menu.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
 	jogo->menu.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
+
+    #elif __linux__
+
+	jogo->menu.txt_title = IMG_LoadTexture(jogo->ren,"img/menu/Titulo_JYH.png");
+	jogo->menu.txt_worlds = IMG_LoadTexture(jogo->ren,"./img/menu/Modo_Historia_JYH.png");
+	jogo->menu.txt_selP = IMG_LoadTexture(jogo->ren,"./img/menu/Player_Library_JYH.png");
+	jogo->menu.txt_edit = IMG_LoadTexture(jogo->ren,"./img/menu/Editor_JYH.png");
+	jogo->menu.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
+
+    #endif
 	assert(jogo->menu.txt_title != NULL);
-	
-	printf("Menu\n");
+    assert(jogo->menu.txt_worlds != NULL);
+    assert(jogo->menu.txt_selP != NULL);
+    assert(jogo->menu.txt_edit != NULL);
+    assert(jogo->menu.txt_background != NULL);
+
 	jogo->estado_tela = 1;
 }
 
 void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
-	printf("->WS\n");
     JYH_World_Selection temp;
     jogo->prev = jogo->estado;
     jogo->estado_tela = 0;
@@ -82,7 +92,6 @@ void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
 }
 
 void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
-	printf("->LE\n");
 	JYH_Editor temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
@@ -92,7 +101,6 @@ void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
 }
 
 void JYH_MM_to_PL(JYH_GameState* jogo){//Menu para Player Library
-	printf("->PL\n");
 	JYH_Level_Selection_P temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
