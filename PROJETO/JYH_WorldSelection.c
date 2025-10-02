@@ -1,6 +1,16 @@
 //Selecionar Mundo
 #include "JYH_Header.h"
 
+void JYH_GameDestroyWorlds(JYH_GameState* jogo){
+	SDL_DestroyTexture(jogo->worlds.txt_title);
+	SDL_DestroyTexture(jogo->worlds.txt_voltar);
+	SDL_DestroyTexture(jogo->worlds.txt_esq);
+	SDL_DestroyTexture(jogo->worlds.txt_dir);
+	SDL_DestroyTexture(jogo->worlds.txt_background);
+	for(int i = 0; i < jogo->worlds.n;i++)SDL_DestroyTexture(jogo->worlds.mundos[i].capa);//limpa os mundos
+    free(jogo->worlds.mundos);
+}
+
 void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	static SDL_Rect r;//desenho das capas do mundo
@@ -33,7 +43,6 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 				for(int i = 0; i < 3; i++){//Botões de entrar em um mundo
 					r.x = (75)+i*375;
 					if(SDL_PointInRect(&p,&r)){//se existe a colisão, então vai para os níveis do mundo
-						printf("%s\n",jogo->worlds.mundos[i + jogo->worlds.idx].nome);
                         jogo->worlds.i_sel = i + jogo->worlds.idx;
                         jogo->estado_tela = 3;
 						break;
@@ -42,6 +51,7 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
+				JYH_GameDestroyWorlds(jogo);
 				break;
 		}
 	}else{
@@ -62,10 +72,6 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 
 void JYH_GameLoadWorlds(JYH_GameState* jogo){
 	static char S[50];//temporario
-    FILE* arq;
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
-	SDL_RenderClear(jogo->ren);
-	SDL_RenderPresent(jogo->ren);
 	
 	jogo->worlds.title = (SDL_Rect){450,100,300,90};
     jogo->worlds.botao_voltar = (SDL_Rect){25,25,50,50};
@@ -76,7 +82,7 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 
     #ifdef _WIN32
 
-    arq = fopen("JYH\\mundosW.txt","r");//arquivo fixo Windows
+    FILE* arq = fopen("JYH\\mundosW.txt","r");//arquivo fixo Windows
 	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"img\\geral\\esquerda.png");
@@ -85,7 +91,7 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 
     #elif __linux__
 
-    arq = fopen("./JYH/mundosL.txt","r");//arquivo fixo Windows
+    FILE* arq = fopen("./JYH/mundosL.txt","r");//arquivo fixo Windows
 	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"./img/geral/esquerda.png");
@@ -111,22 +117,12 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
         
         jogo->worlds.mundos[i].capa = IMG_LoadTexture(jogo->ren,S);
         assert(jogo->worlds.mundos[i].capa != NULL);
-        
-        printf("Mundo inserido: %s e path %s\n",jogo->worlds.mundos[i].nome,jogo->worlds.mundos[i].path);
     }
 	fclose(arq);
     jogo->estado_tela = 1;
 }
 
-void JYH_GameDestroyWorlds(JYH_GameState* jogo){
-	SDL_DestroyTexture(jogo->worlds.txt_title);
-	SDL_DestroyTexture(jogo->worlds.txt_voltar);
-	SDL_DestroyTexture(jogo->worlds.txt_esq);
-	SDL_DestroyTexture(jogo->worlds.txt_dir);
-	SDL_DestroyTexture(jogo->worlds.txt_background);
-	for(int i = 0; i < jogo->worlds.n;i++)SDL_DestroyTexture(jogo->worlds.mundos[i].capa);//limpa os mundos
-    free(jogo->worlds.mundos);
-}
+
 
 void JYH_WS_to_LS(JYH_GameState* jogo){
     JYH_Level_Selection temp;

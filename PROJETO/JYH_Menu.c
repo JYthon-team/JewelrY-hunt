@@ -7,6 +7,10 @@ void JYH_DestroyMenu(JYH_GameState* jogo){
 	SDL_DestroyTexture(jogo->menu.txt_selP);
 	SDL_DestroyTexture(jogo->menu.txt_edit);
 	SDL_DestroyTexture(jogo->menu.txt_background);
+	
+	SDL_DestroyTexture(jogo->menu.txt_msg_edit);
+	SDL_DestroyTexture(jogo->menu.txt_msg_worlds);
+	SDL_DestroyTexture(jogo->menu.txt_msg_selP);
 }
 
 void JYH_GameMenu(JYH_GameState* jogo){
@@ -14,6 +18,7 @@ void JYH_GameMenu(JYH_GameState* jogo){
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
+	
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,&jogo->menu.r_background);
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_title,NULL,&jogo->menu.title);
 	
@@ -37,25 +42,30 @@ void JYH_GameMenu(JYH_GameState* jogo){
 	
 	//desenhar botões
 	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0x00,0x00,0x00);//cor botão
-	
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_worlds,NULL,&jogo->menu.botao_worlds);
+	SDL_RenderCopy(jogo->ren,jogo->menu.txt_msg_worlds,NULL,&jogo->menu.botao_worlds);//temporario
+	
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_selP,NULL,&jogo->menu.botao_selP);
+	SDL_RenderCopy(jogo->ren,jogo->menu.txt_msg_selP,NULL,&jogo->menu.botao_selP);//temporario
+	
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_edit,NULL,&jogo->menu.botao_edit);
+	SDL_RenderCopy(jogo->ren,jogo->menu.txt_msg_edit,NULL,&jogo->menu.botao_edit);//temporario
 }
 
 void JYH_GameLoadMenu(JYH_GameState* jogo){
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
-	SDL_RenderClear(jogo->ren);
-	
-	SDL_RenderPresent(jogo->ren);
+	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	
 	jogo->menu.title = (SDL_Rect){450,200,300,90};
     jogo->menu.botao_worlds = (SDL_Rect){450,450,300,30};
     jogo->menu.botao_selP = (SDL_Rect){450,500,300,30};
     jogo->menu.botao_edit = (SDL_Rect){450,550,300,30};
     jogo->menu.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
-
+    
+    //temporarios
+    jogo->menu.txt_msg_edit = AUX_CriarTexto(jogo->ren,jogo->fnt,"Editor",clr);
+    jogo->menu.txt_msg_worlds = AUX_CriarTexto(jogo->ren,jogo->fnt,"Modo Campanha",clr);
+    jogo->menu.txt_msg_selP = AUX_CriarTexto(jogo->ren,jogo->fnt,"Meus Niveis",clr);
+    
     #ifdef _WIN32
 
 	jogo->menu.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");
@@ -73,6 +83,7 @@ void JYH_GameLoadMenu(JYH_GameState* jogo){
 	jogo->menu.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
 
     #endif
+    
 	assert(jogo->menu.txt_title != NULL);
     assert(jogo->menu.txt_worlds != NULL);
     assert(jogo->menu.txt_selP != NULL);

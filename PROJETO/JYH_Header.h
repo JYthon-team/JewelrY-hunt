@@ -22,6 +22,7 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
 	//Grid do nível e posições dos objetos
 	char nome[50];//nome do nível
     char path[50];//path para o arquivo do lvl
+    SDL_Texture* txt_nome;
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -45,10 +46,16 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 	SDL_Texture* txt_title;
 	SDL_Rect botao_worlds;//vai para modo seleção de mundos
 	SDL_Texture* txt_worlds;
+	SDL_Texture* txt_msg_worlds;//temporario
+	
 	SDL_Rect botao_edit  ;//vai para modo editor
 	SDL_Texture* txt_edit;
+	SDL_Texture* txt_msg_edit;//temporario
+	
 	SDL_Rect botao_selP  ;//vai para modo seleção de níveis do jogador
 	SDL_Texture* txt_selP;
+	SDL_Texture* txt_msg_selP;//temporario
+	
 	SDL_Rect r_background;
 	SDL_Texture* txt_background;
 	Uint32 estado;
@@ -68,6 +75,9 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
 	JYH_Nivel lvl;//Nivel que está sendo jogado
+	char pathNivel[50];
+	char pathMundo[50];
+	char nome[50];
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair e reiniciar, assim como a contagem de tempo e de gemas)
 	SDL_Rect icone_gemas;
 	SDL_Rect icone_relogio;
@@ -106,11 +116,17 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 }JYH_Level_Selection_P;
 
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis
-	Uint32 n_niveis;//quantidade de niveis
+	Uint32 n;//quantidade de niveis
+	Uint32 i_sel;
+	char path[50];//path do mundo
 	JYH_Nivel* niveis;//lista de níveis
 	SDL_Rect title;//nome do mundo
-    char path[50];//path do mundo
+	SDL_Texture* txt_title;
 	SDL_Rect botao_voltar;//botão para voltar atrás
+	SDL_Texture* txt_voltar;
+	SDL_Rect r_background;
+	SDL_Texture* txt_background;
+	SDL_Texture* txt_lvl_icon;//icone de todos os níveis
 }JYH_Level_Selection;
 
 typedef struct JYH_GameState{
@@ -120,6 +136,7 @@ typedef struct JYH_GameState{
 	Uint32 espera;//coordena o tempo de atualização do jogo
 	Uint32 prev;
 	Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
+	TTF_Font* fnt;
 	SDL_Window* win;//janela
 	SDL_Renderer* ren;//renderizador
 	SDL_Event evt;//evento

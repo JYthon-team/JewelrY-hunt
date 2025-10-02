@@ -21,9 +21,11 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 	//INICIAR SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
+	TTF_Init();
     JYH_GameState* jogo = (JYH_GameState*)malloc(sizeof(JYH_GameState));
     jogo->win = SDL_CreateWindow("Jewelry Hunt",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,JYH_SCREEN_WIDTH, JYH_SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     jogo->ren = SDL_CreateRenderer(jogo->win, -1, 0);
+    jogo->fnt = TTF_OpenFont("tiny.ttf", 20);
     
     //outras inicializações abaixo
     jogo->estado = JYH_MAIN_MENU;
@@ -37,6 +39,7 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 void JYH_EndGame(JYH_GameState* jogo){//todas as terminações do jogo vão aqui
 	//outros encerramentos 
 	//encerra o SDL
+	TTF_CloseFont(jogo->fnt);
 	SDL_DestroyRenderer(jogo->ren);
     SDL_DestroyWindow(jogo->win);
     free(jogo);
@@ -46,32 +49,13 @@ void JYH_EndGame(JYH_GameState* jogo){//todas as terminações do jogo vão aqui
 //Estados do jogo
 
 void JYH_GameRender(JYH_GameState* jogo){
-	switch(jogo->estado){
-		//estados do jogo
-		case JYH_MAIN_MENU:
-			//JYH_GameMenu(jogo);
-			JYH_MM(jogo);
-			break;
-		case JYH_LVL_EDITOR:
-			//JYH_GameLvlEditor(jogo);
-			JYH_LE(jogo);
-			break;
-		case JYH_LVL_EXEC:
-			//JYH_GameLvlExecution(jogo);
-			JYH_EX(jogo);
-			break;
-		case JYH_LVL_SELECTION:
-			//JYH_GameLvlSelection(jogo);
-			JYH_LS(jogo);
-			break;
-		case JYH_LVL_SELECTION_P:
-			//JYH_GameLvlSelection_P(jogo);
-			JYH_PL(jogo);
-			break;
-		case JYH_WORLD_SELECTION:
-			//JYH_GameWorldSelection(jogo);
-            JYH_WS(jogo);
-			break;
+	switch(jogo->estado){//Cada estado é uma tela do jogo
+		case JYH_MAIN_MENU:JYH_MM(jogo);break;
+		case JYH_LVL_EDITOR:JYH_LE(jogo);break;
+		case JYH_LVL_EXEC:JYH_EX(jogo);break;
+		case JYH_LVL_SELECTION:JYH_LS(jogo);break;
+		case JYH_LVL_SELECTION_P:JYH_PL(jogo);break;
+		case JYH_WORLD_SELECTION:JYH_WS(jogo);break;
 	}
 	SDL_RenderPresent(jogo->ren);
 }
