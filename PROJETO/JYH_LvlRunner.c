@@ -1,7 +1,11 @@
 //Executar Nível
 #include "JYH_Header.h"
 
-void JYH_GameLvlExecution(JYH_GameState* jogo){//Atualizar
+void JYH_Destroy_EX(JYH_GameState* jogo){
+	
+}
+
+void JYH_Run_EX(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
@@ -23,12 +27,13 @@ void JYH_GameLvlExecution(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
-				if (SDL_PointInRect(&p,&jogo->exec.botao_voltar))jogo->estado_tela = 2/*jogo->estado = JYH_LOAD_MENU*/;
+				if (SDL_PointInRect(&p,&jogo->exec.botao_voltar))jogo->estado_tela = 2;
 				else if (SDL_PointInRect(&p,&jogo->exec.botao_voltar)){/*Reinicia o nivel*/}
 				
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
+				JYH_Destroy_EX(jogo);
 				break;
 		}
 	}else{
@@ -41,7 +46,7 @@ void JYH_GameLvlExecution(JYH_GameState* jogo){//Atualizar
 	SDL_RenderFillRect(jogo->ren,&jogo->exec.botao_reiniciar);
 }
 
-void JYH_GameLoadExec(JYH_GameState* jogo){
+void JYH_Load_EX(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderPresent(jogo->ren);
@@ -56,8 +61,7 @@ void JYH_GameLoadExec(JYH_GameState* jogo){
 	jogo->exec.gemas_coletadas = 0;
 	jogo->exec.tesouro_pego = 0;
 	jogo->exec.tempo_de_jogo = 0;
-	
-	printf("Execucao\n");
+
 	jogo->estado_tela = 1;
 }
 
@@ -70,22 +74,22 @@ void JYH_EX_goback(JYH_GameState* jogo){
 		
 		
 	}*/
-	printf("L->MM\n");
 	//temporario durante o debug
 	JYH_Menu temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_MAIN_MENU;
+	jogo->estado = /*JYH_MAIN_MENU*/JYH_state_MM;
+	JYH_Destroy_EX(jogo);
 	jogo->menu = temp;
 }
 
 void JYH_EX(JYH_GameState* jogo){
 	switch(jogo->estado_tela){
 		case 0:
-			JYH_GameLoadExec(jogo);
+			JYH_Load_EX(jogo);
 			break;
 		case 1:
-			JYH_GameLvlExecution(jogo);
+			JYH_Run_EX(jogo);
 			break;
 		case 2:
 			JYH_EX_goback(jogo);

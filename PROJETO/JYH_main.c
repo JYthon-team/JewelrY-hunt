@@ -17,7 +17,6 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
     return txt;
 }
 
-
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 	//INICIAR SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -28,7 +27,7 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
     jogo->fnt = TTF_OpenFont("tiny.ttf", 20);
     
     //outras inicializações abaixo
-    jogo->estado = JYH_MAIN_MENU;
+    jogo->estado = /*JYH_MAIN_MENU*/JYH_state_MM;
     jogo->estado_tela = 0;
     jogo->espera = TEMPO_UPDATE;
     jogo->w_tela = JYH_SCREEN_WIDTH;
@@ -50,12 +49,12 @@ void JYH_EndGame(JYH_GameState* jogo){//todas as terminações do jogo vão aqui
 
 void JYH_GameRender(JYH_GameState* jogo){
 	switch(jogo->estado){//Cada estado é uma tela do jogo
-		case JYH_MAIN_MENU:JYH_MM(jogo);break;
-		case JYH_LVL_EDITOR:JYH_LE(jogo);break;
-		case JYH_LVL_EXEC:JYH_EX(jogo);break;
-		case JYH_LVL_SELECTION:JYH_LS(jogo);break;
-		case JYH_LVL_SELECTION_P:JYH_PL(jogo);break;
-		case JYH_WORLD_SELECTION:JYH_WS(jogo);break;
+		case /*JYH_MAIN_MENU*/JYH_state_MM:JYH_MM(jogo);break;
+		case /*JYH_LVL_EDITOR*/JYH_state_LE:JYH_LE(jogo);break;
+		case /*JYH_LVL_EXEC*/JYH_state_EX:JYH_EX(jogo);break;
+		case /*JYH_LVL_SELECTION*/JYH_state_LS:JYH_LS(jogo);break;
+		case /*JYH_LVL_SELECTION_P*/JYH_state_PL:JYH_PL(jogo);break;
+		case /*JYH_WORLD_SELECTION*/JYH_state_WS:JYH_WS(jogo);break;
 	}
 	SDL_RenderPresent(jogo->ren);
 }

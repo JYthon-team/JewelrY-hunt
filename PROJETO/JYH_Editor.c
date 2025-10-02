@@ -1,7 +1,12 @@
 //Editor Nível
 #include "JYH_Header.h"
 
-void JYH_GameLvlEditor(JYH_GameState* jogo){//Atualizar
+void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
+	
+}
+
+
+void JYH_Run_LE(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
@@ -19,16 +24,18 @@ void JYH_GameLvlEditor(JYH_GameState* jogo){//Atualizar
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
 				if      (SDL_PointInRect(&p,&jogo->edit.botao_voltar))jogo->estado_tela = 2;
-				else if (SDL_PointInRect(&p,&jogo->edit.botao_salvar))jogo->estado_tela = /*3*/1;
+				else if (SDL_PointInRect(&p,&jogo->edit.botao_salvar))jogo->estado_tela = 1;
 				else if (SDL_PointInRect(&p,&jogo->edit.botao_run   ))jogo->estado_tela = 4;
 				
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
+				JYH_Destroy_LE(jogo);
 				break;
 		}
 	}else{
-	/*eventos baseados em tempo*/}
+	/*eventos baseados em tempo*/
+	}
 	
 	//desenhar botões
 	
@@ -39,7 +46,7 @@ void JYH_GameLvlEditor(JYH_GameState* jogo){//Atualizar
 
 }
 
-void JYH_GameLoadEditor(JYH_GameState* jogo){
+void JYH_Load_LE(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderPresent(jogo->ren);
@@ -51,53 +58,51 @@ void JYH_GameLoadEditor(JYH_GameState* jogo){
 	jogo->edit.side_bar = (SDL_Rect){1000,100,200,jogo->h_tela - 100};
 	jogo->edit.top_bar = (SDL_Rect){0,0,jogo->w_tela,100};
 	
-	printf("Editor\n");
 	jogo->estado_tela = 1;
-	//jogo->estado = JYH_LVL_EDITOR;
 }
 
 void JYH_LE_to_PL(JYH_GameState* jogo){//editor à biblioteca do player
-	printf("L->PL\n");
 	JYH_Level_Selection_P temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_SELECTION_P;
+	jogo->estado = JYH_state_PL;
+	JYH_Destroy_LE(jogo);
 	jogo->selP = temp;
 }
 void JYH_LE_to_MM(JYH_GameState* jogo){//editor ao menu inicial
-	printf("L->MM\n");
 	JYH_Menu temp;
 	jogo->prev = jogo->estado;
-	jogo->estado = JYH_MAIN_MENU;
+	jogo->estado = JYH_state_MM;
 	jogo->estado_tela = 0;
+	JYH_Destroy_LE(jogo);
 	jogo->menu = temp;
 }
 
 void JYH_LE_goback(JYH_GameState* jogo){//é preciso saber o estado anterior na hora de sair de um nível
 	switch(jogo->prev){
-		case JYH_MAIN_MENU:
+		case JYH_state_MM:
 			JYH_LE_to_MM(jogo);
 			break;
-		case JYH_LVL_SELECTION_P:
+		case JYH_state_PL:
 			JYH_LE_to_PL(jogo);
 			break;
 	}
 }
 void JYH_LE_to_EX(JYH_GameState* jogo){
-	printf("L->EX\n");
 	JYH_Level_Runner temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_EXEC;
+	jogo->estado = JYH_state_EX;
+	JYH_Destroy_LE(jogo);
 	jogo->exec = temp;
 }
 void JYH_LE(JYH_GameState* jogo){
 	switch(jogo->estado_tela){
 		case 0://load
-			JYH_GameLoadEditor(jogo);
+			JYH_Load_LE(jogo);
 			break;
 		case 1://editor
-			JYH_GameLvlEditor(jogo);
+			JYH_Run_LE(jogo);
 			break;
 		case 2://voltar
 			JYH_LE_goback(jogo);

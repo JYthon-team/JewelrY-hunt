@@ -32,13 +32,15 @@ int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 
 enum GAME_STATE{
+	
+	
 	JYH_END_GAME = 0,//estado para encerrar o jogo
-	JYH_MAIN_MENU,//menu inicial
-	JYH_LVL_EDITOR,//editor de niveis
-	JYH_LVL_EXEC,//modo execução
-	JYH_LVL_SELECTION,//seleção de níveis do jogo
-	JYH_LVL_SELECTION_P,//seleção de níveis do player
-	JYH_WORLD_SELECTION,//escolher mundo
+	JYH_state_MM,
+	JYH_state_LE,
+	JYH_state_EX,
+	JYH_state_LS,
+	JYH_state_PL,
+	JYH_state_WS
 };
 
 typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar

@@ -1,7 +1,7 @@
 //Selecionar Mundo
 #include "JYH_Header.h"
 
-void JYH_GameDestroyWorlds(JYH_GameState* jogo){
+void JYH_Destroy_WS(JYH_GameState* jogo){
 	SDL_DestroyTexture(jogo->worlds.txt_title);
 	SDL_DestroyTexture(jogo->worlds.txt_voltar);
 	SDL_DestroyTexture(jogo->worlds.txt_esq);
@@ -11,7 +11,7 @@ void JYH_GameDestroyWorlds(JYH_GameState* jogo){
     free(jogo->worlds.mundos);
 }
 
-void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
+void JYH_Run_WS(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	static SDL_Rect r;//desenho das capas do mundo
 
@@ -51,7 +51,7 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
-				JYH_GameDestroyWorlds(jogo);
+				JYH_Destroy_WS(jogo);
 				break;
 		}
 	}else{
@@ -70,7 +70,7 @@ void JYH_GameWorldSelection(JYH_GameState* jogo){//Atualizar
 	}
 }
 
-void JYH_GameLoadWorlds(JYH_GameState* jogo){
+void JYH_Load_WS(JYH_GameState* jogo){
 	static char S[50];//temporario
 	
 	jogo->worlds.title = (SDL_Rect){450,100,300,90};
@@ -127,29 +127,29 @@ void JYH_GameLoadWorlds(JYH_GameState* jogo){
 void JYH_WS_to_LS(JYH_GameState* jogo){
     JYH_Level_Selection temp;
     strcpy(temp.path,jogo->worlds.mundos[jogo->worlds.i_sel].path);//copia path para arquivo do mundo
-    JYH_GameDestroyWorlds(jogo);//elimina o que foi alocado
     jogo->prev = jogo->estado;
     jogo->estado_tela = 0;
-    jogo->estado = JYH_LVL_SELECTION;
+    jogo->estado = JYH_state_LS;
+    JYH_Destroy_WS(jogo);
     jogo->sel = temp;//copiao estado
 }
 
 void JYH_WS_to_MM(JYH_GameState* jogo){
     JYH_Menu temp;
-    JYH_GameDestroyWorlds(jogo);
     jogo->prev = jogo->estado;
     jogo->estado_tela = 0;
-    jogo->estado = JYH_MAIN_MENU;//trocar no futuro
+    jogo->estado = JYH_state_MM;//trocar no futuro
+    JYH_Destroy_WS(jogo);
     jogo->menu = temp;
 }
 
 void JYH_WS(JYH_GameState* jogo){//muda fluxo pelo estado da tela
     switch(jogo->estado_tela){
         case 0://Load da Tela
-            JYH_GameLoadWorlds(jogo);
+            JYH_Load_WS(jogo);
             break;
         case 1://Execução Normal da Tela
-            JYH_GameWorldSelection(jogo);
+            JYH_Run_WS(jogo);
             break;
         case 2://Volta Para Menu
             JYH_WS_to_MM(jogo);

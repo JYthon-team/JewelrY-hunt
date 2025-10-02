@@ -1,14 +1,14 @@
 //Selecionar Nível
 #include "JYH_Header.h"
 
-void JYH_DestroyLS(JYH_GameState* jogo){
+void JYH_Destroy_LS(JYH_GameState* jogo){
 	for(int i = 0; i < jogo->sel.n; i++){
 		SDL_DestroyTexture(jogo->sel.niveis[i].txt_nome);
 	}//desalocar detalhes da lista de níveis
 	free(jogo->sel.niveis);
 }
 
-void JYH_GameLvlSelection(JYH_GameState* jogo){//Atualizar
+void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	SDL_Rect r;
 	SDL_Rect r_nome;
@@ -52,7 +52,7 @@ void JYH_GameLvlSelection(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
-				JYH_DestroyLS(jogo);
+				JYH_Destroy_LS(jogo);
 				break;
 		}
 	}else{
@@ -60,7 +60,7 @@ void JYH_GameLvlSelection(JYH_GameState* jogo){//Atualizar
 	}
 }
 
-void JYH_GameLoadSel(JYH_GameState* jogo){
+void JYH_Load_LS(JYH_GameState* jogo){
 	
 	FILE* arq = fopen(jogo->sel.path,"r");//Assumir path sempre correto
 	
@@ -99,35 +99,33 @@ void JYH_GameLoadSel(JYH_GameState* jogo){
 }
 
 void JYH_LS_to_WS(JYH_GameState* jogo){
-	printf("->WS\n");
 	JYH_World_Selection temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_WORLD_SELECTION;
-	JYH_DestroyLS(jogo);
+	jogo->estado = JYH_state_WS;
+	JYH_Destroy_LS(jogo);
 	jogo->worlds = temp;
 	
 }
 void JYH_LS_to_EX(JYH_GameState* jogo){
-	printf("->EX\n");
 	JYH_Level_Runner temp;
 	strcpy(temp.pathMundo,jogo->sel.path                        );//
 	strcpy(temp.pathNivel,jogo->sel.niveis[jogo->sel.i_sel].path);
 	strcpy(temp.nome     ,jogo->sel.niveis[jogo->sel.i_sel].nome);
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_EXEC;
-	JYH_DestroyLS(jogo);
+	jogo->estado = JYH_state_EX;
+	JYH_Destroy_LS(jogo);
 	jogo->exec = temp;
 }
 
 void JYH_LS(JYH_GameState* jogo){
 	switch(jogo->estado_tela){
 		case 0://load
-			JYH_GameLoadSel(jogo);
+			JYH_Load_LS(jogo);
 			break;
 		case 1://Executando
-			JYH_GameLvlSelection(jogo);
+			JYH_Run_LS(jogo);
 			break;
 		case 2://Voltar à tela de seleção de mundos
 			JYH_LS_to_WS(jogo);

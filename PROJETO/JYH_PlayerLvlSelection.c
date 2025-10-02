@@ -1,7 +1,11 @@
 //Seleção de Níveis do player
 #include "JYH_Header.h"
 
-void JYH_GameLvlSelection_P(JYH_GameState* jogo){//Atualizar
+void JYH_Destroy_PL(JYH_GameState* jogo){
+	
+}
+
+void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
@@ -19,6 +23,7 @@ void JYH_GameLvlSelection_P(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
+				JYH_Destroy_PL(jogo);
 				break;
 		}
 	}else{
@@ -29,7 +34,7 @@ void JYH_GameLvlSelection_P(JYH_GameState* jogo){//Atualizar
 	SDL_RenderFillRect(jogo->ren,&jogo->selP.botao_voltar);
 }
 
-void JYH_GameLoadSelP(JYH_GameState* jogo){
+void JYH_Load_PL(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
 	SDL_RenderClear(jogo->ren);
 	SDL_RenderPresent(jogo->ren);
@@ -38,41 +43,40 @@ void JYH_GameLoadSelP(JYH_GameState* jogo){
 	jogo->selP.botao_voltar = (SDL_Rect){25,25,50,50};
 	jogo->selP.n_niveis = 10;//numero arbitrario temporario para testar a interface
 	
-	printf("Biblioteca\n");
 	jogo->estado_tela = 1;
 }
 
 void JYH_PL_to_LE(JYH_GameState* jogo){
-	printf("->LE\n");
 	JYH_Editor temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado =  JYH_LVL_EDITOR;
+	jogo->estado =  /*JYH_LVL_EDITOR*/JYH_state_LE;
+	JYH_Destroy_PL(jogo);
 	jogo->edit = temp;
 }
 void JYH_PL_to_MM(JYH_GameState* jogo){
-	printf("->MM\n");
 	JYH_Menu temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_MAIN_MENU;
+	jogo->estado = /*JYH_MAIN_MENU*/JYH_state_MM;
+	JYH_Destroy_PL(jogo);
 	jogo->menu = temp;
 }
 void JYH_PL_to_EX(JYH_GameState* jogo){
-	printf("->EX\n");
 	JYH_Level_Runner temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_EXEC;
+	jogo->estado = /*JYH_LVL_EXEC*/JYH_state_EX;
+	JYH_Destroy_PL(jogo);
 	jogo->exec = temp;
 }
 void JYH_PL(JYH_GameState* jogo){
 	switch(jogo->estado_tela){
 		case 0://Carrega a Biblioteca de Níveis do jogador
-			JYH_GameLoadSelP(jogo);
+			JYH_Load_PL(jogo);
 			break;
 		case 1://
-			JYH_GameLvlSelection_P(jogo);
+			JYH_Run_PL(jogo);
 			break;
 		case 3://Editar Nível Específico
 			JYH_PL_to_LE(jogo);

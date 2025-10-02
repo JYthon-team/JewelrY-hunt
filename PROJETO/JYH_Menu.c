@@ -1,7 +1,7 @@
 //Menu Principal
 #include "JYH_Header.h"
 
-void JYH_DestroyMenu(JYH_GameState* jogo){
+void JYH_Destroy_MM(JYH_GameState* jogo){
 	SDL_DestroyTexture(jogo->menu.txt_title);
 	SDL_DestroyTexture(jogo->menu.txt_worlds);
 	SDL_DestroyTexture(jogo->menu.txt_selP);
@@ -13,7 +13,7 @@ void JYH_DestroyMenu(JYH_GameState* jogo){
 	SDL_DestroyTexture(jogo->menu.txt_msg_selP);
 }
 
-void JYH_GameMenu(JYH_GameState* jogo){
+void JYH_Run_MM(JYH_GameState* jogo){
 	static SDL_Point p;
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
@@ -33,7 +33,7 @@ void JYH_GameMenu(JYH_GameState* jogo){
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
-				JYH_DestroyMenu(jogo);
+				JYH_Destroy_MM(jogo);
 				break;
 		}
 	}else{
@@ -52,7 +52,7 @@ void JYH_GameMenu(JYH_GameState* jogo){
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_msg_edit,NULL,&jogo->menu.botao_edit);//temporario
 }
 
-void JYH_GameLoadMenu(JYH_GameState* jogo){
+void JYH_Load_MM(JYH_GameState* jogo){
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	
 	jogo->menu.title = (SDL_Rect){450,200,300,90};
@@ -97,8 +97,8 @@ void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
     JYH_World_Selection temp;
     jogo->prev = jogo->estado;
     jogo->estado_tela = 0;
-    jogo->estado = JYH_WORLD_SELECTION;
-    JYH_DestroyMenu(jogo);
+    jogo->estado = JYH_state_WS;
+    JYH_Destroy_MM(jogo);
     jogo->worlds = temp;
 }
 
@@ -106,8 +106,8 @@ void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
 	JYH_Editor temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_EDITOR;
-	JYH_DestroyMenu(jogo);
+	jogo->estado = JYH_state_LE;
+	JYH_Destroy_MM(jogo);
 	jogo->edit = temp;
 }
 
@@ -115,18 +115,18 @@ void JYH_MM_to_PL(JYH_GameState* jogo){//Menu para Player Library
 	JYH_Level_Selection_P temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = JYH_LVL_SELECTION_P;
-	JYH_DestroyMenu(jogo);
+	jogo->estado = JYH_state_PL;
+	JYH_Destroy_MM(jogo);
 	jogo->selP = temp;
 }
 
 void JYH_MM(JYH_GameState* jogo){//Menu
     switch(jogo->estado_tela){
         case 0://load
-            JYH_GameLoadMenu(jogo);
+            JYH_Load_MM(jogo);
             break;
         case 1://exec
-            JYH_GameMenu(jogo);
+            JYH_Run_MM(jogo);
             break;
         case 2://vai para mundos
             JYH_MM_to_WS(jogo);
