@@ -2,17 +2,37 @@
 #include "JYH_Header.h"
 
 void JYH_Destroy_PL(JYH_GameState* jogo){
-	
+	for(int i = 0; i < jogo->selP.n; i++){
+		SDL_DestroyTexture(jogo->selP.niveis[i].txt_nome);
+	}//desalocar detalhes da lista de níveis
+    SDL_DestroyTexture(jogo->selP.txt_title);
+    SDL_DestroyTexture(jogo->selP.txt_background);
+    SDL_DestroyTexture(jogo->selP.txt_lvl_icon);
+    SDL_DestroyTexture(jogo->selP.txt_voltar);
+	free(jogo->selP.niveis);
 }
 
 void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
+    SDL_Rect r,r_nome;
+
+    SDL_RenderCopy(jogo->ren,jogo->selP.txt_background,NULL,NULL);
+    SDL_RenderCopy(jogo->ren,jogo->selP.txt_title,NULL,&jogo->selP.title);
+
 	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	SDL_RenderClear(jogo->ren);
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0x00,0x00);//"Meus Niveis"
-	SDL_RenderFillRect(jogo->ren,&jogo->selP.title);
-	
+	r.w = 64;
+	r.h = 64;
+	r_nome.w = 64;
+	r_nome.h = 32;
+	for(int i = 0; i < jogo->selP.n; i++){//desenha os botões dos níveis
+		r.x = 64  + (i%9)*128;
+		r.y = 300 + (i/9)*128;
+		SDL_RenderCopy(jogo->ren,jogo->selP.txt_lvl_icon,NULL,&r);
+		r_nome.x = r.x;
+		r_nome.y = r.y+r.w;
+		SDL_RenderCopy(jogo->ren,jogo->selP.niveis[i].txt_nome,NULL,&r_nome);	
+	}
+
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
@@ -20,6 +40,16 @@ void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 				
 				if (SDL_PointInRect(&p,&jogo->selP.botao_voltar))jogo->estado_tela = 5;//jogo->estado = JYH_LOAD_MENU;
 				
+				for(int i = 0; i < jogo->sel.n; i++){//verifica se clicou em um mundo
+					r.x = 64  + (i%9)*128;
+					r.y = 300 + (i/9)*128;
+					if(SDL_PointInRect(&p,&r)){
+						jogo->estado_tela = 3;
+						jogo->selP.i_sel = i;
+						break;
+					}
+				}
+
 				break;
 			case SDL_QUIT:
 				jogo->estado = JYH_END_GAME;
@@ -29,20 +59,44 @@ void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 	}else{
 		//eventos baseados em tempo
 	}
-	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0x00,0x00,0x00);//cor botão 1
-	SDL_RenderFillRect(jogo->ren,&jogo->selP.botao_voltar);
+    SDL_RenderCopy(jogo->ren,jogo->selP.txt_voltar,NULL,&jogo->selP.botao_voltar);
 }
 
 void JYH_Load_PL(JYH_GameState* jogo){
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
-	SDL_RenderClear(jogo->ren);
-	SDL_RenderPresent(jogo->ren);
-	
 	jogo->selP.title = (SDL_Rect){450,100,300,90};
 	jogo->selP.botao_voltar = (SDL_Rect){25,25,50,50};
-	jogo->selP.n_niveis = 10;//numero arbitrario temporario para testar a interface
-	
+
+    #ifdef _WIN32
+    FILE* arq = fopen("JYH\\MeusNiveis\\MeusNiveis.txt","r");
+    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
+    jogo->selP.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
+    jogo->selP.txt_lvl_icon= IMG_LoadTexture(jogo->ren,"img\\Menu\\Editor_JYH.png");//trocar
+    jogo->selP.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
+    #elif __linux__
+
+    FILE* arq = fopen("./JYH/MeusNiveis/MeusNiveis.txt","r");
+    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
+    jogo->selP.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
+    jogo->selP.txt_lvl_icon = IMG_LoadTexture(jogo->ren,"./img/menu/Editor_JYH.png");
+    jogo->selP.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
+    #endif
+
+    assert(arq!=NULL);
+    assert(jogo->selP.txt_title!=NULL);
+    assert(jogo->selP.txt_background!=NULL);
+    assert(jogo->selP.txt_lvl_icon!=NULL);
+    assert(jogo->selP.txt_voltar!=NULL);
+    
+    fscanf(arq,"%d",&jogo->selP.n);
+    jogo->selP.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->selP.n);
+    SDL_Color clr = {0x00,0x00,0x00,0x00};
+    for(int i = 0;i < jogo->selP.n;i++){
+        fscanf(arq,"%s",jogo->selP.niveis[i].nome);
+		fscanf(arq,"%s",jogo->selP.niveis[i].path);
+		jogo->selP.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->selP.niveis[i].nome,clr);
+        assert(jogo->selP.niveis[i].txt_nome!=NULL);
+    }
+	fclose(arq);
 	jogo->estado_tela = 1;
 }
 
@@ -50,7 +104,7 @@ void JYH_PL_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado =  /*JYH_LVL_EDITOR*/JYH_state_LE;
+	jogo->estado =  JYH_state_LE;
 	JYH_Destroy_PL(jogo);
 	jogo->edit = temp;
 }
@@ -58,7 +112,7 @@ void JYH_PL_to_MM(JYH_GameState* jogo){
 	JYH_Menu temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = /*JYH_MAIN_MENU*/JYH_state_MM;
+	jogo->estado = JYH_state_MM;
 	JYH_Destroy_PL(jogo);
 	jogo->menu = temp;
 }
@@ -66,7 +120,7 @@ void JYH_PL_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
 	jogo->prev = jogo->estado;
 	jogo->estado_tela = 0;
-	jogo->estado = /*JYH_LVL_EXEC*/JYH_state_EX;
+	jogo->estado = JYH_state_EX;
 	JYH_Destroy_PL(jogo);
 	jogo->exec = temp;
 }

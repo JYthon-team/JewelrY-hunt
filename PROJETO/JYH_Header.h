@@ -111,10 +111,16 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 }JYH_World_Selection;
 
 typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a seleção de níveis criados pelo jogador
-	Uint32 n_niveis;//quantidade de niveis
+	Uint32 n;//quantidade de niveis
+    Uint32 i_sel;
 	JYH_Nivel* niveis;//lista de niveis
 	SDL_Rect title;//"Meus niveis"
+    SDL_Texture* txt_title;
 	SDL_Rect botao_voltar;//botão para voltar atrás
+    SDL_Texture* txt_voltar;
+    SDL_Rect r_background;
+    SDL_Texture* txt_background;
+    SDL_Texture* txt_lvl_icon;
 }JYH_Level_Selection_P;
 
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis

@@ -1,0 +1,7 @@
+3
+nivel_legal
+path
+nivel_chato
+path
+nivel_triste
+path

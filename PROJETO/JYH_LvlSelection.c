@@ -15,9 +15,9 @@ void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
-	SDL_RenderCopy(jogo->ren,jogo->sel.txt_background,NULL,&jogo->sel.r_background);
+	SDL_RenderCopy(jogo->ren,jogo->sel.txt_background,NULL,/*&jogo->sel.r_background*/NULL);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_title, NULL, &jogo->sel.title);
-		SDL_RenderCopy(jogo->ren,jogo->sel.txt_voltar,NULL,&jogo->sel.botao_voltar);
+	SDL_RenderCopy(jogo->ren,jogo->sel.txt_voltar,NULL,&jogo->sel.botao_voltar);
 	
 	r.w = 64;
 	r.h = 64;
@@ -86,6 +86,7 @@ void JYH_Load_LS(JYH_GameState* jogo){
 
 	fscanf(arq,"%d",&jogo->sel.n);//carrega os níveis(assumir sempre carregamento apropriado
 	jogo->sel.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->sel.n);
+
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	for(int i = 0; i < jogo->sel.n; i++){
 		fscanf(arq,"%s",jogo->sel.niveis[i].nome);
