@@ -58,7 +58,6 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 	SDL_Texture* txt_selP;
 	SDL_Texture* txt_msg_selP;//temporario
 	
-	SDL_Rect r_background;
 	SDL_Texture* txt_background;
 	Uint32 estado;
 	//adicionar texturas dos botões
@@ -106,7 +105,6 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 	SDL_Texture* txt_esq;
 	SDL_Rect title;//"Modo Historia"
 	SDL_Texture* txt_title;
-	SDL_Rect r_background;
 	SDL_Texture* txt_background;
 }JYH_World_Selection;
 
@@ -118,7 +116,6 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
     SDL_Texture* txt_title;
 	SDL_Rect botao_voltar;//botão para voltar atrás
     SDL_Texture* txt_voltar;
-    SDL_Rect r_background;
     SDL_Texture* txt_background;
     SDL_Texture* txt_lvl_icon;
 }JYH_Level_Selection_P;
@@ -132,7 +129,6 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 	SDL_Texture* txt_title;
 	SDL_Rect botao_voltar;//botão para voltar atrás
 	SDL_Texture* txt_voltar;
-	SDL_Rect r_background;
 	SDL_Texture* txt_background;
 	SDL_Texture* txt_lvl_icon;//icone de todos os níveis
 }JYH_Level_Selection;

@@ -15,7 +15,7 @@ void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
-	SDL_RenderCopy(jogo->ren,jogo->sel.txt_background,NULL,/*&jogo->sel.r_background*/NULL);
+	SDL_RenderCopy(jogo->ren,jogo->sel.txt_background,NULL,NULL);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_title, NULL, &jogo->sel.title);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_voltar,NULL,&jogo->sel.botao_voltar);
 	
@@ -66,7 +66,6 @@ void JYH_Load_LS(JYH_GameState* jogo){
 	
 	jogo->sel.title =  (SDL_Rect){450,100,300,90};
 	jogo->sel.botao_voltar = (SDL_Rect){25,25,50,50};
-	jogo->sel.r_background =(SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
 	
 	#ifdef _WIN32
 	

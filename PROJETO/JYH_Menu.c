@@ -19,7 +19,7 @@ void JYH_Run_MM(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,&jogo->menu.r_background);
+	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,/*&jogo->menu.r_background*/NULL);
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_title,NULL,&jogo->menu.title);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){
@@ -59,7 +59,6 @@ void JYH_Load_MM(JYH_GameState* jogo){
     jogo->menu.botao_worlds = (SDL_Rect){450,450,300,30};
     jogo->menu.botao_selP = (SDL_Rect){450,500,300,30};
     jogo->menu.botao_edit = (SDL_Rect){450,550,300,30};
-    jogo->menu.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
     
     //temporarios
     jogo->menu.txt_msg_edit = AUX_CriarTexto(jogo->ren,jogo->fnt,"Editor",clr);

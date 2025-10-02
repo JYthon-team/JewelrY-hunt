@@ -15,9 +15,9 @@ void JYH_Run_WS(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	static SDL_Rect r;//desenho das capas do mundo
 
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	SDL_RenderClear(jogo->ren);
-	SDL_RenderCopy(jogo->ren,jogo->worlds.txt_background,NULL,&jogo->worlds.r_background);
+	//SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
+	//SDL_RenderClear(jogo->ren);
+	SDL_RenderCopy(jogo->ren,jogo->worlds.txt_background,NULL,NULL);
 	SDL_RenderCopy(jogo->ren,jogo->worlds.txt_title,NULL,&jogo->worlds.title);
 	
 	r.w = 300;
@@ -77,7 +77,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
     jogo->worlds.botao_voltar = (SDL_Rect){25,25,50,50};
     jogo->worlds.botao_esq = (SDL_Rect){10  ,300,40,90};
     jogo->worlds.botao_dir = (SDL_Rect){1150,300,40,90};
-    jogo->worlds.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
+    //jogo->worlds.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
     jogo->worlds.idx = 0;
 
     #ifdef _WIN32
