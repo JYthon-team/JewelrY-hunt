@@ -32,13 +32,14 @@ int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
-    SDL_Window* win = SDL_CreateWindow("Mapa SDL2",
+    SDL_Window* win = SDL_CreateWindow("Mapa SDL2 com textura no chão",
                                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                        640, 480, 0);
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
 
-    SDL_Texture* texFloor = loadTexture(ren, "chao.png");
-    SDL_Texture* texWall  = loadTexture(ren, "parede.png");
+    SDL_Texture* texFloor  = loadTexture(ren, "chao.png");
+    SDL_Texture* texWall   = loadTexture(ren, "parede.png");
+    SDL_Texture* texCalice = loadTexture(ren, "calice.png");
 
     Player player = {50, 50, 32, 32};
     Rect walls[] = {{0,0,640,32},{0,448,640,32},{0,0,32,480},{608,0,32,480},
@@ -94,9 +95,8 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        SDL_SetRenderDrawColor(ren,0x00,0xFF,0x00,0xFF);
         SDL_Rect caliceRect = {calice.x, calice.y, 32, 32};
-        SDL_RenderFillRect(ren,&caliceRect);
+        SDL_RenderCopy(ren, texCalice, NULL, &caliceRect);
 
         SDL_SetRenderDrawColor(ren,0xFF,0xFF,0x00,0xFF);
         for (int i = 0; i < 2; i++) {
@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
 
     SDL_DestroyTexture(texFloor);
     SDL_DestroyTexture(texWall);
+    SDL_DestroyTexture(texCalice);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     IMG_Quit();
