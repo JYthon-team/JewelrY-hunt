@@ -19,13 +19,13 @@ void JYH_Run_MM(JYH_GameState* jogo){
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,/*&jogo->menu.r_background*/NULL);
+	SDL_RenderCopy(jogo->ren,jogo->menu.txt_background,NULL,NULL);
 	SDL_RenderCopy(jogo->ren,jogo->menu.txt_title,NULL,&jogo->menu.title);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
-				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
+				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if      (SDL_PointInRect(&p,&jogo->menu.botao_worlds))jogo->estado_tela = 2;
 				else if (SDL_PointInRect(&p,&jogo->menu.botao_selP  ))jogo->estado_tela = 3;

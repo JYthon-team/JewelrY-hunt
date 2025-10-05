@@ -10,7 +10,7 @@ JYH/Mundo3/NiveisMundo3.txt
 img/capas_mundos/capa3.png
 nomeMundo4
 JYH/Mundo4/NiveisMundo4.txt
-img/capas_mundos/capa2.png
+img/capas_mundos/capa4.png
 nomeMundo5
 JYH/Mundo5/NiveisMundo5.txt
-img/capas_mundos/capa1.png
+img/capas_mundos/capa5.png

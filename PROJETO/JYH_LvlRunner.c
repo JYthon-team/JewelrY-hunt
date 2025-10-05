@@ -25,7 +25,7 @@ void JYH_Run_EX(JYH_GameState* jogo){//Atualizar
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
-				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
+				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if (SDL_PointInRect(&p,&jogo->exec.botao_voltar))jogo->estado_tela = 2;
 				else if (SDL_PointInRect(&p,&jogo->exec.botao_voltar)){/*Reinicia o nivel*/}

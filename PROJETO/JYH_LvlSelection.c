@@ -13,8 +13,6 @@ void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 	SDL_Rect r;
 	SDL_Rect r_nome;
 	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	SDL_RenderClear(jogo->ren);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_background,NULL,NULL);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_title, NULL, &jogo->sel.title);
 	SDL_RenderCopy(jogo->ren,jogo->sel.txt_voltar,NULL,&jogo->sel.botao_voltar);
@@ -35,7 +33,7 @@ void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
-				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
+				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if (SDL_PointInRect(&p,&jogo->sel.botao_voltar))jogo->estado_tela = 2;
 				
@@ -61,7 +59,7 @@ void JYH_Run_LS(JYH_GameState* jogo){//Atualizar
 }
 
 void JYH_Load_LS(JYH_GameState* jogo){
-	
+	char S[50];
 	FILE* arq = fopen(jogo->sel.path,"r");//Assumir path sempre correto
 	
 	jogo->sel.title =  (SDL_Rect){450,100,300,90};
@@ -72,18 +70,18 @@ void JYH_Load_LS(JYH_GameState* jogo){
 	jogo->sel.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
 	jogo->sel.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
 	jogo->sel.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-	jogo->sel.txt_lvl_icon  = IMG_LoadTexture(jogo->ren,"img\\Menu\\Modo_Historia_JYH.png");//trocar
 	
 	#elif __linux__
 	
 	jogo->sel.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
 	jogo->sel.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
 	jogo->sel.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-	jogo->sel.txt_lvl_icon  = IMG_LoadTexture(jogo->ren,"./img/menu/Modo_Historia_JYH.png");//trocar
 	
 	#endif
 
 	fscanf(arq,"%d",&jogo->sel.n);//carrega os níveis(assumir sempre carregamento apropriado
+	fscanf(arq,"%s",S);//copia path windows
+	jogo->sel.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
 	jogo->sel.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->sel.n);
 
 	SDL_Color clr = {0x00,0x00,0x00,0x00};

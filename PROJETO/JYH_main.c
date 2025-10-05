@@ -16,6 +16,18 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
     SDL_FreeSurface(sfc);
     return txt;
 }
+void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a plataforma linux ou windows
+	int i = 0;
+	while(S[i]!= '\0')
+		if(S[i] == '$'){
+			#ifdef _WIN32
+			S[i] = '\\';
+			#elif __linux__
+			S[i] = '/';
+			#endif
+		}
+		i++;
+}
 
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 	//INICIAR SDL
@@ -27,7 +39,7 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
     jogo->fnt = TTF_OpenFont("tiny.ttf", 20);
     
     //outras inicializações abaixo
-    jogo->estado = /*JYH_MAIN_MENU*/JYH_state_MM;
+    jogo->estado = JYH_state_MM;
     jogo->estado_tela = 0;
     jogo->espera = TEMPO_UPDATE;
     jogo->w_tela = JYH_SCREEN_WIDTH;

@@ -23,6 +23,8 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
 	char nome[50];//nome do nível
     char path[50];//path para o arquivo do lvl
     SDL_Texture* txt_nome;
+    Uint32 w,h;//tamanhos discretos
+    Uint32* mat;
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -30,10 +32,9 @@ typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma f
 
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
+void AUX_AdaptarString(char* S);
 
 enum GAME_STATE{
-	
-	
 	JYH_END_GAME = 0,//estado para encerrar o jogo
 	JYH_state_MM,
 	JYH_state_LE,
@@ -65,12 +66,22 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
+	SDL_bool pintar;//modo pintar ativo
+	SDL_bool press;//mouse pressionado
+	SDL_bool drag;//modo arrasto ativo
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair, salvar, executar, etc)
+	SDL_Texture* txt_tb;
 	SDL_Rect side_bar;    //barra lateral(onde ficam os itens)
+	SDL_Texture* txt_sb;
 	SDL_Rect editor;      //região da tela na qual está o editor
 	SDL_Rect botao_voltar;//vai para o estado anterior
+	SDL_Texture* txt_voltar;
 	SDL_Rect botao_run;   //vai para o estado de execução
+	SDL_Texture* txt_run;
 	SDL_Rect botao_salvar;//salva as alterações no nível
+	SDL_Texture* txt_salvar;
+	SDL_Rect botao_paint;
+	SDL_Texture* txt_paint;
 	//adicionar texturas
 }JYH_Editor;
 

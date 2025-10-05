@@ -1,4 +1,5 @@
 10
+img\geral\lvlicon1.png
 lvl01
 path
 lvl02

@@ -36,9 +36,9 @@ void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
-				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
+				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->selP.botao_voltar))jogo->estado_tela = 5;//jogo->estado = JYH_LOAD_MENU;
+				if (SDL_PointInRect(&p,&jogo->selP.botao_voltar))jogo->estado_tela = 5;
 				
 				for(int i = 0; i < jogo->sel.n; i++){//verifica se clicou em um mundo
 					r.x = 64  + (i%9)*128;
@@ -63,21 +63,20 @@ void JYH_Run_PL(JYH_GameState* jogo){//Atualizar
 }
 
 void JYH_Load_PL(JYH_GameState* jogo){
+	char S[50];
 	jogo->selP.title = (SDL_Rect){450,100,300,90};
 	jogo->selP.botao_voltar = (SDL_Rect){25,25,50,50};
 
     #ifdef _WIN32
     FILE* arq = fopen("JYH\\MeusNiveis\\MeusNiveis.txt","r");
-    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
+    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"img\\geral\\Biblioteca_Jogador_JYH.png");//trocar
     jogo->selP.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-    jogo->selP.txt_lvl_icon= IMG_LoadTexture(jogo->ren,"img\\Menu\\Editor_JYH.png");//trocar
     jogo->selP.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
     #elif __linux__
 
     FILE* arq = fopen("./JYH/MeusNiveis/MeusNiveis.txt","r");
-    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
+    jogo->selP.txt_title = IMG_LoadTexture(jogo->ren,"./img/geral/Biblioteca_Jogador_JYH.png");//trocar
     jogo->selP.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-    jogo->selP.txt_lvl_icon = IMG_LoadTexture(jogo->ren,"./img/menu/Editor_JYH.png");
     jogo->selP.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
     #endif
 
@@ -88,6 +87,9 @@ void JYH_Load_PL(JYH_GameState* jogo){
     assert(jogo->selP.txt_voltar!=NULL);
     
     fscanf(arq,"%d",&jogo->selP.n);
+    fscanf(arq,"%s",S);//lê path windows
+    jogo->selP.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
+    
     jogo->selP.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->selP.n);
     SDL_Color clr = {0x00,0x00,0x00,0x00};
     for(int i = 0;i < jogo->selP.n;i++){

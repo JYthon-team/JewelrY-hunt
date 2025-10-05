@@ -1,4 +1,5 @@
 3
+img\geral\lvlicon5.png
 nivel_legal
 path
 nivel_chato

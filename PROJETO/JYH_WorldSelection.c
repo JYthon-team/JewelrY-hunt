@@ -77,13 +77,12 @@ void JYH_Load_WS(JYH_GameState* jogo){
     jogo->worlds.botao_voltar = (SDL_Rect){25,25,50,50};
     jogo->worlds.botao_esq = (SDL_Rect){10  ,300,40,90};
     jogo->worlds.botao_dir = (SDL_Rect){1150,300,40,90};
-    //jogo->worlds.r_background = (SDL_Rect){0,0,jogo->w_tela,jogo->h_tela};
     jogo->worlds.idx = 0;
 
     #ifdef _WIN32
 
     FILE* arq = fopen("JYH\\mundosW.txt","r");//arquivo fixo Windows
-	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
+	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"img\\geral\\Modo_Campanha_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"img\\geral\\esquerda.png");
 	jogo->worlds.txt_dir = IMG_LoadTexture(jogo->ren,"img\\geral\\direita.png");
@@ -92,7 +91,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
     #elif __linux__
 
     FILE* arq = fopen("./JYH/mundosL.txt","r");//arquivo fixo Windows
-	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
+	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"./img/geral/Modo_Campanha_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"./img/geral/esquerda.png");
 	jogo->worlds.txt_dir = IMG_LoadTexture(jogo->ren,"./img/geral/direita.png");
