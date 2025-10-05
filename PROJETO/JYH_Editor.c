@@ -22,19 +22,34 @@ void JYH_Draw_Grade(JYH_GameState* jogo){
 	
 	for(int i = 0; i < jogo->edit.lvl.w; i ++){
 		for(int j = 0; j < jogo->edit.lvl.h; j++){
-			if(jogo->edit.lvl.mat[i*(jogo->edit.lvl.w)+j]){
+			if(jogo->edit.lvl.mat[j*(jogo->edit.lvl.w)+i]){
 				r.x = i*stepx;
 				r.y = 100 + j*stepy;
-				SDL_RenderFillRect(jogo->ren,&r);
+				SDL_RenderFillRect(jogo->ren,&r);//desenhar parede
 			}
 		}
 	}
-	
+}
+
+int JYH_Converter_Coordenada(JYH_GameState* jogo,SDL_Point* p){
+	Uint32 stepx = jogo->edit.editor.w/jogo->edit.lvl.w;
+	Uint32 stepy = jogo->edit.editor.h/jogo->edit.lvl.h;
+	int x = (p->x)/(stepx);
+	int y = (p->y - jogo->edit.editor.y)/(stepy);
+	return y*(jogo->edit.lvl.w) + x;
+}
+
+void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
+	int idx = JYH_Converter_Coordenada(jogo,p);
+	if(idx != jogo->edit.last_idx){
+		jogo->edit.last_idx = idx;
+		jogo->edit.lvl.mat[idx] = !jogo->edit.lvl.mat[idx];
+	}
 }
 
 void JYH_Run_LE(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
-	int idx;
+	Uint32 idx;
 	
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
@@ -47,16 +62,14 @@ void JYH_Run_LE(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEMOTION:
 				p = (SDL_Point){(int)jogo->evt.motion.x,(int)jogo->evt.motion.y};
 				if(jogo->edit.pintar &&  jogo->edit.press && SDL_PointInRect(&p,&jogo->edit.editor)){
-					idx = (p.x/(jogo->edit.editor.w/jogo->edit.lvl.w))*jogo->edit.lvl.w + ((p.y-100)/(jogo->edit.editor.h/jogo->edit.lvl.h));
-					jogo->edit.lvl.mat[idx] = !jogo->edit.lvl.mat[idx];
+					JYH_Coloca_Parede(jogo,&p);
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				jogo->edit.press = SDL_TRUE;
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				if(jogo->edit.pintar &&  jogo->edit.press && SDL_PointInRect(&p,&jogo->edit.editor)){
-					idx = (p.x/(jogo->edit.editor.w/jogo->edit.lvl.w))*jogo->edit.lvl.w + ((p.y-100)/(jogo->edit.editor.h/jogo->edit.lvl.h));
-					jogo->edit.lvl.mat[idx] = !jogo->edit.lvl.mat[idx];
+					JYH_Coloca_Parede(jogo,&p);
 				}
 				
 				break;
@@ -104,19 +117,22 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->edit.drag = SDL_FALSE;
 	
 	//teste
-	jogo->edit.lvl.w = 50;
-	jogo->edit.lvl.h = 30;
-	jogo->edit.lvl.mat = (Uint32*)malloc(sizeof(Uint32)*(jogo->edit.lvl.w)*(jogo->edit.lvl.h));
-	memset(jogo->edit.lvl.mat,0,sizeof(Uint32)*(jogo->edit.lvl.w)*(jogo->edit.lvl.h));
+	jogo->edit.lvl.w = 25;
+	jogo->edit.lvl.h = 15;
+	jogo->edit.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->edit.lvl.w)*(jogo->edit.lvl.h));
+	jogo->edit.last_idx = (jogo->edit.lvl.w)*(jogo->edit.lvl.h);
+	const int temp = (jogo->edit.lvl.w)*(jogo->edit.lvl.h);
+	for(int i = 0; i < temp;i++)jogo->edit.lvl.mat[i]= 0;
+	memset(jogo->edit.lvl.mat,0,sizeof(unsigned char)*(jogo->edit.lvl.w)*(jogo->edit.lvl.h));
 	
 	#ifdef _WIN32
 	
-	jogo->edit.txt_tb = IMG_LoadTexture(jogo->ren,"img\\geral\\top_bar_JYH.png");//trocar
-	jogo->edit.txt_sb = IMG_LoadTexture(jogo->ren,"img\\geral\\side_bar_JYH.png");//trocar
+	jogo->edit.txt_tb = IMG_LoadTexture(jogo->ren,"img\\geral\\top_bar_JYH.png");
+	jogo->edit.txt_sb = IMG_LoadTexture(jogo->ren,"img\\geral\\side_bar_JYH.png");
 	jogo->edit.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
-	jogo->edit.txt_salvar = IMG_LoadTexture(jogo->ren,"img\\geral\\Save_JYH.png");//trocar
-	jogo->edit.txt_run = IMG_LoadTexture(jogo->ren,"img\\geral\\Run_JYH.png");//trocar
-	jogo->edit.txt_paint = IMG_LoadTexture(jogo->ren,"img\\geral\\Paint_JYH.png");//trocar
+	jogo->edit.txt_salvar = IMG_LoadTexture(jogo->ren,"img\\geral\\Save_JYH.png");
+	jogo->edit.txt_run = IMG_LoadTexture(jogo->ren,"img\\geral\\Run_JYH.png");
+	jogo->edit.txt_paint = IMG_LoadTexture(jogo->ren,"img\\geral\\Paint_JYH.png");
 	
 	#elif __linux__
 	
@@ -125,7 +141,7 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->edit.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
 	jogo->edit.txt_salvar = IMG_LoadTexture(jogo->ren,"./img/geral/Save_JYH.png");
 	jogo->edit.txt_run = IMG_LoadTexture(jogo->ren,"./img/geral/Run_JYH.png");
-	jogo->edit.txt_paint = IMG_LoadTexture(jogo->ren,"./img/geral/Paint_JYH.png");//trocar
+	jogo->edit.txt_paint = IMG_LoadTexture(jogo->ren,"./img/geral/Paint_JYH.png");
 	
 	#endif
 	

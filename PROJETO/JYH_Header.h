@@ -24,7 +24,7 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     char path[50];//path para o arquivo do lvl
     SDL_Texture* txt_nome;
     Uint32 w,h;//tamanhos discretos
-    Uint32* mat;
+    unsigned char *mat;
 }JYH_Nivel;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
@@ -66,6 +66,7 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
+	Uint32 last_idx;
 	SDL_bool pintar;//modo pintar ativo
 	SDL_bool press;//mouse pressionado
 	SDL_bool drag;//modo arrasto ativo
