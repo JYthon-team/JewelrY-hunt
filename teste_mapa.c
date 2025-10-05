@@ -1,9 +1,17 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
 typedef struct { int x, y, w, h; bool collected; } Collectible;
 typedef struct { int x, y, w, h; } Rect;
 typedef struct { int x, y, w, h; } Player;
+
+SDL_Texture* loadTexture(SDL_Renderer* ren, const char* path) {
+    SDL_Surface* surface = IMG_Load(path);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surface);
+    SDL_FreeSurface(surface);
+    return tex;
+}
 
 bool checkCollisionRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
     SDL_Rect r1 = {x1, y1, w1, h1};
@@ -22,22 +30,25 @@ bool checkCollision(Player p, int newX, int newY, Rect walls[], int wallCount) {
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
+
     SDL_Window* win = SDL_CreateWindow("Mapa SDL2",
                                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                        640, 480, 0);
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
+    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_Texture* texFloor = loadTexture(ren, "chao.png");
 
     Player player = {50, 50, 32, 32};
     Rect walls[] = {{0,0,640,32},{0,448,640,32},{0,0,32,480},{608,0,32,480},
-                    {100,100,200,32},{300,200,32,150},{400,300,150,32},{200,350,150,32}};//obs decidir se paredes serão aleatórios ou pré programadas
+                    {100,100,200,32},{300,200,32,150},{400,300,150,32},{200,350,150,32}};
     int wallCount = sizeof(walls)/sizeof(walls[0]);
     Rect calice = {500,100,32,32};
-
     Collectible joias[2] = {{150,400,32,32,false},{500,350,32,32,false}};
-    int contador = 0;
 
     bool running = true;
     SDL_Event e;
+
     while (running) {
         if (SDL_WaitEventTimeout(&e, 16)) {
             if (e.type == SDL_QUIT) running = false;
@@ -58,12 +69,16 @@ int main(int argc, char* argv[]) {
                 checkCollisionRect(player.x, player.y, player.w, player.h,
                                    joias[i].x, joias[i].y, joias[i].w, joias[i].h)) {
                 joias[i].collected = true;
-                contador++;
             }
         }
 
-        SDL_SetRenderDrawColor(ren, 0xA0,0xA0,0xA0,0xFF);
-        SDL_RenderClear(ren);
+        if (texFloor) {
+            SDL_Rect dst = {0, 0, 640, 480};
+            SDL_RenderCopy(ren, texFloor, NULL, &dst);
+        } else {
+            SDL_SetRenderDrawColor(ren, 0xA0, 0xA0, 0xA0, 0xFF);
+            SDL_RenderClear(ren);
+        }
 
         SDL_SetRenderDrawColor(ren, 0x50,0x50,0x50,0xFF);
         for (int i = 0; i < wallCount; i++) {
@@ -90,8 +105,10 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(ren);
     }
 
+    SDL_DestroyTexture(texFloor);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
+    IMG_Quit();
     SDL_Quit();
     return 0;
 }
