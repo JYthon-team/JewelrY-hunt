@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
     SDL_Texture* texFloor = loadTexture(ren, "chao.png");
+    SDL_Texture* texWall  = loadTexture(ren, "parede.png");
 
     Player player = {50, 50, 32, 32};
     Rect walls[] = {{0,0,640,32},{0,448,640,32},{0,0,32,480},{608,0,32,480},
@@ -80,10 +81,17 @@ int main(int argc, char* argv[]) {
             SDL_RenderClear(ren);
         }
 
-        SDL_SetRenderDrawColor(ren, 0x50,0x50,0x50,0xFF);
-        for (int i = 0; i < wallCount; i++) {
-            SDL_Rect r = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
-            SDL_RenderFillRect(ren, &r);
+        if (texWall) {
+            for (int i = 0; i < wallCount; i++) {
+                SDL_Rect r = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
+                SDL_RenderCopy(ren, texWall, NULL, &r);
+            }
+        } else {
+            SDL_SetRenderDrawColor(ren, 0x50,0x50,0x50,0xFF);
+            for (int i = 0; i < wallCount; i++) {
+                SDL_Rect r = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
+                SDL_RenderFillRect(ren, &r);
+            }
         }
 
         SDL_SetRenderDrawColor(ren,0x00,0xFF,0x00,0xFF);
@@ -106,6 +114,7 @@ int main(int argc, char* argv[]) {
     }
 
     SDL_DestroyTexture(texFloor);
+    SDL_DestroyTexture(texWall);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     IMG_Quit();
