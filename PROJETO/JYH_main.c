@@ -18,7 +18,7 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
 }
 void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a plataforma linux ou windows
 	int i = 0;
-	while(S[i]!= '\0')
+	while(S[i] != '\0'){
 		if(S[i] == '$'){
 			#ifdef _WIN32
 			S[i] = '\\';
@@ -27,6 +27,7 @@ void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a
 			#endif
 		}
 		i++;
+    }
 }
 
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui

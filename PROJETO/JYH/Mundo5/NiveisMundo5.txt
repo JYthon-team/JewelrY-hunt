@@ -1,2 +1,4 @@
-0
-img\geral\lvlicon5.png
+1
+.$img$geral$lvlicon5.png
+lvl01
+path

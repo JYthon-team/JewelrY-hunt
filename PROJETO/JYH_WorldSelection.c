@@ -15,8 +15,6 @@ void JYH_Run_WS(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	static SDL_Rect r;//desenho das capas do mundo
 
-	//SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	//SDL_RenderClear(jogo->ren);
 	SDL_RenderCopy(jogo->ren,jogo->worlds.txt_background,NULL,NULL);
 	SDL_RenderCopy(jogo->ren,jogo->worlds.txt_title,NULL,&jogo->worlds.title);
 	
@@ -81,7 +79,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
 
     #ifdef _WIN32
 
-    FILE* arq = fopen("JYH\\mundosW.txt","r");//arquivo fixo Windows
+    FILE* arq = fopen("JYH\\mundos.txt","r");//arquivo fixo Windows
 	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"img\\geral\\Modo_Campanha_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"img\\geral\\esquerda.png");
@@ -90,7 +88,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
 
     #elif __linux__
 
-    FILE* arq = fopen("./JYH/mundosL.txt","r");//arquivo fixo Windows
+    FILE* arq = fopen("./JYH/mundos.txt","r");//arquivo fixo Windows
 	jogo->worlds.txt_title = IMG_LoadTexture(jogo->ren,"./img/geral/Modo_Campanha_JYH.png");//trocar
 	jogo->worlds.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
 	jogo->worlds.txt_esq =  IMG_LoadTexture(jogo->ren,"./img/geral/esquerda.png");
@@ -112,8 +110,9 @@ void JYH_Load_WS(JYH_GameState* jogo){
     for(int i = 0; i < jogo->worlds.n;i++){//carrega as informações dos mundos pelos arquivos
         fscanf(arq,"%s",jogo->worlds.mundos[i].nome);
         fscanf(arq,"%s",jogo->worlds.mundos[i].path);
+        AUX_AdaptarString(jogo->worlds.mundos[i].path);
         fscanf(arq,"%s",S);//nome da textura a ser carregada depois
-        
+        AUX_AdaptarString(S);
         jogo->worlds.mundos[i].capa = IMG_LoadTexture(jogo->ren,S);
         assert(jogo->worlds.mundos[i].capa != NULL);
     }

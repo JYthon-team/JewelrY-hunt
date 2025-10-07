@@ -88,6 +88,7 @@ void JYH_Load_PL(JYH_GameState* jogo){
     
     fscanf(arq,"%d",&jogo->selP.n);
     fscanf(arq,"%s",S);//lê path windows
+    AUX_AdaptarString(S);
     jogo->selP.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
     
     jogo->selP.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->selP.n);
@@ -95,6 +96,7 @@ void JYH_Load_PL(JYH_GameState* jogo){
     for(int i = 0;i < jogo->selP.n;i++){
         fscanf(arq,"%s",jogo->selP.niveis[i].nome);
 		fscanf(arq,"%s",jogo->selP.niveis[i].path);
+        AUX_AdaptarString(jogo->selP.niveis[i].path);
 		jogo->selP.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->selP.niveis[i].nome,clr);
         assert(jogo->selP.niveis[i].txt_nome!=NULL);
     }
