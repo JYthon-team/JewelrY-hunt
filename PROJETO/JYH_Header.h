@@ -148,7 +148,6 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 typedef struct JYH_GameState{
 	enum GAME_STATE estado;//estado do jogo
 	enum GAME_STATE estado_anterior;//estado do jogo anterior
-	Uint32 estado_tela;
 	Uint32 espera;//coordena o tempo de atualização do jogo
 	Uint32 prev;
 	Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
@@ -157,12 +156,12 @@ typedef struct JYH_GameState{
 	SDL_Renderer* ren;//renderizador
 	SDL_Event evt;//evento
 	union{
-		JYH_Menu menu;
-		JYH_Editor edit;
-		JYH_Level_Runner exec;
-		JYH_World_Selection worlds;
-		JYH_Level_Selection sel;
-		JYH_Level_Selection_P selP;
+		JYH_Menu /*menu*/             mm;
+		JYH_Editor /*edit*/           le;
+		JYH_Level_Runner /*exec*/     ex;
+		JYH_World_Selection /*worlds*/ws;
+		JYH_Level_Selection /*sel*/   ls;
+		JYH_Level_Selection_P /*selP*/pl;
 	};
 }JYH_GameState;
 
@@ -170,13 +169,20 @@ typedef struct JYH_GameState{
 JYH_GameState* JYH_Init();
 void JYH_EndGame(JYH_GameState* jogo);
 
-void JYH_WS(JYH_GameState* jogo);
 void JYH_MM(JYH_GameState* jogo);
 void JYH_WS(JYH_GameState* jogo);
 void JYH_LS(JYH_GameState* jogo);
 void JYH_EX(JYH_GameState* jogo);
 void JYH_PL(JYH_GameState* jogo);
 void JYH_LE(JYH_GameState* jogo);
+
+void JYH_Load_WS(JYH_GameState* jogo);
+void JYH_Load_MM(JYH_GameState* jogo);
+void JYH_Load_LS(JYH_GameState* jogo);
+void JYH_Load_EX(JYH_GameState* jogo);
+void JYH_Load_PL(JYH_GameState* jogo);
+void JYH_Load_LE(JYH_GameState* jogo);
+
 
 //Controle principal
 void JYH_GameRender(JYH_GameState* jogo);
