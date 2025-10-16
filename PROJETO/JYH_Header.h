@@ -147,7 +147,6 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 
 typedef struct JYH_GameState{
 	enum GAME_STATE estado;//estado do jogo
-	enum GAME_STATE estado_anterior;//estado do jogo anterior
 	Uint32 espera;//coordena o tempo de atualização do jogo
 	Uint32 prev;
 	Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
@@ -156,12 +155,12 @@ typedef struct JYH_GameState{
 	SDL_Renderer* ren;//renderizador
 	SDL_Event evt;//evento
 	union{
-		JYH_Menu /*menu*/             mm;
-		JYH_Editor /*edit*/           le;
-		JYH_Level_Runner /*exec*/     ex;
-		JYH_World_Selection /*worlds*/ws;
-		JYH_Level_Selection /*sel*/   ls;
-		JYH_Level_Selection_P /*selP*/pl;
+		JYH_Menu              mm;
+		JYH_Editor            le;
+		JYH_Level_Runner      ex;
+		JYH_World_Selection   ws;
+		JYH_Level_Selection   ls;
+		JYH_Level_Selection_P pl;
 	};
 }JYH_GameState;
 
