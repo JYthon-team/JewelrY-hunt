@@ -92,12 +92,19 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 	char pathMundo[50];
 	char nome[50];
 	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair e reiniciar, assim como a contagem de tempo e de gemas)
+    SDL_Texture* txt_tb;
 	SDL_Rect icone_gemas;
+    SDL_Texture* txt_gem;
 	SDL_Rect icone_relogio;
+    SDL_Texture* txt_relogio;
 	SDL_Rect contagem_gemas;
+    SDL_Texture* txt_gem_count;
 	SDL_Rect contagem_tempo;
+    SDL_Texture* txt_tempo;
 	SDL_Rect botao_voltar;
+    SDL_Texture* txt_voltar;
 	SDL_Rect botao_reiniciar;
+    SDL_Texture* txt_reiniciar;
 	Uint32 gemas_coletadas;//gemas coletadas até o momento no nível
 	Uint32 tesouro_pego;//se o artefato do nível foi pego
 	Uint32 tempo_de_jogo;//tempo que o nível está sendo jogado
