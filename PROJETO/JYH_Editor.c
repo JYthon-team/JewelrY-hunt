@@ -2,11 +2,13 @@
 #include "JYH_Header.h"
 
 void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
-	SDL_DestroyTexture(jogo->le.txt_run );
-	SDL_DestroyTexture(jogo->le.txt_salvar );
-	SDL_DestroyTexture(jogo->le.txt_sb );
-	SDL_DestroyTexture(jogo->le.txt_tb );
-	SDL_DestroyTexture(jogo->le.txt_voltar);
+	SDL_DestroyTexture(jogo->le.botao_V.txt);
+	SDL_DestroyTexture(jogo->le.botao_P.txt);
+	SDL_DestroyTexture(jogo->le.botao_R.txt);
+	SDL_DestroyTexture(jogo->le.botao_S.txt);
+	SDL_DestroyTexture(jogo->le.tb.txt);
+	SDL_DestroyTexture(jogo->le.sb.txt);
+	
 	free(jogo->le.lvl.mat);//temporario
 }
 
@@ -14,22 +16,19 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 
 void JYH_LE_to_PL(JYH_GameState* jogo){//editor à biblioteca do player
 	JYH_Level_Selection_P temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_PL;
 	JYH_Destroy_LE(jogo);
 	jogo->pl = temp;
 	JYH_Load_PL(jogo);
 }
 void JYH_LE_to_MM(JYH_GameState* jogo){//editor ao menu inicial
 	JYH_Menu temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_MM;
 	JYH_Destroy_LE(jogo);
 	jogo->mm = temp;
 	JYH_Load_MM(jogo);
 }
 void JYH_LE_goback(JYH_GameState* jogo){//é preciso saber o estado anterior na hora de sair de um nível
-	switch(jogo->prev){
+	AUX_Desempilha(&jogo->state);
+	switch(AUX_Top(&jogo->state)){
 		case JYH_state_MM:
 			JYH_LE_to_MM(jogo);
 			break;
@@ -40,8 +39,7 @@ void JYH_LE_goback(JYH_GameState* jogo){//é preciso saber o estado anterior na 
 }
 void JYH_LE_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_EX;
+	AUX_Empilha(&jogo->state,JYH_state_EX);
 	JYH_Destroy_LE(jogo);
 	jogo->ex = temp;
 	JYH_Load_EX(jogo);
@@ -95,15 +93,16 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_tb,NULL,&jogo->le.top_bar );
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_sb,NULL,&jogo->le.side_bar);
+	AUX_Draw_Icon(jogo->ren,&jogo->le.tb);
+	AUX_Draw_Icon(jogo->ren,&jogo->le.sb);
 	
 	//desenhar botões
+
+	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_V);
+	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_S);
+	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_R);
+	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_P);
 	
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_voltar,NULL,&jogo->le.botao_voltar);
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_salvar,NULL,&jogo->le.botao_salvar);
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_run   ,NULL,&jogo->le.botao_run);
-	SDL_RenderCopy(jogo->ren,jogo->le.txt_paint ,NULL,&jogo->le.botao_paint);
 	JYH_Draw_Grade(jogo);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
@@ -125,13 +124,13 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				jogo->le.press = SDL_FALSE;
-				if      (SDL_PointInRect(&p,&jogo->le.botao_voltar))JYH_LE_goback(jogo);//jogo->estado_tela = 2;
-				else if (SDL_PointInRect(&p,&jogo->le.botao_salvar))jogo->estado = JYH_state_LE;//jogo->estado_tela = 1;
-				else if (SDL_PointInRect(&p,&jogo->le.botao_run   ))JYH_LE_to_EX(jogo);//jogo->estado_tela = 4;
-				else if (SDL_PointInRect(&p,&jogo->le.botao_paint ))jogo->le.pintar = !jogo->le.pintar;
+				if      (SDL_PointInRect(&p,&jogo->le.botao_V.r))JYH_LE_goback(jogo);
+				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){}
+				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r))JYH_LE_to_EX(jogo);
+				else if (SDL_PointInRect(&p,&jogo->le.botao_P.r))jogo->le.pintar = !jogo->le.pintar;
 				break;
 			case SDL_QUIT:
-				jogo->estado = JYH_END_GAME;
+				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_LE(jogo);
 				break;
 		}
@@ -145,17 +144,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
-	SDL_RenderClear(jogo->ren);
-	SDL_RenderPresent(jogo->ren);
-	
-	jogo->le.botao_voltar = (SDL_Rect){25,25,50,50};
-	jogo->le.botao_salvar = (SDL_Rect){100,25,50,50};
-	jogo->le.botao_run = (SDL_Rect){175,25,50,50};
-	jogo->le.botao_paint = (SDL_Rect){250,25,50,50};
-	jogo->le.editor = (SDL_Rect){0,100,jogo->w_tela - 200,jogo->h_tela - 100};
-	jogo->le.side_bar = (SDL_Rect){1000,100,200,jogo->h_tela - 100};
-	jogo->le.top_bar = (SDL_Rect){0,0,jogo->w_tela,100};
+	jogo->le.editor = (SDL_Rect){0,100,1000,600};
 	jogo->le.pintar = SDL_FALSE;
 	jogo->le.press = SDL_FALSE;
 	jogo->le.drag = SDL_FALSE;
@@ -171,21 +160,21 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	
 	#ifdef _WIN32
 	
-	jogo->le.txt_tb = IMG_LoadTexture(jogo->ren,"img\\geral\\top_bar_JYH.png");
-	jogo->le.txt_sb = IMG_LoadTexture(jogo->ren,"img\\geral\\side_bar_JYH.png");
-	jogo->le.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
-	jogo->le.txt_salvar = IMG_LoadTexture(jogo->ren,"img\\geral\\Save_JYH.png");
-	jogo->le.txt_run = IMG_LoadTexture(jogo->ren,"img\\geral\\Run_JYH.png");
-	jogo->le.txt_paint = IMG_LoadTexture(jogo->ren,"img\\geral\\Paint_JYH.png");
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\geral\\Paint_JYH.png",(SDL_Rect){250,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\geral\\Run_JYH.png",(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"img\\geral\\Save_JYH.png",(SDL_Rect){100,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"img\\geral\\side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
 	
 	#elif __linux__
 	
-	jogo->le.txt_tb = IMG_LoadTexture(jogo->ren,"./img/geral/top_bar_JYH.png");
-	jogo->le.txt_sb = IMG_LoadTexture(jogo->ren,"./img/geral/side_bar_JYH.png");
-	jogo->le.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
-	jogo->le.txt_salvar = IMG_LoadTexture(jogo->ren,"./img/geral/Save_JYH.png");
-	jogo->le.txt_run = IMG_LoadTexture(jogo->ren,"./img/geral/Run_JYH.png");
-	jogo->le.txt_paint = IMG_LoadTexture(jogo->ren,"./img/geral/Paint_JYH.png");
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"./img/geral/Paint_JYH.png",(SDL_Rect){250,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"./img/geral/Run_JYH.png",(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"./img/geral/Save_JYH.png",(SDL_Rect){100,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"./img/geral/side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
 	
 	#endif
 }

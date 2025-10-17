@@ -1,35 +1,6 @@
 //Principal
 #include "JYH_Header.h"
 
-int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms){
-	Uint32 antes = SDL_GetTicks();
-	int temEvento = SDL_WaitEventTimeout(evt,*ms);
-	(*ms) = (*ms)- (SDL_GetTicks()-antes);
-	if(*ms > 10000) (*ms) = 0;//elimina underflow(trava o jogo)
-	return temEvento;
-}
-SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr){
-    SDL_Surface* sfc = TTF_RenderText_Blended(fnt, str, clr);
-    assert(sfc != NULL);
-    SDL_Texture* txt = SDL_CreateTextureFromSurface(ren, sfc);
-    assert(txt != NULL);
-    SDL_FreeSurface(sfc);
-    return txt;
-}
-void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a plataforma linux ou windows
-	int i = 0;
-	while(S[i] != '\0'){
-		if(S[i] == '$'){
-			#ifdef _WIN32
-			S[i] = '\\';
-			#elif __linux__
-			S[i] = '/';
-			#endif
-		}
-		i++;
-    }
-}
-
 JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
 	//INICIAR SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -40,10 +11,12 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
     jogo->fnt = TTF_OpenFont("tiny.ttf", 20);
     
     //outras inicializações abaixo
-    jogo->estado = JYH_state_MM;
+    //jogo->estado = JYH_state_MM;
+    jogo->state.p[0] = JYH_state_MM;
+    jogo->state.f = 0;
     jogo->espera = TEMPO_UPDATE;
-    jogo->w_tela = JYH_SCREEN_WIDTH;
-    jogo->h_tela = JYH_SCREEN_HEIGHT;
+    //jogo->w_tela = JYH_SCREEN_WIDTH;
+    //jogo->h_tela = JYH_SCREEN_HEIGHT;
     JYH_Load_MM(jogo);
     return jogo;
 }
@@ -61,7 +34,7 @@ void JYH_EndGame(JYH_GameState* jogo){//todas as terminações do jogo vão aqui
 //Estados do jogo
 
 void JYH_GameRender(JYH_GameState* jogo){
-	switch(jogo->estado){//Cada estado é uma tela do jogo
+	switch(AUX_Top(&jogo->state)){//Cada estado é uma tela do jogo
 		case JYH_state_MM:JYH_MM(jogo);break;
 		case JYH_state_LE:JYH_LE(jogo);break;
 		case JYH_state_EX:JYH_EX(jogo);break;
@@ -74,7 +47,7 @@ void JYH_GameRender(JYH_GameState* jogo){
 
 int main (int argc, char* args[]){
 	JYH_GameState* jogo = JYH_Init();
-	while(jogo->estado)JYH_GameRender(jogo);
+	while(/*jogo->estado*/AUX_Top(&jogo->state))JYH_GameRender(jogo);
     JYH_EndGame(jogo);
 }
 

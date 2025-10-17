@@ -5,13 +5,17 @@ void JYH_Destroy_LS(JYH_GameState* jogo){
 	for(int i = 0; i < jogo->ls.n; i++){
 		SDL_DestroyTexture(jogo->ls.niveis[i].txt_nome);
 	}//desalocar detalhes da lista de níveis
+	SDL_DestroyTexture(jogo->ls.botao_V.txt);
+	SDL_DestroyTexture(jogo->ls.titulo.txt);
+	SDL_DestroyTexture(jogo->ls.txt_background);
+	SDL_DestroyTexture(jogo->ls.txt_lvl_icon);
+	
 	free(jogo->ls.niveis);
 }
 
 void JYH_LS_to_WS(JYH_GameState* jogo){
 	JYH_World_Selection temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_WS;
+	AUX_Desempilha(&jogo->state);
 	JYH_Destroy_LS(jogo);
 	jogo->ws = temp;
 	JYH_Load_WS(jogo);
@@ -21,8 +25,7 @@ void JYH_LS_to_EX(JYH_GameState* jogo){
 	strcpy(temp.pathMundo,jogo->ls.path                        );//
 	strcpy(temp.pathNivel,jogo->ls.niveis[jogo->ls.i_sel].path);
 	strcpy(temp.nome     ,jogo->ls.niveis[jogo->ls.i_sel].nome);
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_EX;
+	AUX_Empilha(&jogo->state,JYH_state_EX);
 	JYH_Destroy_LS(jogo);
 	jogo->ex = temp;
 	JYH_Load_EX(jogo);
@@ -34,8 +37,8 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 	SDL_Rect r_nome;
 	
 	SDL_RenderCopy(jogo->ren,jogo->ls.txt_background,NULL,NULL);
-	SDL_RenderCopy(jogo->ren,jogo->ls.txt_title, NULL, &jogo->ls.title);
-	SDL_RenderCopy(jogo->ren,jogo->ls.txt_voltar,NULL,&jogo->ls.botao_voltar);
+	AUX_Draw_Icon(jogo->ren,&jogo->ls.titulo);
+	AUX_Draw_Icon(jogo->ren,&jogo->ls.botao_V);
 	
 	r.w = 64;
 	r.h = 64;
@@ -55,22 +58,19 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->ls.botao_voltar))JYH_LS_to_WS(jogo);//jogo->estado_tela = 2;
+				if (SDL_PointInRect(&p,&jogo->ls.botao_V.r))JYH_LS_to_WS(jogo);//jogo->estado_tela = 2;
 				
 				for(int i = 0; i < jogo->ls.n; i++){//verifica se clicou em um mundo
-					r.x = 64  + (i%9)*128;
-					r.y = 300 + (i/9)*128;
+					r.x = 64  + (i%9)*128;r.y = 300 + (i/9)*128;
 					if(SDL_PointInRect(&p,&r)){
-						//jogo->estado_tela = 3;
 						jogo->ls.i_sel = i;
 						JYH_LS_to_EX(jogo);
 						break;
 					}
 				}
-				
 				break;
 			case SDL_QUIT:
-				jogo->estado = JYH_END_GAME;
+				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_LS(jogo);
 				break;
 		}
@@ -83,19 +83,16 @@ void JYH_Load_LS(JYH_GameState* jogo){
 	char S[50];
 	FILE* arq = fopen(jogo->ls.path,"r");//Assumir path sempre correto
 	
-	jogo->ls.title =  (SDL_Rect){450,100,300,90};
-	jogo->ls.botao_voltar = (SDL_Rect){25,25,50,50};
-	
 	#ifdef _WIN32
-	
-	jogo->ls.txt_title = IMG_LoadTexture(jogo->ren,"img\\Menu\\Titulo_JYH.png");//trocar
-	jogo->ls.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
+
 	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
+	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,"img\\Menu\\Titulo_JYH.png",(SDL_Rect){450,100,300,90},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
 	
 	#elif __linux__
 	
-	jogo->ls.txt_title = IMG_LoadTexture(jogo->ren,"./img/menu/Titulo_JYH.png");//trocar
-	jogo->ls.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
+	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,"./img/Menu/Titulo_JYH.png",(SDL_Rect){450,100,300,90},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
 	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
 	
 	#endif

@@ -2,27 +2,39 @@
 #include "JYH_Header.h"
 
 void JYH_Destroy_EX(JYH_GameState* jogo){
-    SDL_DestroyTexture(jogo->ex.txt_tb);
-    SDL_DestroyTexture(jogo->ex.txt_gem);
-    SDL_DestroyTexture(jogo->ex.txt_relogio);
     SDL_DestroyTexture(jogo->ex.txt_gem_count);
-    SDL_DestroyTexture(jogo->ex.txt_tempo);	
-    SDL_DestroyTexture(jogo->ex.txt_voltar);
-    SDL_DestroyTexture(jogo->ex.txt_reiniciar);
+    SDL_DestroyTexture(jogo->ex.txt_tempo);
+    SDL_DestroyTexture(jogo->ex.tb.txt);
+    SDL_DestroyTexture(jogo->ex.botao_V.txt);
+    SDL_DestroyTexture(jogo->ex.botao_R.txt);
+    SDL_DestroyTexture(jogo->ex.clock.txt);
+    SDL_DestroyTexture(jogo->ex.gem.txt);
 }
 void JYH_EX_to_LS(JYH_GameState* jogo){
-
+	JYH_Level_Selection temp;
+	strcpy(temp.path,jogo->ex.pathMundo);
+	JYH_Destroy_EX(jogo);
+	jogo->ls = temp;
+	JYH_Load_LS(jogo);
 }
 void JYH_EX_to_LE(JYH_GameState* jogo){
-
+	JYH_Editor temp;
+	strcpy(temp.path,jogo->ex.pathNivel);
+	temp.lvl = jogo->ex.lvl;//copia o nível
+	JYH_Destroy_EX(jogo);
+	jogo->le = temp;
+	JYH_Load_LE(jogo);
 }
 void JYH_EX_to_PL(JYH_GameState* jogo){
-
+	JYH_Level_Selection_P temp;
+	JYH_Destroy_EX(jogo);
+	jogo->pl = temp;
+	JYH_Load_PL(jogo);
 }
 
-
 void JYH_EX_goback(JYH_GameState* jogo){
-	switch(jogo->prev){
+	AUX_Desempilha(&jogo->state);
+	switch(AUX_Top(&jogo->state)){
         case JYH_state_LS:
             JYH_EX_to_LS(jogo);
             break;
@@ -33,13 +45,6 @@ void JYH_EX_goback(JYH_GameState* jogo){
             JYH_EX_to_PL(jogo);
             break;
 	}
-	//temporario durante o debug
-	JYH_Menu temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_MM;
-	JYH_Destroy_EX(jogo);
-	jogo->mm = temp;
-	JYH_Load_MM(jogo);
 }
 
 void JYH_EX(JYH_GameState* jogo){//Atualizar
@@ -48,42 +53,30 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-	//SDL_SetRenderDrawColor(jogo->ren,0x00,0xff,0x00,0x00);//barra do topo
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.top_bar);
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_tb,NULL,&jogo->ex.top_bar);
+    AUX_Draw_Icon(jogo->ren,&jogo->ex.tb);
     
+    AUX_Draw_Icon(jogo->ren,&jogo->ex.gem);
+    AUX_Draw_Icon(jogo->ren,&jogo->ex.clock);
 	
-	//SDL_SetRenderDrawColor(jogo->ren,0xff,0x00,0xff,0x00);//icones
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.icone_gemas);
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.icone_relogio);
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_gem,NULL,&jogo->ex.icone_gemas);
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_relogio,NULL,&jogo->ex.icone_relogio);
-	
-	//SDL_SetRenderDrawColor(jogo->ren,0x00,0xff,0xff,0x00);//contadores
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.contagem_gemas);
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.contagem_tempo);
     SDL_RenderCopy(jogo->ren,jogo->ex.txt_gem_count,NULL,&jogo->ex.contagem_gemas);
     SDL_RenderCopy(jogo->ren,jogo->ex.txt_tempo,NULL,&jogo->ex.contagem_tempo);
 	
 	//desenhar botões
 	
-	//SDL_SetRenderDrawColor(jogo->ren,0xff,0x00,0x00,0x00);//botões
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.botao_voltar);
-	//SDL_RenderFillRect(jogo->ren,&jogo->ex.botao_reiniciar);
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_voltar   ,NULL,&jogo->ex.botao_voltar   );
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_reiniciar,NULL,&jogo->ex.botao_reiniciar);
+    AUX_Draw_Icon(jogo->ren,&jogo->ex.botao_R);
+    AUX_Draw_Icon(jogo->ren,&jogo->ex.botao_V);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->ex.botao_voltar))JYH_EX_goback(jogo);
-				else if (SDL_PointInRect(&p,&jogo->ex.botao_voltar)){/*Reinicia o nivel*/}
+				if (SDL_PointInRect(&p,&jogo->ex.botao_V.r))JYH_EX_goback(jogo);
+				else if (SDL_PointInRect(&p,&jogo->ex.botao_R.r)){/*Reinicia o nivel*/}
 				
 				break;
 			case SDL_QUIT:
-				jogo->estado = JYH_END_GAME;
+				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_EX(jogo);
 				break;
 		}
@@ -94,36 +87,25 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 }
 
 void JYH_Load_EX(JYH_GameState* jogo){
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//trocar por uma tela de loading
-	SDL_RenderClear(jogo->ren);
-	SDL_RenderPresent(jogo->ren);
+	SDL_Color clr = {0xff,0x00,0x00,0x00};
 
-    jogo->ex.top_bar=(SDL_Rect){0,0,jogo->w_tela,100};
-	jogo->ex.botao_voltar = (SDL_Rect){25,25,50,50};
-	jogo->ex.botao_reiniciar =(SDL_Rect){100,25,50,50};
-	jogo->ex.icone_gemas = (SDL_Rect){175,25,50,50};
 	jogo->ex.contagem_gemas =(SDL_Rect){250,25,100,50};//onde é escrita a razão entre as gemas do nível e as gemas coletadas
-	jogo->ex.icone_relogio = (SDL_Rect){375,25,50,50};
 	jogo->ex.contagem_tempo = (SDL_Rect){450,25,100,50};//onde é escrita a contagem de tempo
-
-    SDL_Color clr = {0xff,0x00,0x00,0x00};
+    jogo->ex.txt_tempo = AUX_CriarTexto(jogo->ren,jogo->fnt,"01:30",clr);
+    jogo->ex.txt_gem_count = AUX_CriarTexto(jogo->ren,jogo->fnt,"2/10",clr);
     
     #ifdef _WIN32
-    jogo->ex.txt_tb = IMG_LoadTexture(jogo->ren,"img\\geral\\top_bar_JYH.png");
-    jogo->ex.txt_gem = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");//trocar
-    jogo->ex.txt_relogio = IMG_LoadTexture(jogo->ren,"img\\geral\\Run_JYH.png");//trocar
-    jogo->ex.txt_tempo = AUX_CriarTexto(jogo->ren,jogo->fnt,"01:30",clr);
-    jogo->ex.txt_gem_count = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");//trocar
-    jogo->ex.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
-    jogo->ex.txt_reiniciar = IMG_LoadTexture(jogo->ren,"img\\geral\\Save_JYH.png");//trocar
+    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"img\\geral\\Back_JYH.png"   ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"img\\geral\\Save_JYH.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"img\\geral\\Back_JYH.png"   ,(SDL_Rect){175,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"img\\geral\\Run_JYH.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
     #elif __linux__
-    jogo->ex.txt_tb = IMG_LoadTexture(jogo->ren,"./img/geral/top_bar_JYH.png");
-    jogo->ex.txt_gem = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");//trocar
-    jogo->ex.txt_relogio = IMG_LoadTexture(jogo->ren,"./img/geral/Run_JYH.png");//trocar
-    jogo->ex.txt_tempo = AUX_CriarTexto(jogo->ren,jogo->fnt,"01:30",clr);
-    jogo->ex.txt_gem_count = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");//trocar
-    jogo->ex.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
-    jogo->ex.txt_reiniciar = IMG_LoadTexture(jogo->ren,"./img/geral/Save_JYH.png");//trocar
+    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"./img/geral/Back_JYH.png"   ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"./img/geral/Save_JYH.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"./img/geral/Back_JYH.png"   ,(SDL_Rect){175,20,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"./img/geral/Run_JYH.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
     #endif
 
 	jogo->ex.timer = 0;//No Jogo Final depende do nível a ser carregado!!!

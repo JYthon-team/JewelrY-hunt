@@ -7,10 +7,10 @@ void JYH_Destroy_PL(JYH_GameState* jogo){
 	for(int i = 0; i < jogo->pl.n; i++){
 		SDL_DestroyTexture(jogo->pl.niveis[i].txt_nome);
 	}
-    SDL_DestroyTexture(jogo->pl.txt_title);
     SDL_DestroyTexture(jogo->pl.txt_background);
     SDL_DestroyTexture(jogo->pl.txt_lvl_icon);
-    SDL_DestroyTexture(jogo->pl.txt_voltar);
+    SDL_DestroyTexture(jogo->pl.titulo.txt);
+    SDL_DestroyTexture(jogo->pl.botao_V.txt);
 	free(jogo->pl.niveis);
 }
 
@@ -18,24 +18,21 @@ void JYH_Destroy_PL(JYH_GameState* jogo){
 
 void JYH_PL_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
-	jogo->prev = jogo->estado;
-	jogo->estado =  JYH_state_LE;
+	AUX_Empilha(&jogo->state,JYH_state_LE);
 	JYH_Destroy_PL(jogo);
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
 }
 void JYH_PL_to_MM(JYH_GameState* jogo){
 	JYH_Menu temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_MM;
+	AUX_Desempilha(&jogo->state);
 	JYH_Destroy_PL(jogo);
 	jogo->mm = temp;
 	JYH_Load_MM(jogo);
 }
 void JYH_PL_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
-	jogo->prev = jogo->estado;
-	jogo->estado = JYH_state_EX;
+	AUX_Empilha(&jogo->state, JYH_state_EX);
 	JYH_Destroy_PL(jogo);
 	jogo->ex = temp;
 	JYH_Load_PL(jogo);
@@ -48,7 +45,8 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
     SDL_Rect r,r_nome;
 
     SDL_RenderCopy(jogo->ren,jogo->pl.txt_background,NULL,NULL);
-    SDL_RenderCopy(jogo->ren,jogo->pl.txt_title,NULL,&jogo->pl.title);
+    AUX_Draw_Icon(jogo->ren,&jogo->pl.titulo);
+    AUX_Draw_Icon(jogo->ren,&jogo->pl.botao_V);
 
 	r.w = 64;
 	r.h = 64;
@@ -62,15 +60,13 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 		r_nome.y = r.y+r.w;
 		SDL_RenderCopy(jogo->ren,jogo->pl.niveis[i].txt_nome,NULL,&r_nome);	
 	}
-
-	SDL_RenderCopy(jogo->ren,jogo->pl.txt_voltar,NULL,&jogo->pl.botao_voltar);
-
+	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
-			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
+			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->pl.botao_voltar))JYH_PL_to_MM(jogo);//jogo->estado_tela = 5;
+				if (SDL_PointInRect(&p,&jogo->pl.botao_V.r))JYH_PL_to_MM(jogo);
 				
 				for(int i = 0; i < jogo->pl.n; i++){//verifica se clicou em um mundo
 					r.x = 64  + (i%9)*128;
@@ -84,7 +80,7 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 
 				break;
 			case SDL_QUIT:
-				jogo->estado = JYH_END_GAME;
+				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_PL(jogo);
 				break;
 		}
@@ -97,25 +93,22 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 
 void JYH_Load_PL(JYH_GameState* jogo){
 	char S[50];
-	jogo->pl.title = (SDL_Rect){450,100,300,90};
-	jogo->pl.botao_voltar = (SDL_Rect){25,25,50,50};
 
     #ifdef _WIN32
     FILE* arq = fopen("JYH\\MeusNiveis\\MeusNiveis.txt","r");
-    jogo->pl.txt_title = IMG_LoadTexture(jogo->ren,"img\\geral\\Biblioteca_Jogador_JYH.png");//trocar
     jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-    jogo->pl.txt_voltar = IMG_LoadTexture(jogo->ren,"img\\geral\\Back_JYH.png");
+    AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"img\\geral\\Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50},1);
     #elif __linux__
     FILE* arq = fopen("./JYH/MeusNiveis/MeusNiveis.txt","r");
-    jogo->pl.txt_title = IMG_LoadTexture(jogo->ren,"./img/geral/Biblioteca_Jogador_JYH.png");//trocar
     jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-    jogo->pl.txt_voltar = IMG_LoadTexture(jogo->ren,"./img/geral/Back_JYH.png");
+    AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"./img/geral/Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+    
     #endif
     assert(arq!=NULL);
-    assert(jogo->pl.txt_title!=NULL);
     assert(jogo->pl.txt_background!=NULL);
     assert(jogo->pl.txt_lvl_icon!=NULL);
-    assert(jogo->pl.txt_voltar!=NULL);
     
     fscanf(arq,"%d",&jogo->pl.n);
     fscanf(arq,"%s",S);//lê path windows

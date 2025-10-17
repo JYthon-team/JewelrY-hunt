@@ -26,13 +26,34 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     Uint32 w,h;//tamanhos discretos
     unsigned char *mat;
 }JYH_Nivel;
+enum JYH_Event{//codigo dos eventos
+	JYH_BVP,//Botão voltar pressionado
+	JYH_BRP,//Botão reiniciar pressionado
+	JYH_BMP,//Botão mundos pressionado
+	JYH_BEP,//Botão editor pressionado
+	JYH_BBP //Botão biblioteca pressionado
+};
+typedef struct JYH_Icon{
+	SDL_Texture* txt;//textura do botão
+	SDL_Rect       r;//Retângulo de desenho
+	Uint32         f;//frame
+	Uint32         s;//estado
+	Uint32       n_f;//quantidade de frames
+}JYH_Icon;
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
+	Uint32 type;
+	SDL_Rect hitbox;//verifica os hits
+	JYH_Icon drawbox;//aonde se desenha
+	/*union{
+		
+	};*/
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
 }JYH_Objeto;
-
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 void AUX_AdaptarString(char* S);
+void AUX_Start_Icon(SDL_Renderer* ren, JYH_Icon* i, char* txt_name, SDL_Rect r, Uint32 n);
+void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i);
 
 enum GAME_STATE{
 	JYH_END_GAME = 0,//estado para encerrar o jogo
@@ -45,20 +66,13 @@ enum GAME_STATE{
 };
 
 typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
-	SDL_Rect title;
-	SDL_Texture* txt_title;
-	SDL_Rect botao_worlds;//vai para modo seleção de mundos
-	SDL_Texture* txt_worlds;
+	JYH_Icon  titulo;
+	JYH_Icon  botao_WS;
 	SDL_Texture* txt_msg_worlds;//temporario
-	
-	SDL_Rect botao_edit  ;//vai para modo editor
-	SDL_Texture* txt_edit;
+	JYH_Icon  botao_LE;
 	SDL_Texture* txt_msg_edit;//temporario
-	
-	SDL_Rect botao_selP  ;//vai para modo seleção de níveis do jogador
-	SDL_Texture* txt_selP;
+	JYH_Icon  botao_PL;
 	SDL_Texture* txt_msg_selP;//temporario
-	
 	SDL_Texture* txt_background;
 	Uint32 estado;
 	//adicionar texturas dos botões
@@ -67,22 +81,17 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
 	Uint32 last_idx;
+	char path[50];
 	SDL_bool pintar;//modo pintar ativo
 	SDL_bool press;//mouse pressionado
 	SDL_bool drag;//modo arrasto ativo
-	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair, salvar, executar, etc)
-	SDL_Texture* txt_tb;
-	SDL_Rect side_bar;    //barra lateral(onde ficam os itens)
-	SDL_Texture* txt_sb;
+	JYH_Icon tb;
+	JYH_Icon sb;
 	SDL_Rect editor;      //região da tela na qual está o editor
-	SDL_Rect botao_voltar;//vai para o estado anterior
-	SDL_Texture* txt_voltar;
-	SDL_Rect botao_run;   //vai para o estado de execução
-	SDL_Texture* txt_run;
-	SDL_Rect botao_salvar;//salva as alterações no nível
-	SDL_Texture* txt_salvar;
-	SDL_Rect botao_paint;
-	SDL_Texture* txt_paint;
+	JYH_Icon botao_V;
+	JYH_Icon botao_R;
+	JYH_Icon botao_S;
+	JYH_Icon botao_P;
 	//adicionar texturas
 }JYH_Editor;
 
@@ -91,20 +100,17 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 	char pathNivel[50];
 	char pathMundo[50];
 	char nome[50];
-	SDL_Rect top_bar;     //barra de cima(onde ficam os botões para sair e reiniciar, assim como a contagem de tempo e de gemas)
-    SDL_Texture* txt_tb;
-	SDL_Rect icone_gemas;
-    SDL_Texture* txt_gem;
-	SDL_Rect icone_relogio;
-    SDL_Texture* txt_relogio;
+	JYH_Icon tb;
+	JYH_Icon gem;
+	JYH_Icon clock;
+	JYH_Icon botao_V;
+	JYH_Icon botao_R;
+
 	SDL_Rect contagem_gemas;
     SDL_Texture* txt_gem_count;
 	SDL_Rect contagem_tempo;
     SDL_Texture* txt_tempo;
-	SDL_Rect botao_voltar;
-    SDL_Texture* txt_voltar;
-	SDL_Rect botao_reiniciar;
-    SDL_Texture* txt_reiniciar;
+
 	Uint32 gemas_coletadas;//gemas coletadas até o momento no nível
 	Uint32 tesouro_pego;//se o artefato do nível foi pego
 	Uint32 tempo_de_jogo;//tempo que o nível está sendo jogado
@@ -116,14 +122,10 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 	Uint32 idx;//indice do mundo de menor indice
     Uint32 i_sel;//mundo selecionado
 	JYH_Mundo* mundos;//lista de mundos
-	SDL_Rect botao_voltar;//botão para voltar atrás
-	SDL_Texture* txt_voltar;
-	SDL_Rect botao_dir;
-	SDL_Texture* txt_dir;
-	SDL_Rect botao_esq;
-	SDL_Texture* txt_esq;
-	SDL_Rect title;//"Modo Historia"
-	SDL_Texture* txt_title;
+	JYH_Icon titulo;
+	JYH_Icon botao_V;
+	JYH_Icon botao_D;
+	JYH_Icon botao_E;
 	SDL_Texture* txt_background;
 }JYH_World_Selection;
 
@@ -131,10 +133,8 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 	Uint32 n;//quantidade de niveis
     Uint32 i_sel;
 	JYH_Nivel* niveis;//lista de niveis
-	SDL_Rect title;//"Meus niveis"
-    SDL_Texture* txt_title;
-	SDL_Rect botao_voltar;//botão para voltar atrás
-    SDL_Texture* txt_voltar;
+    JYH_Icon titulo;
+    JYH_Icon botao_V;
     SDL_Texture* txt_background;
     SDL_Texture* txt_lvl_icon;
 }JYH_Level_Selection_P;
@@ -144,19 +144,26 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 	Uint32 i_sel;
 	char path[50];//path do mundo
 	JYH_Nivel* niveis;//lista de níveis
-	SDL_Rect title;//nome do mundo
-	SDL_Texture* txt_title;
-	SDL_Rect botao_voltar;//botão para voltar atrás
-	SDL_Texture* txt_voltar;
+	JYH_Icon titulo;
+	JYH_Icon botao_V;
 	SDL_Texture* txt_background;
 	SDL_Texture* txt_lvl_icon;//icone de todos os níveis
 }JYH_Level_Selection;
 
+typedef struct JYH_Pilha{
+	enum GAME_STATE p[10];
+	int f;
+}JYH_Pilha;
+
+enum GAME_STATE AUX_Top(JYH_Pilha* P);
+void AUX_Empilha(JYH_Pilha* P,enum GAME_STATE s);
+void AUX_Desempilha(JYH_Pilha* P);
+
+
 typedef struct JYH_GameState{
-	enum GAME_STATE estado;//estado do jogo
+	JYH_Pilha state;
 	Uint32 espera;//coordena o tempo de atualização do jogo
-	Uint32 prev;
-	Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
+	//Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
 	TTF_Font* fnt;
 	SDL_Window* win;//janela
 	SDL_Renderer* ren;//renderizador
