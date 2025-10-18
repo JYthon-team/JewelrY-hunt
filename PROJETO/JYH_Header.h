@@ -23,7 +23,9 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
 	char nome[50];//nome do nível
     char path[50];//path para o arquivo do lvl
     SDL_Texture* txt_nome;
-    Uint32 w,h;//tamanhos discretos
+    SDL_Texture* txt_theme;
+    //Uint32 w,h;//tamanhos discretos
+    int w,h;
     unsigned char *mat;
 }JYH_Nivel;
 enum JYH_Event{//codigo dos eventos
@@ -78,20 +80,32 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 	//adicionar texturas dos botões
 }JYH_Menu;
 
+
+enum JYH_PINCEL{//mouse no editor
+	PINCEL_DESOCUPADO,
+	PINCEL_PINTANDO,
+	PINCEL_APAGANDO,
+	PINCEL_ARRASTANDO
+};
+
+
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
 	Uint32 last_idx;
 	char path[50];
-	SDL_bool pintar;//modo pintar ativo
+	//SDL_bool pintar;//modo pintar ativo
 	SDL_bool press;//mouse pressionado
-	SDL_bool drag;//modo arrasto ativo
+	//SDL_bool drag;//modo arrasto ativo
+	enum JYH_PINCEL pincel;
 	JYH_Icon tb;
 	JYH_Icon sb;
 	SDL_Rect editor;      //região da tela na qual está o editor
-	JYH_Icon botao_V;
-	JYH_Icon botao_R;
-	JYH_Icon botao_S;
-	JYH_Icon botao_P;
+	JYH_Icon botao_V;//volta
+	JYH_Icon botao_R;//run
+	JYH_Icon botao_S;//salva
+	JYH_Icon botao_P;//pinta
+	JYH_Icon botao_A;//apaga
+	JYH_Icon botao_T;//tema
 	//adicionar texturas
 }JYH_Editor;
 

@@ -1,5 +1,6 @@
 10
 .$img$geral$lvlicon1.png
+.$img$geral$titulo1.png
 lvl01
 path
 lvl02

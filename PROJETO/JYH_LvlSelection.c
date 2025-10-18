@@ -58,7 +58,7 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->ls.botao_V.r))JYH_LS_to_WS(jogo);//jogo->estado_tela = 2;
+				if (SDL_PointInRect(&p,&jogo->ls.botao_V.r))JYH_LS_to_WS(jogo);
 				
 				for(int i = 0; i < jogo->ls.n; i++){//verifica se clicou em um mundo
 					r.x = 64  + (i%9)*128;r.y = 300 + (i/9)*128;
@@ -81,26 +81,29 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 
 void JYH_Load_LS(JYH_GameState* jogo){
 	char S[50];
-	FILE* arq = fopen(jogo->ls.path,"r");//Assumir path sempre correto
 	
 	#ifdef _WIN32
 
-	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,"img\\Menu\\Titulo_JYH.png",(SDL_Rect){450,100,300,90},1);
 	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
+	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
 	
 	#elif __linux__
-	
-	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,"./img/Menu/Titulo_JYH.png",(SDL_Rect){450,100,300,90},1);
+
 	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
 	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
 	
 	#endif
-
+	FILE* arq = fopen(jogo->ls.path,"r");//Assumir path sempre correto
 	fscanf(arq,"%d",&jogo->ls.n);//carrega os níveis(assumir sempre carregamento apropriado
-	fscanf(arq,"%s",S);//copia path windows
+	
+	fscanf(arq,"%s",S);//icone de seleção de níveis
     AUX_AdaptarString(S);
 	jogo->ls.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
+
+	fscanf(arq,"%s",S);//icone nome mundo
+	AUX_AdaptarString(S);
+	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,S,(SDL_Rect){450,100,300,90},1);
+	
 	jogo->ls.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->ls.n);
 
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
