@@ -29,16 +29,19 @@ int main() {
     SDL_Surface* paredeSurface = IMG_Load("parede.png");
     SDL_Surface* caliceSurface = IMG_Load("calice.png");
     SDL_Surface* joiasSurface = IMG_Load("joias.png");
+    SDL_Surface* spriteSurface = IMG_Load("sprite.png");
 
     SDL_Texture* chaoTexture = SDL_CreateTextureFromSurface(ren, chaoSurface);
     SDL_Texture* paredeTexture = SDL_CreateTextureFromSurface(ren, paredeSurface);
     SDL_Texture* caliceTexture = SDL_CreateTextureFromSurface(ren, caliceSurface);
     SDL_Texture* joiasTexture = SDL_CreateTextureFromSurface(ren, joiasSurface);
+    SDL_Texture* jogadorTexture = SDL_CreateTextureFromSurface(ren, spriteSurface);
 
     SDL_FreeSurface(chaoSurface);
     SDL_FreeSurface(paredeSurface);
     SDL_FreeSurface(caliceSurface);
     SDL_FreeSurface(joiasSurface);
+    SDL_FreeSurface(spriteSurface);
 
     Rect walls[] = {
         {0, 0, 800, 64},
@@ -68,19 +71,49 @@ int main() {
     bool faseConcluida = false;
     bool tempoEsgotado = false;
 
+    int spriteW, spriteH;
+    SDL_QueryTexture(jogadorTexture, NULL, NULL, &spriteW, &spriteH);
+    int frameW = spriteW / 2;
+    int frameH = spriteH / 2;
+
     int colorToggle = 0;
+
+    Uint64 lastFrame = SDL_GetPerformanceCounter();
+    double deltaTime = 0;
+    double speed = 120;
 
     while (running) {
         SDL_PumpEvents();
 
         const Uint8* state = SDL_GetKeyboardState(NULL);
+        if (state[SDL_SCANCODE_ESCAPE]) break;
+
+        Uint64 now = SDL_GetPerformanceCounter();
+        deltaTime = (double)((now - lastFrame) * 1000 / (double)SDL_GetPerformanceFrequency()) / 1000.0;
+        lastFrame = now;
+
+        int move = (int)(speed * deltaTime);
         int newX = jogador.x, newY = jogador.y;
+        int spriteX = 0, spriteY = 0;
 
         if (!faseConcluida && !tempoEsgotado) {
-            if (state[SDL_SCANCODE_UP]) newY -= 2;
-            if (state[SDL_SCANCODE_DOWN]) newY += 2;
-            if (state[SDL_SCANCODE_LEFT]) newX -= 2;
-            if (state[SDL_SCANCODE_RIGHT]) newX += 2;
+            if (state[SDL_SCANCODE_UP]) {
+                newY -= move;
+                spriteX = frameW;
+                spriteY = 0;
+            } else if (state[SDL_SCANCODE_DOWN]) {
+                newY += move;
+                spriteX = 0;
+                spriteY = 0;
+            } else if (state[SDL_SCANCODE_LEFT]) {
+                newX -= move;
+                spriteX = frameW;
+                spriteY = frameH;
+            } else if (state[SDL_SCANCODE_RIGHT]) {
+                newX += move;
+                spriteX = 0;
+                spriteY = frameH;
+            }
 
             SDL_Rect novoRect = { newX, newY, jogador.w, jogador.h };
             bool colisao = false;
@@ -108,9 +141,8 @@ int main() {
             if (joias[0].collected && joias[1].collected) {
                 SDL_Rect p = { jogador.x, jogador.y, jogador.w, jogador.h };
                 SDL_Rect c = { calice.x, calice.y, calice.w, calice.h };
-                if (SDL_HasIntersection(&p, &c)) {
+                if (SDL_HasIntersection(&p, &c))
                     faseConcluida = true;
-                }
             }
 
             Uint32 elapsed = (SDL_GetTicks() - startTime) / 1000;
@@ -153,9 +185,9 @@ int main() {
             }
         }
 
-        SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_Rect playerRect = { jogador.x, jogador.y, jogador.w, jogador.h };
-        SDL_RenderFillRect(ren, &playerRect);
+        SDL_Rect srcRect = { spriteX, spriteY, frameW, frameH };
+        SDL_Rect dstRect = { jogador.x, jogador.y, jogador.w, jogador.h };
+        SDL_RenderCopy(ren, jogadorTexture, &srcRect, &dstRect);
 
         int remaining = tempoTotal - (SDL_GetTicks() - startTime)/1000;
         if (remaining < 0) remaining = 0;
@@ -182,7 +214,6 @@ int main() {
         }
 
         SDL_RenderPresent(ren);
-        SDL_Delay(16);
     }
 
     TTF_CloseFont(font);
@@ -190,6 +221,7 @@ int main() {
     SDL_DestroyTexture(paredeTexture);
     SDL_DestroyTexture(caliceTexture);
     SDL_DestroyTexture(joiasTexture);
+    SDL_DestroyTexture(jogadorTexture);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(window);
     TTF_Quit();
@@ -197,4 +229,3 @@ int main() {
     SDL_Quit();
     return 0;
 }
-
