@@ -1,124 +1,200 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-typedef struct { int x, y, w, h; bool collected; } Collectible;
-typedef struct { int x, y, w, h; } Rect;
-typedef struct { int x, y, w, h; } Player;
+typedef struct {
+    int x, y, w, h;
+    bool collected;
+} Coletavel;
 
-SDL_Texture* loadTexture(SDL_Renderer* ren, const char* path) {
-    SDL_Surface* surface = IMG_Load(path);
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surface);
-    SDL_FreeSurface(surface);
-    return tex;
-}
+typedef struct {
+    int x, y, w, h;
+} Rect;
 
-bool checkCollisionRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
-    SDL_Rect r1 = {x1, y1, w1, h1};
-    SDL_Rect r2 = {x2, y2, w2, h2};
-    return SDL_HasIntersection(&r1, &r2);
-}
+typedef struct {
+    int x, y, w, h;
+} Jogador;
 
-bool checkCollision(Player p, int newX, int newY, Rect walls[], int wallCount) {
-    SDL_Rect future = {newX, newY, p.w, p.h};
-    for (int i = 0; i < wallCount; i++) {
-        SDL_Rect w = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
-        if (SDL_HasIntersection(&future, &w)) return true;
-    }
-    return false;
-}
-
-int main(int argc, char* argv[]) {
+int main() {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
 
-    SDL_Window* win = SDL_CreateWindow("Mapa SDL2",
-                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                       640, 480, 0);
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
+    SDL_Window* window = SDL_CreateWindow("Mapa SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    SDL_Renderer* ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    SDL_Texture* texFloor  = loadTexture(ren, "chao.png");
-    SDL_Texture* texWall   = loadTexture(ren, "parede.png");
-    SDL_Texture* texCalice = loadTexture(ren, "calice.png");
+    SDL_Surface* chaoSurface = IMG_Load("chao.png");
+    SDL_Surface* paredeSurface = IMG_Load("parede.png");
+    SDL_Surface* caliceSurface = IMG_Load("calice.png");
+    SDL_Surface* joiasSurface = IMG_Load("joias.png");
 
-    Player player = {50, 50, 32, 32};
-    Rect walls[] = {{0,0,640,32},{0,448,640,32},{0,0,32,480},{608,0,32,480},
-                    {100,100,200,32},{300,200,32,150},{400,300,150,32},{200,350,150,32}};
-    int wallCount = sizeof(walls)/sizeof(walls[0]);
-    Rect calice = {500,100,32,32};
-    Collectible joias[2] = {{150,400,32,32,false},{500,350,32,32,false}};
+    SDL_Texture* chaoTexture = SDL_CreateTextureFromSurface(ren, chaoSurface);
+    SDL_Texture* paredeTexture = SDL_CreateTextureFromSurface(ren, paredeSurface);
+    SDL_Texture* caliceTexture = SDL_CreateTextureFromSurface(ren, caliceSurface);
+    SDL_Texture* joiasTexture = SDL_CreateTextureFromSurface(ren, joiasSurface);
+
+    SDL_FreeSurface(chaoSurface);
+    SDL_FreeSurface(paredeSurface);
+    SDL_FreeSurface(caliceSurface);
+    SDL_FreeSurface(joiasSurface);
+
+    Rect walls[] = {
+        {0, 0, 800, 64},
+        {0, 536, 800, 64},
+        {0, 0, 64, 600},
+        {736, 0, 64, 600},
+        {100, 100, 200, 32},
+        {300, 200, 32, 150},
+        {400, 300, 150, 32},
+        {200, 350, 150, 32}
+    };
+    int qtdWalls = sizeof(walls)/sizeof(walls[0]);
+
+    Jogador jogador = {100, 500, 32, 32};
+    Rect calice = {600, 100, 64, 64};
+
+    Coletavel joias[2] = {
+        {150, 400, 64, 64, false},
+        {500, 350, 64, 64, false}
+    };
+
+    TTF_Font* font = TTF_OpenFont("ComicNeue-BoldItalic.ttf", 48);
 
     bool running = true;
-    SDL_Event e;
+    Uint32 startTime = SDL_GetTicks();
+    int tempoTotal = 20;
+    bool faseConcluida = false;
+    bool tempoEsgotado = false;
+
+    int colorToggle = 0;
 
     while (running) {
-        if (SDL_WaitEventTimeout(&e, 16)) {
-            if (e.type == SDL_QUIT) running = false;
-        }
+        SDL_PumpEvents();
 
         const Uint8* state = SDL_GetKeyboardState(NULL);
-        int newX = player.x, newY = player.y;
-        if (state[SDL_SCANCODE_UP]) newY -= 4;
-        if (state[SDL_SCANCODE_DOWN]) newY += 4;
-        if (state[SDL_SCANCODE_LEFT]) newX -= 4;
-        if (state[SDL_SCANCODE_RIGHT]) newX += 4;
+        int newX = jogador.x, newY = jogador.y;
 
-        if (!checkCollision(player, newX, player.y, walls, wallCount)) player.x = newX;
-        if (!checkCollision(player, player.x, newY, walls, wallCount)) player.y = newY;
+        if (!faseConcluida && !tempoEsgotado) {
+            if (state[SDL_SCANCODE_UP]) newY -= 2;
+            if (state[SDL_SCANCODE_DOWN]) newY += 2;
+            if (state[SDL_SCANCODE_LEFT]) newX -= 2;
+            if (state[SDL_SCANCODE_RIGHT]) newX += 2;
 
-        for (int i = 0; i < 2; i++) {
-            if (!joias[i].collected &&
-                checkCollisionRect(player.x, player.y, player.w, player.h,
-                                   joias[i].x, joias[i].y, joias[i].w, joias[i].h)) {
-                joias[i].collected = true;
+            SDL_Rect novoRect = { newX, newY, jogador.w, jogador.h };
+            bool colisao = false;
+            for (int i = 0; i < qtdWalls; i++) {
+                SDL_Rect wRect = { walls[i].x, walls[i].y, walls[i].w, walls[i].h };
+                if (SDL_HasIntersection(&novoRect, &wRect)) {
+                    colisao = true;
+                    break;
+                }
             }
+            if (!colisao) {
+                jogador.x = newX;
+                jogador.y = newY;
+            }
+
+            for (int i = 0; i < 2; i++) {
+                if (!joias[i].collected) {
+                    SDL_Rect p = { jogador.x, jogador.y, jogador.w, jogador.h };
+                    SDL_Rect j = { joias[i].x, joias[i].y, joias[i].w, joias[i].h };
+                    if (SDL_HasIntersection(&p, &j))
+                        joias[i].collected = true;
+                }
+            }
+
+            if (joias[0].collected && joias[1].collected) {
+                SDL_Rect p = { jogador.x, jogador.y, jogador.w, jogador.h };
+                SDL_Rect c = { calice.x, calice.y, calice.w, calice.h };
+                if (SDL_HasIntersection(&p, &c)) {
+                    faseConcluida = true;
+                }
+            }
+
+            Uint32 elapsed = (SDL_GetTicks() - startTime) / 1000;
+            if (elapsed >= tempoTotal) tempoEsgotado = true;
         }
 
-        if (texFloor) {
-            SDL_Rect dst = {0, 0, 640, 480};
-            SDL_RenderCopy(ren, texFloor, NULL, &dst);
-        } else {
-            SDL_SetRenderDrawColor(ren, 0xA0, 0xA0, 0xA0, 0xFF);
-            SDL_RenderClear(ren);
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+
+        int chaoW, chaoH;
+        SDL_QueryTexture(chaoTexture, NULL, NULL, &chaoW, &chaoH);
+        for (int y = 0; y < 600; y += chaoH)
+            for (int x = 0; x < 800; x += chaoW) {
+                SDL_Rect dst = {x, y, chaoW, chaoH};
+                SDL_RenderCopy(ren, chaoTexture, NULL, &dst);
+            }
+
+        int paredeW, paredeH;
+        SDL_QueryTexture(paredeTexture, NULL, NULL, &paredeW, &paredeH);
+        for (int i = 0; i < qtdWalls; i++) {
+            Rect w = walls[i];
+            for (int y = w.y; y < w.y + w.h; y += paredeH)
+                for (int x = w.x; x < w.x + w.w; x += paredeW) {
+                    int wDraw = paredeW;
+                    int hDraw = paredeH;
+                    if (x + wDraw > w.x + w.w) wDraw = (w.x + w.w) - x;
+                    if (y + hDraw > w.y + w.h) hDraw = (w.y + w.h) - y;
+                    SDL_Rect src = {0, 0, wDraw, hDraw};
+                    SDL_Rect dst = {x, y, wDraw, hDraw};
+                    SDL_RenderCopy(ren, paredeTexture, &src, &dst);
+                }
         }
 
-        if (texWall) {
-            for (int i = 0; i < wallCount; i++) {
-                SDL_Rect r = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
-                SDL_RenderCopy(ren, texWall, NULL, &r);
-            }
-        } else {
-            SDL_SetRenderDrawColor(ren, 0x50,0x50,0x50,0xFF);
-            for (int i = 0; i < wallCount; i++) {
-                SDL_Rect r = {walls[i].x, walls[i].y, walls[i].w, walls[i].h};
-                SDL_RenderFillRect(ren, &r);
-            }
-        }
+        SDL_RenderCopy(ren, caliceTexture, NULL, (SDL_Rect*)&calice);
 
-        SDL_Rect caliceRect = {calice.x, calice.y, 32, 32};
-        SDL_RenderCopy(ren, texCalice, NULL, &caliceRect);
-
-        SDL_SetRenderDrawColor(ren,0xFF,0xFF,0x00,0xFF);
         for (int i = 0; i < 2; i++) {
             if (!joias[i].collected) {
-                SDL_Rect jRect = {joias[i].x, joias[i].y, 32, 32};
-                SDL_RenderFillRect(ren, &jRect);
+                SDL_Rect jRect = { joias[i].x, joias[i].y, joias[i].w, joias[i].h };
+                SDL_RenderCopy(ren, joiasTexture, NULL, &jRect);
             }
         }
 
-        SDL_SetRenderDrawColor(ren,0xFF,0x00,0x00,0xFF);
-        SDL_Rect pRect = {player.x, player.y, 32, 32};
-        SDL_RenderFillRect(ren,&pRect);
+        SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_Rect playerRect = { jogador.x, jogador.y, jogador.w, jogador.h };
+        SDL_RenderFillRect(ren, &playerRect);
+
+        int remaining = tempoTotal - (SDL_GetTicks() - startTime)/1000;
+        if (remaining < 0) remaining = 0;
+        char timerText[16];
+        sprintf(timerText, "Tempo: %d", remaining);
+        SDL_Color white = {255,255,255,255};
+        SDL_Surface* timerSurface = TTF_RenderText_Solid(font, timerText, white);
+        SDL_Texture* timerTexture = SDL_CreateTextureFromSurface(ren, timerSurface);
+        SDL_Rect timerRect = { 10, 540, timerSurface->w, timerSurface->h };
+        SDL_RenderCopy(ren, timerTexture, NULL, &timerRect);
+        SDL_FreeSurface(timerSurface);
+        SDL_DestroyTexture(timerTexture);
+
+        if (faseConcluida || tempoEsgotado) {
+            const char* msg = faseConcluida ? "VITORIA!" : "TEMPO ESGOTADO!";
+            SDL_Color colors[2] = { {255,255,0,255}, {255,0,0,255} };
+            colorToggle = (colorToggle + 1) % 2;
+            SDL_Surface* msgSurface = TTF_RenderText_Solid(font, msg, colors[colorToggle]);
+            SDL_Texture* msgTexture = SDL_CreateTextureFromSurface(ren, msgSurface);
+            SDL_Rect msgRect = { 400 - msgSurface->w/2, 280 - msgSurface->h/2, msgSurface->w, msgSurface->h };
+            SDL_RenderCopy(ren, msgTexture, NULL, &msgRect);
+            SDL_FreeSurface(msgSurface);
+            SDL_DestroyTexture(msgTexture);
+        }
 
         SDL_RenderPresent(ren);
+        SDL_Delay(16);
     }
 
-    SDL_DestroyTexture(texFloor);
-    SDL_DestroyTexture(texWall);
-    SDL_DestroyTexture(texCalice);
+    TTF_CloseFont(font);
+    SDL_DestroyTexture(chaoTexture);
+    SDL_DestroyTexture(paredeTexture);
+    SDL_DestroyTexture(caliceTexture);
+    SDL_DestroyTexture(joiasTexture);
     SDL_DestroyRenderer(ren);
-    SDL_DestroyWindow(win);
+    SDL_DestroyWindow(window);
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
     return 0;
 }
+
