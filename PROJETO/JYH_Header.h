@@ -20,11 +20,11 @@ typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fi
 }JYH_Mundo;
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
-	char nome[50];//nome do nível
+	char nome[30];//nome do nível
     char path[50];//path para o arquivo do lvl
+    char path_theme[50];
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
-    //Uint32 w,h;//tamanhos discretos
     int w,h;
     unsigned char *mat;
 }JYH_Nivel;

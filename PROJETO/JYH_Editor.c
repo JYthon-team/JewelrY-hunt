@@ -63,12 +63,10 @@ void JYH_Draw_Grade(JYH_GameState* jogo){
 	
 	for(int i = 0; i < jogo->le.lvl.w; i ++){
 		for(int j = 0; j < jogo->le.lvl.h; j++){
-			//if(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i] < 16){
-				r.x = i*stepx ;
-				r.y = 100 + j*stepy - stepy*0.5;
-				c.x = c.w*(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i]);
-				SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
-			//}
+			r.x = i*stepx ;
+			r.y = 100 + j*stepy - stepy*0.5;
+			c.x = c.w*(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i]);
+			SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
 		}
 	}
 }
@@ -115,6 +113,8 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
+    JYH_Draw_Grade(jogo);
+
 	AUX_Draw_Icon(jogo->ren,&jogo->le.tb);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.sb);
 	
@@ -126,8 +126,6 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_P);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_A);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_T);
-	
-	JYH_Draw_Grade(jogo);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
@@ -164,14 +162,14 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_P.r)){
 					jogo->le.pincel = (jogo->le.pincel == PINCEL_PINTANDO)?PINCEL_DESOCUPADO:PINCEL_PINTANDO;
-					jogo->le.botao_P.f = 1;
+					jogo->le.botao_P.f = (jogo->le.botao_P.f)?0:1;
 					jogo->le.botao_A.f = 0;
 					
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_A.r)){
 					jogo->le.pincel = (jogo->le.pincel == PINCEL_APAGANDO)?PINCEL_DESOCUPADO:PINCEL_APAGANDO;
 					jogo->le.botao_P.f = 0;
-					jogo->le.botao_A.f = 1;
+					jogo->le.botao_A.f = (jogo->le.botao_A.f)?0:1;
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){/*Menu de Temas*/}
 				break;
@@ -181,12 +179,28 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				break;
 		}
 	}else{
+        jogo->espera = 10;
 	/*eventos baseados em tempo*/
 	}
 	
 
 }
 
+void JYH_Save_lvl(JYH_GameState* jogo){
+    char S[50];
+    JYH_Nivel* lvl = &jogo->le.lvl;
+    sprintf(S,".$MeusNiveis$%s.txt",lvl->nome);
+    FILE* dest = fopen(S,"w");
+    fprintf(dest,"%d %d\n",lvl->w,lvl->h);
+    fprintf(dest,"%s\n",lvl->path_theme);
+    for(int i = 0; i < lvl->w; i++){
+        for(int j = 0; j < lvl->h; j++){
+            fprintf(dest,"%d\n",lvl->mat[j*(lvl->w)+i]);
+        }
+        fprintf(dest,"\n");
+    }
+    fclose(dest);
+}
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
@@ -197,6 +211,8 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->le.lvl.w = 25;//default
 	jogo->le.lvl.h = 15;//default
 	jogo->le.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
+    strcpy(jogo->le.lvl.path_theme,".$img$geral$tile-Sheet.png");
+    strcpy(jogo->le.lvl.nome,"teste");
 	jogo->le.last_idx = (jogo->le.lvl.w)*(jogo->le.lvl.h);
 	const int temp = (jogo->le.lvl.w)*(jogo->le.lvl.h);
 	for(int i = 0; i < temp;i++)jogo->le.lvl.mat[i]= 0;
