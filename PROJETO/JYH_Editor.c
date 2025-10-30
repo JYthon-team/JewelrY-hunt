@@ -15,6 +15,43 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	free(jogo->le.lvl.mat);//temporario
 }
 
+
+void JYH_Save_lvl(JYH_GameState* jogo){
+    char S[100];
+    JYH_Nivel* lvl = &jogo->le.lvl;
+    sprintf(S,".$JYH$MeusNiveis$%s.txt",lvl->nome);
+    AUX_AdaptarString(S);
+    FILE* dest = fopen(S,"w");
+    printf("Salvando em %s\n",S);
+    assert(dest!=NULL);
+    fprintf(dest,"%d %d\n",lvl->w,lvl->h);
+    fprintf(dest,"%s\n",lvl->path_theme);
+    for(int i = 0; i < lvl->w; i++){
+        for(int j = 0; j < lvl->h; j++){
+            fprintf(dest,"%d ",lvl->mat[j*(lvl->w)+i]);
+        }
+        fprintf(dest,"\n");
+    }
+    fclose(dest);
+}
+
+void JYH_Read_lvl(JYH_GameState*jogo){
+    JYH_Nivel* lvl = &jogo->le.lvl;
+    sprintf(S,".$JYH$MeusNiveis$%s.txt",lvl->nome);
+    AUX_AdaptarString(S);
+    FILE* orig =fopen(S,"r");
+    assert(orig!=NULL);
+    printf("Lendo %s\n",S);
+    fscanf(orig,"%d %d"&lvl->w,&lvl->h);
+    fscanf(orig,"%s\n",lvl.path_theme);
+    for(int i = 0; i < lvl->w; i++){
+        for(int j = 0; j < lvl->h; j++){
+            fscanf(orig,"%d",&lvl->mat[j*(lvl->w)+i]);
+        }
+    }
+    fclose(orig);
+}
+
 //Transições
 
 void JYH_LE_to_PL(JYH_GameState* jogo){//editor à biblioteca do player
@@ -155,7 +192,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					JYH_LE_goback(jogo);
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
-				
+				    JYH_Save_lvl(jogo);
 				/*Salvar Nível*/}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r)){
 					JYH_LE_to_EX(jogo);
@@ -186,21 +223,6 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 
 }
 
-void JYH_Save_lvl(JYH_GameState* jogo){
-    char S[50];
-    JYH_Nivel* lvl = &jogo->le.lvl;
-    sprintf(S,".$MeusNiveis$%s.txt",lvl->nome);
-    FILE* dest = fopen(S,"w");
-    fprintf(dest,"%d %d\n",lvl->w,lvl->h);
-    fprintf(dest,"%s\n",lvl->path_theme);
-    for(int i = 0; i < lvl->w; i++){
-        for(int j = 0; j < lvl->h; j++){
-            fprintf(dest,"%d\n",lvl->mat[j*(lvl->w)+i]);
-        }
-        fprintf(dest,"\n");
-    }
-    fclose(dest);
-}
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
