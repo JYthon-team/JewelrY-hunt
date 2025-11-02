@@ -120,9 +120,9 @@ void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
 	jogo->le.r_camera.x -= dx;
 	jogo->le.r_camera.y -= dy;
 	if(jogo->le.r_camera.x < 0)jogo->le.r_camera.x = 0;
-	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w -jogo->le.r_editor.y;
+	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w -jogo->le.r_editor.x;
 	if(jogo->le.r_camera.y < 0)jogo->le.r_camera.y = 0;
-	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h - jogo->le.r_editor.x;
+	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h - jogo->le.r_editor.y;
 }
 
 void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
@@ -228,11 +228,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					switch(jogo->le.pincel){
 						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
 						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
-						case PINCEL_DESOCUPADO:
-							jogo->le.press = SDL_TRUE;
-							jogo->le.pincel = PINCEL_MOVER_CAMERA;
-						
-							break;
+						case PINCEL_DESOCUPADO:jogo->le.pincel = PINCEL_MOVER_CAMERA;break;
 					}
 				}
 				break;
