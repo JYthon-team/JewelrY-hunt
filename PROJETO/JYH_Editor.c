@@ -87,25 +87,27 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 	JYH_Load_EX(jogo);
 }
 
-//Conversão Tela Mundo
+//Conversão Tela Mundo- Avançado
 void JYH_Converter_TelaMundo(SDL_Point* p, SDL_Rect* r_editor, SDL_Rect* r_camera){
-	p->x = r_camera->x + p->x;
-	p->y = r_camera->y + p->y;
+	p->x = r_camera->x + p->x - r_editor->x;
+	p->y = r_camera->y + p->y - r_editor->y;
 }
 void JYH_Converter_MundoTela(SDL_Point* p, SDL_Rect* r_editor, SDL_Rect* r_camera){
-	p->x = (p->x-r_camera->x);
-	p->y = (p->y-r_camera->y);
+	p->x = (p->x-r_camera->x) + r_editor->x;
+	p->y = (p->y-r_camera->y) + r_editor->y;
 }
 void JYH_Draw_Grade_Cam(JYH_GameState* jogo){
 	SDL_Point p,coord1, coord2;
-	SDL_Rect r = {0,0,32,48};
+	SDL_Rect r = {0,0,64,96};
 	SDL_Rect c = {0,0,32,48};
-	coord1 = (SDL_Point){jogo->le.r_camera.x/32                        ,                        jogo->le.r_camera.y/32};
-	coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/32,(jogo->le.r_camera.y + jogo->le.r_camera.h)/32};
-	for(int i = coord1.x; i < coord2.x; i++){
-		for(int j = coord1.y; j < coord2.y; j++){
-			p.x = i*32 ;
-			p.y = j*32 -16;
+	coord1 = (SDL_Point){jogo->le.r_camera.x/64                        ,                        jogo->le.r_camera.y/64};
+	coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/64,(jogo->le.r_camera.y + jogo->le.r_camera.h)/64};
+	for(int i = coord1.x; i <= coord2.x; i++){
+		if (i == jogo->le.lvl.w)break;
+		for(int j = coord1.y; j <= coord2.y; j++){
+			if (j == jogo->le.lvl.h)break;
+			p.x = i*64;
+			p.y = j*64 - 32;
 			JYH_Converter_MundoTela(&p,&jogo->le.r_editor,&jogo->le.r_camera);
 			r.x = p.x;
 			r.y = p.y;
@@ -113,9 +115,42 @@ void JYH_Draw_Grade_Cam(JYH_GameState* jogo){
 			SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
 		}
 	}
-
+}
+void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
+	jogo->le.r_camera.x -= dx;
+	jogo->le.r_camera.y -= dy;
+	if(jogo->le.r_camera.x < 0)jogo->le.r_camera.x = 0;
+	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w -jogo->le.r_editor.y;
+	if(jogo->le.r_camera.y < 0)jogo->le.r_camera.y = 0;
+	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h - jogo->le.r_editor.x;
 }
 
+void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
+	//int idx = JYH_Converter_Coordenada(jogo,p);
+	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
+	unsigned char *mat = jogo->le.lvl.mat;
+	int              w = jogo->le.lvl.w  ;
+	int              h = jogo->le.lvl.h  ;
+	int idx = (p->x/64)+(p->y/64)*w;
+	                 mat[idx  ] |= 16;                                                                               ;//bloco em si vira parede
+	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
+	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
+	if(idx - w >= 0 )mat[idx-w] |= 8 ;//bloco acima
+	if(idx + w < w*h)mat[idx+w] |= 2 ;//blocoabaixo
+	
+}
+void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
+	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
+	unsigned char *mat = jogo->le.lvl.mat;
+	int              w = jogo->le.lvl.w  ;
+	int              h = jogo->le.lvl.h  ;
+	int idx = (p->x/64)+(p->y/64)*w;
+	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
+	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
+	if((idx+1)%w    )mat[idx+1] -= (mat[idx+1] & 4 )?4 :0;//bloco à direita tem parede
+	if(idx - w >= 0 )mat[idx-w] -= (mat[idx-w] & 8 )?8 :0;//bloco acima
+	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
+}
 
 void JYH_Draw_Grade(JYH_GameState* jogo){
 	//grade contida no retângulo {0,100,1000,600}
@@ -147,31 +182,6 @@ int JYH_Converter_Coordenada(JYH_GameState* jogo,SDL_Point* p){
 	return y*(jogo->le.lvl.w) + x;
 }
 
-void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
-	int idx = JYH_Converter_Coordenada(jogo,p);
-	unsigned char *mat = jogo->le.lvl.mat;
-	int              w = jogo->le.lvl.w  ;
-	int              h = jogo->le.lvl.h  ;
-	                 mat[idx  ] |= 16;                                                                               ;//bloco em si vira parede
-	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
-	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
-	if(idx - w >= 0 )mat[idx-w] |= 8 ;//bloco acima
-	if(idx + w < w*h)mat[idx+w] |= 2 ;//blocoabaixo
-	
-}
-
-void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
-	int idx = JYH_Converter_Coordenada(jogo,p);
-	unsigned char *mat = jogo->le.lvl.mat;
-	int              w = jogo->le.lvl.w  ;
-	int              h = jogo->le.lvl.h  ;
-	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
-	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
-	if((idx+1)%w    )mat[idx+1] -= (mat[idx+1] & 4 )?4 :0;//bloco à direita tem parede
-	if(idx - w >= 0 )mat[idx-w] -= (mat[idx-w] & 8 )?8 :0;//bloco acima
-	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
-}
-
 //Execução
 
 void JYH_LE(JYH_GameState* jogo){//Atualizar
@@ -181,11 +191,11 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-    JYH_Draw_Grade(jogo);
+    //JYH_Draw_Grade(jogo);
 
 	//Experimental, Câmera
 
-	//JYH_Draw_Grade_Cam(jogo);
+	JYH_Draw_Grade_Cam(jogo);
 
 	AUX_Draw_Icon(jogo->ren,&jogo->le.tb);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.sb);
@@ -207,6 +217,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					switch(jogo->le.pincel){
 						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
 						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
+						case PINCEL_MOVER_CAMERA:JYH_Move_Camera(jogo,jogo->evt.motion.xrel,jogo->evt.motion.yrel);break;
 					}
 				}
 				break;
@@ -217,13 +228,21 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					switch(jogo->le.pincel){
 						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
 						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
+						case PINCEL_DESOCUPADO:
+							jogo->le.press = SDL_TRUE;
+							jogo->le.pincel = PINCEL_MOVER_CAMERA;
+						
+							break;
 					}
 				}
 				break;
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				jogo->le.press = SDL_FALSE;
-				if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
+				if(jogo->le.pincel == PINCEL_MOVER_CAMERA){
+					jogo->le.pincel = PINCEL_DESOCUPADO;
+				}
+				else if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
 					JYH_LE_goback(jogo);
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
