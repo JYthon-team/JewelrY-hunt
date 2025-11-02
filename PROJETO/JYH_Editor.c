@@ -63,12 +63,10 @@ void JYH_Draw_Grade(JYH_GameState* jogo){
 	
 	for(int i = 0; i < jogo->le.lvl.w; i ++){
 		for(int j = 0; j < jogo->le.lvl.h; j++){
-			//if(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i] < 16){
 				r.x = i*stepx ;
 				r.y = 100 + j*stepy - stepy*0.5;
 				c.x = c.w*(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i]);
 				SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
-			//}
 		}
 	}
 }
