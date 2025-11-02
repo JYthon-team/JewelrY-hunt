@@ -92,17 +92,17 @@ int main() {
     int tempoTotal = 20;
     bool faseConcluida = false;
     bool tempoEsgotado = false;
+    bool derrota = false;
 
     int spriteW, spriteH;
     SDL_QueryTexture(jogadorTexture, NULL, NULL, &spriteW, &spriteH);
     int frameW = spriteW / 2;
     int frameH = spriteH / 2;
 
-    int colorToggle = 0;
-
     Uint64 lastFrame = SDL_GetPerformanceCounter();
     double deltaTime = 0;
     double speed = 200;
+    int colorToggle = 0;
 
     while (running) {
         SDL_PumpEvents();
@@ -117,14 +117,17 @@ int main() {
         int newX = jogador.x, newY = jogador.y;
         int spriteX = 0, spriteY = 0;
 
-        if (!faseConcluida && !tempoEsgotado) {
+        if (!faseConcluida && !tempoEsgotado && !derrota) {
             if (state[SDL_SCANCODE_UP]) { newY -= move; spriteX = frameW; spriteY = 0; }
             else if (state[SDL_SCANCODE_DOWN]) { newY += move; spriteX = 0; spriteY = 0; }
             else if (state[SDL_SCANCODE_LEFT]) { newX -= move; spriteX = frameW; spriteY = frameH; }
             else if (state[SDL_SCANCODE_RIGHT]) { newX += move; spriteX = 0; spriteY = frameH; }
 
             SDL_Rect novoRect = { newX, newY, jogador.w, jogador.h };
-            if (!colideParedes(novoRect, walls, qtdWalls)) { jogador.x = newX; jogador.y = newY; }
+            if (!colideParedes(novoRect, walls, qtdWalls)) {
+                jogador.x = newX;
+                jogador.y = newY;
+            }
 
             double dx = jogador.x - inimigo.x;
             double dy = jogador.y - inimigo.y;
@@ -132,8 +135,10 @@ int main() {
             if (dist > 1) {
                 int stepX = (int)(dx / dist * inimigoVel * deltaTime);
                 int stepY = (int)(dy / dist * inimigoVel * deltaTime);
+
                 SDL_Rect inimigoXMove = { inimigo.x + stepX, inimigo.y, inimigo.w, inimigo.h };
                 SDL_Rect inimigoYMove = { inimigo.x, inimigo.y + stepY, inimigo.w, inimigo.h };
+
                 if (!colideParedes(inimigoXMove, walls, qtdWalls)) inimigo.x += stepX;
                 if (!colideParedes(inimigoYMove, walls, qtdWalls)) inimigo.y += stepY;
             }
@@ -151,7 +156,6 @@ int main() {
                     if (SDL_HasIntersection(&pRect, &jRect)) joias[i].collected = true;
                 }
             }
-
             if (joias[0].collected && joias[1].collected) {
                 SDL_Rect pRect = { jogador.x, jogador.y, jogador.w, jogador.h };
                 SDL_Rect cRect = { calice.x, calice.y, calice.w, calice.h };
@@ -160,71 +164,81 @@ int main() {
 
             Uint32 elapsed = (SDL_GetTicks() - startTime) / 1000;
             if (elapsed >= tempoTotal) tempoEsgotado = true;
+
+            SDL_Rect jogadorRect = { jogador.x, jogador.y, jogador.w, jogador.h };
+            SDL_Rect inimigoRect = { inimigo.x, inimigo.y, inimigo.w, inimigo.h };
+            if (SDL_HasIntersection(&jogadorRect, &inimigoRect)) derrota = true;
         }
 
-        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0xFF);
         SDL_RenderClear(ren);
 
         int chaoW, chaoH;
         SDL_QueryTexture(chaoTexture, NULL, NULL, &chaoW, &chaoH);
-        for (int y = 0; y < 600; y += chaoH)
-            for (int x = 0; x < 800; x += chaoW)
-                SDL_RenderCopy(ren, chaoTexture, NULL, &(SDL_Rect){x, y, chaoW, chaoH});
+        for (int y = 0; y < 600; y += chaoH) {
+            for (int x = 0; x < 800; x += chaoW) {
+                SDL_Rect dst = { x, y, chaoW, chaoH };
+                SDL_RenderCopy(ren, chaoTexture, NULL, &dst);
+            }
+        }
 
         int paredeW, paredeH;
-        SDL_QueryTexture(paredeTexture, NULL, NULL, &paredeW, &paredeH);
-        for (int i = 0; i < qtdWalls; i++) {
+        SDL_QueryTexture(paredeTexture,NULL,NULL,&paredeW,&paredeH);
+        for (int i=0;i<qtdWalls;i++) {
             Rect w = walls[i];
-            for (int y = w.y; y < w.y + w.h; y += paredeH)
-                for (int x = w.x; x < w.x + w.w; x += paredeW) {
-                    int wDraw = paredeW;
-                    int hDraw = paredeH;
+            for (int y=w.y; y<w.y+w.h; y+=paredeH) {
+                for (int x=w.x; x<w.x+w.w; x+=paredeW) {
+                    int wDraw = paredeW, hDraw = paredeH;
                     if (x + wDraw > w.x + w.w) wDraw = (w.x + w.w) - x;
                     if (y + hDraw > w.y + w.h) hDraw = (w.y + w.h) - y;
-                    SDL_RenderCopy(ren, paredeTexture, &(SDL_Rect){0,0,wDraw,hDraw}, &(SDL_Rect){x,y,wDraw,hDraw});
+                    SDL_Rect src = {0,0,wDraw,hDraw};
+                    SDL_Rect dst = {x,y,wDraw,hDraw};
+                    SDL_RenderCopy(ren,paredeTexture,&src,&dst);
                 }
+            }
         }
 
         SDL_RenderCopy(ren, caliceTexture, NULL, (SDL_Rect*)&calice);
 
-        for (int i = 0; i < 2; i++) {
-            if (!joias[i].collected)
-                SDL_RenderCopy(ren, joiasTexture, NULL, &(SDL_Rect){joias[i].x, joias[i].y, joias[i].w, joias[i].h});
+        for (int i=0;i<2;i++) {
+            if (!joias[i].collected) {
+                SDL_Rect jRect = {joias[i].x, joias[i].y, joias[i].w, joias[i].h};
+                SDL_RenderCopy(ren, joiasTexture, NULL, &jRect);
+            }
         }
 
-        SDL_Rect srcRect = { spriteX, spriteY, frameW, frameH };
-        float escala = 1.1f;
-        SDL_Rect dstRect = { jogador.x, jogador.y, (int)(jogador.w * escala), (int)(jogador.h * escala) };
-        SDL_RenderCopy(ren, jogadorTexture, &srcRect, &dstRect);
+        SDL_Rect srcRect={spriteX,spriteY,frameW,frameH};
+        SDL_Rect dstRect={jogador.x,jogador.y,(int)(jogador.w*1.1),(int)(jogador.h*1.1)};
+        SDL_RenderCopy(ren,jogadorTexture,&srcRect,&dstRect);
 
         int frameCol = inimigoFrameAtual % 2;
         int frameRow = inimigoFrameAtual / 2;
-        SDL_Rect inimigoSrc = { frameCol * inimigoFrameW, frameRow * inimigoFrameH, inimigoFrameW, inimigoFrameH };
+        SDL_Rect inimigoSrc = { frameCol*inimigoFrameW, frameRow*inimigoFrameH, inimigoFrameW, inimigoFrameH };
         SDL_Rect inimigoDst = { inimigo.x, inimigo.y, inimigo.w, inimigo.h };
         SDL_RenderCopy(ren, inimigoTexture, &inimigoSrc, &inimigoDst);
 
         int remaining = tempoTotal - (SDL_GetTicks() - startTime)/1000;
-        if (remaining < 0) remaining = 0;
-        char timerText[16];
-        sprintf(timerText, "Tempo: %d", remaining);
-        SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Surface* timerSurface = TTF_RenderText_Solid(font, timerText, white);
-        SDL_Texture* timerTexture = SDL_CreateTextureFromSurface(ren, timerSurface);
-        SDL_Rect timerRect = { 10, 540, timerSurface->w, timerSurface->h };
-        SDL_RenderCopy(ren, timerTexture, NULL, &timerRect);
-        SDL_FreeSurface(timerSurface);
-        SDL_DestroyTexture(timerTexture);
+        if (remaining<0) remaining=0;
+        char timerText[16]; sprintf(timerText,"Tempo: %d",remaining);
+        SDL_Color white={0xFF,0xFF,0xFF,0xFF};
+        SDL_Surface* timerSurface = TTF_RenderText_Solid(font,timerText,white);
+        SDL_Texture* timerTexture = SDL_CreateTextureFromSurface(ren,timerSurface);
+        SDL_Rect timerRect={10,540,timerSurface->w,timerSurface->h};
+        SDL_RenderCopy(ren,timerTexture,NULL,&timerRect);
+        SDL_FreeSurface(timerSurface); SDL_DestroyTexture(timerTexture);
 
-        if (faseConcluida || tempoEsgotado) {
-            const char* msg = faseConcluida ? "VITORIA!" : "TEMPO ESGOTADO!";
-            SDL_Color colors[2] = { {0xFF,0xFF,0x00,0xFF}, {0xFF,0x00,0x00,0xFF} };
-            colorToggle = (colorToggle + 1) % 2;
-            SDL_Surface* msgSurface = TTF_RenderText_Solid(font, msg, colors[colorToggle]);
-            SDL_Texture* msgTexture = SDL_CreateTextureFromSurface(ren, msgSurface);
-            SDL_Rect msgRect = { 400 - msgSurface->w/2, 280 - msgSurface->h/2, msgSurface->w, msgSurface->h };
-            SDL_RenderCopy(ren, msgTexture, NULL, &msgRect);
-            SDL_FreeSurface(msgSurface);
-            SDL_DestroyTexture(msgTexture);
+        if (faseConcluida || tempoEsgotado || derrota) {
+            const char* msg;
+            SDL_Color color;
+            if (faseConcluida) { msg="VITORIA!"; color=(SDL_Color){0xFF,0xFF,0x00,0xFF}; }
+            else if (derrota) { msg="DERROTA!"; color=(SDL_Color){0xFF,0x00,0x00,0xFF}; }
+            else { msg="TEMPO ESGOTADO!"; color=(SDL_Color){0xFF,0x00,0x00,0xFF}; }
+
+            SDL_Surface* msgSurface=TTF_RenderText_Solid(font,msg,color);
+            SDL_Texture* msgTexture=SDL_CreateTextureFromSurface(ren,msgSurface);
+            SDL_Rect msgRect={400 - msgSurface->w/2,280 - msgSurface->h/2,msgSurface->w,msgSurface->h};
+            SDL_RenderCopy(ren,msgTexture,NULL,&msgRect);
+            SDL_FreeSurface(msgSurface); SDL_DestroyTexture(msgTexture);
         }
 
         SDL_RenderPresent(ren);
