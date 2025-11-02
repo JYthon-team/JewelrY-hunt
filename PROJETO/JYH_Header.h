@@ -46,9 +46,6 @@ typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma f
 	Uint32 type;
 	SDL_Rect hitbox;//verifica os hits
 	JYH_Icon drawbox;//aonde se desenha
-	/*union{
-		
-	};*/
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
 }JYH_Objeto;
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
@@ -93,10 +90,12 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	JYH_Nivel lvl;        //Nivel a ser editado
 	Uint32 last_idx;
 	char path[50];
-	//SDL_bool pintar;//modo pintar ativo
 	SDL_bool press;//mouse pressionado
-	//SDL_bool drag;//modo arrasto ativo
 	enum JYH_PINCEL pincel;
+	SDL_Rect r_editor;
+	SDL_Rect r_camera;
+	Uint32 n_obj;
+	JYH_Objeto * objetos;//Lista de todos os objetos do jogo
 	JYH_Icon tb;
 	JYH_Icon sb;
 	SDL_Rect editor;      //região da tela na qual está o editor
