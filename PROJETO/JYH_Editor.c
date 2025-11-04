@@ -48,7 +48,7 @@ void JYH_Read_lvl(JYH_GameState*jogo){
     fscanf(orig,"%s\n",lvl->path_theme);
     for(int i = 0; i < lvl->w; i++){
         for(int j = 0; j < lvl->h; j++){
-            fscanf(orig,"%d",&lvl->mat[j*(lvl->w)+i]);
+            fscanf(orig,"%hhd",&lvl->mat[j*(lvl->w)+i]);
         }
     }
     fclose(orig);
@@ -120,19 +120,18 @@ void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
 	jogo->le.r_camera.x -= dx;
 	jogo->le.r_camera.y -= dy;
 	if(jogo->le.r_camera.x < 0)jogo->le.r_camera.x = 0;
-	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w -jogo->le.r_editor.x;
+	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w ;
 	if(jogo->le.r_camera.y < 0)jogo->le.r_camera.y = 0;
-	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h - jogo->le.r_editor.y;
+	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h ;
 }
 
 void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
-	//int idx = JYH_Converter_Coordenada(jogo,p);
 	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
 	unsigned char *mat = jogo->le.lvl.mat;
 	int              w = jogo->le.lvl.w  ;
 	int              h = jogo->le.lvl.h  ;
 	int idx = (p->x/64)+(p->y/64)*w;
-	                 mat[idx  ] |= 16;                                                                               ;//bloco em si vira parede
+	                 mat[idx  ] |= 16;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
 	if(idx - w >= 0 )mat[idx-w] |= 8 ;//bloco acima
