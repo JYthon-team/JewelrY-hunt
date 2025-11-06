@@ -99,13 +99,15 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	JYH_Objeto * objetos;//Lista de todos os objetos do jogo
 	JYH_Icon tb;
 	JYH_Icon sb;
-	SDL_Rect editor;      //região da tela na qual está o editor
 	JYH_Icon botao_V;//volta
 	JYH_Icon botao_R;//run
 	JYH_Icon botao_S;//salva
 	JYH_Icon botao_P;//pinta
 	JYH_Icon botao_A;//apaga
-	JYH_Icon botao_T;//tema
+	JYH_Icon botao_T;//tema da fase
+    JYH_Icon botao_ZoomIn;//Aumenta o Zoom
+    JYH_Icon botao_ZoomOut;//Diminui o Zoom
+    Uint32 zoom;
 	//adicionar texturas
 }JYH_Editor;
 

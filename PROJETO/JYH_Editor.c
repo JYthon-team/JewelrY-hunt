@@ -98,16 +98,23 @@ void JYH_Converter_MundoTela(SDL_Point* p, SDL_Rect* r_editor, SDL_Rect* r_camer
 }
 void JYH_Draw_Grade_Cam(JYH_GameState* jogo){
 	SDL_Point p,coord1, coord2;
-	SDL_Rect r = {0,0,64,96};
+    int z = jogo->le.zoom;
+    SDL_Rect r = {0,0,z,z+z/2};
 	SDL_Rect c = {0,0,32,48};
-	coord1 = (SDL_Point){jogo->le.r_camera.x/64                        ,                        jogo->le.r_camera.y/64};
-	coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/64,(jogo->le.r_camera.y + jogo->le.r_camera.h)/64};
+	//SDL_Rect r = {0,0,64,96};
+	//SDL_Rect c = {0,0,32,48};
+	coord1 = (SDL_Point){jogo->le.r_camera.x/z                        ,                        jogo->le.r_camera.y/z};
+	coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/z,(jogo->le.r_camera.y + jogo->le.r_camera.h)/z};
+	//coord1 = (SDL_Point){jogo->le.r_camera.x/64                        ,                        jogo->le.r_camera.y/64};
+	//coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/64,(jogo->le.r_camera.y + jogo->le.r_camera.h)/64};
 	for(int i = coord1.x; i <= coord2.x; i++){
 		if (i == jogo->le.lvl.w)break;
 		for(int j = coord1.y; j <= coord2.y; j++){
 			if (j == jogo->le.lvl.h)break;
-			p.x = i*64;
-			p.y = j*64 - 32;
+			//p.x = i*64;
+			//p.y = j*64 - 32;
+            p.x = i*z;
+            p.y = j*z -z/2;
 			JYH_Converter_MundoTela(&p,&jogo->le.r_editor,&jogo->le.r_camera);
 			r.x = p.x;
 			r.y = p.y;
@@ -117,12 +124,15 @@ void JYH_Draw_Grade_Cam(JYH_GameState* jogo){
 	}
 }
 void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
+    int z = jogo->le.zoom;
 	jogo->le.r_camera.x -= dx;
 	jogo->le.r_camera.y -= dy;
 	if(jogo->le.r_camera.x < 0)jogo->le.r_camera.x = 0;
-	else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w ;
+	//else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > 64*jogo->le.lvl.w)jogo->le.r_camera.x = 64*jogo->le.lvl.w - jogo->le.r_camera.w ;
+    else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > z*jogo->le.lvl.w)jogo->le.r_camera.x = z*jogo->le.lvl.w - jogo->le.r_camera.w ;
 	if(jogo->le.r_camera.y < 0)jogo->le.r_camera.y = 0;
-	else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h ;
+	//else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > 64*jogo->le.lvl.h)jogo->le.r_camera.y = 64*jogo->le.lvl.h - jogo->le.r_camera.h ;
+    else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > z*jogo->le.lvl.h)jogo->le.r_camera.y = z*jogo->le.lvl.h - jogo->le.r_camera.h ;
 }
 
 void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
@@ -130,7 +140,9 @@ void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
 	unsigned char *mat = jogo->le.lvl.mat;
 	int              w = jogo->le.lvl.w  ;
 	int              h = jogo->le.lvl.h  ;
-	int idx = (p->x/64)+(p->y/64)*w;
+    int z = jogo->le.zoom;
+	//int idx = (p->x/64)+(p->y/64)*w;
+    int idx = (p->x/z)+(p->y/z)*w;
 	                 mat[idx  ] |= 16;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
@@ -143,7 +155,9 @@ void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
 	unsigned char *mat = jogo->le.lvl.mat;
 	int              w = jogo->le.lvl.w  ;
 	int              h = jogo->le.lvl.h  ;
-	int idx = (p->x/64)+(p->y/64)*w;
+    int z = jogo->le.zoom;
+	//int idx = (p->x/64)+(p->y/64)*w;
+    int idx = (p->x/z)+(p->y/z)*w;
 	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1] -= (mat[idx+1] & 4 )?4 :0;//bloco à direita tem parede
@@ -151,11 +165,11 @@ void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
 	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
 }
 
-void JYH_Draw_Grade(JYH_GameState* jogo){
+void JYH_Draw_Grade(JYH_GameState* jogo){//mudada
 	//grade contida no retângulo {0,100,1000,600}
 	//assumir nivel de  50x30
-	Uint32 stepx = jogo->le.editor.w/jogo->le.lvl.w;
-	Uint32 stepy = jogo->le.editor.h/jogo->le.lvl.h;
+	Uint32 stepx = jogo->le.r_editor.w/jogo->le.lvl.w;
+	Uint32 stepy = jogo->le.r_editor.h/jogo->le.lvl.h;
 	SDL_Rect r = {0,0,stepx,stepy*1.5};
 	SDL_Rect c = {0,0,32,48};//retângulo de recorte dos tilesets
 	SDL_SetRenderDrawColor(jogo->ren,0x00,0x00,0x00,0x00);
@@ -174,10 +188,10 @@ void JYH_Draw_Grade(JYH_GameState* jogo){
 }
 
 int JYH_Converter_Coordenada(JYH_GameState* jogo,SDL_Point* p){
-	Uint32 stepx = jogo->le.editor.w/jogo->le.lvl.w;
-	Uint32 stepy = jogo->le.editor.h/jogo->le.lvl.h;
+	Uint32 stepx = jogo->le.r_editor.w/jogo->le.lvl.w;
+	Uint32 stepy = jogo->le.r_editor.h/jogo->le.lvl.h;
 	int x = (p->x)/(stepx);
-	int y = (p->y - jogo->le.editor.y)/(stepy);
+	int y = (p->y - jogo->le.r_editor.y)/(stepy);
 	return y*(jogo->le.lvl.w) + x;
 }
 
@@ -207,12 +221,14 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_P);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_A);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_T);
+    AUX_Draw_Icon(jogo->ren,&jogo->le.botao_ZoomIn);
+    AUX_Draw_Icon(jogo->ren,&jogo->le.botao_ZoomOut);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEMOTION:
 				p = (SDL_Point){(int)jogo->evt.motion.x,(int)jogo->evt.motion.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.editor)){
+				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.r_editor)){
 					switch(jogo->le.pincel){
 						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
 						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
@@ -223,7 +239,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN:
 				jogo->le.press = SDL_TRUE;
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.editor)){
+				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.r_editor)){
 					switch(jogo->le.pincel){
 						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
 						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
@@ -250,7 +266,6 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					jogo->le.pincel = (jogo->le.pincel == PINCEL_PINTANDO)?PINCEL_DESOCUPADO:PINCEL_PINTANDO;
 					jogo->le.botao_P.f = (jogo->le.botao_P.f)?0:1;
 					jogo->le.botao_A.f = 0;
-					
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_A.r)){
 					jogo->le.pincel = (jogo->le.pincel == PINCEL_APAGANDO)?PINCEL_DESOCUPADO:PINCEL_APAGANDO;
@@ -258,6 +273,8 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					jogo->le.botao_A.f = (jogo->le.botao_A.f)?0:1;
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){/*Menu de Temas*/}
+                else if (SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){jogo->le.zoom*=2;}
+                else if (SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){jogo->le.zoom/=2;}
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
@@ -275,13 +292,15 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
-	jogo->le.editor = (SDL_Rect){0,100,1000,600};
+	//jogo->le.editor = (SDL_Rect){0,100,1000,600};
 	jogo->le.press = SDL_FALSE;
 	
 	//teste
 	jogo->le.lvl.w = 25;//default
 	jogo->le.lvl.h = 15;//default
 	jogo->le.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
+    jogo->le.zoom = 64;
+    jogo->le.pincel =PINCEL_DESOCUPADO;
     strcpy(jogo->le.lvl.path_theme,".$img$geral$tile-Sheet.png");
     strcpy(jogo->le.lvl.nome,"teste");
 	jogo->le.last_idx = (jogo->le.lvl.w)*(jogo->le.lvl.h);
@@ -301,7 +320,11 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\geral\\Paint_JYH-Sheet.png",(SDL_Rect){250,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\geral\\Run_JYH.png",(SDL_Rect){175,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
+    //Icone ainda não desenhado
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){400,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){475,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){550,25,50,50},2);
+
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"img\\geral\\side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
 	
@@ -314,7 +337,11 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"./img/geral/Run_JYH.png",(SDL_Rect){175,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"./img/geral/Paint_JYH-Sheet.png",(SDL_Rect){250,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
+    //Icone Ainda Não Implementado
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){400,25,50,50},2);
+    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){475,25,50,50},2);
+    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){550,25,50,50},2);
+
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"./img/geral/side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
 	
