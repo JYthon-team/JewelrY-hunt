@@ -20,6 +20,7 @@ void JYH_PL_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
 	AUX_Empilha(&jogo->state,JYH_state_LE);
 	JYH_Destroy_PL(jogo);
+	strcpy(temp.lvl.nome,jogo->pl.niveis[jogo->pl.i_sel].nome);
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
 }

@@ -26,14 +26,13 @@ void JYH_Save_lvl(JYH_GameState* jogo){
     assert(dest!=NULL);
     fprintf(dest,"%d %d\n",lvl->w,lvl->h);
     fprintf(dest,"%s\n",lvl->path_theme);
-    for(int i = 0; i < lvl->w; i++){
-        for(int j = 0; j < lvl->h; j++){
-            fprintf(dest,"%d ",lvl->mat[j*(lvl->w)+i]);
+    for(int i = 0; i < lvl->h; i++){
+        for(int j = 0; j < lvl->w; j++){
+            fprintf(dest,"%hhd ",lvl->mat[i*(lvl->w)+j]);
         }
         fprintf(dest,"\n");
     }
     fclose(dest);
-
 }
 
 void JYH_Read_lvl(JYH_GameState*jogo){
@@ -42,16 +41,26 @@ void JYH_Read_lvl(JYH_GameState*jogo){
     sprintf(S,".$JYH$MeusNiveis$%s.txt",lvl->nome);
     AUX_AdaptarString(S);
     FILE* orig =fopen(S,"r");
-    assert(orig!=NULL);
-    printf("Lendo %s\n",S);
-    fscanf(orig,"%d %d",&lvl->w,&lvl->h);
-    fscanf(orig,"%s\n",lvl->path_theme);
-    for(int i = 0; i < lvl->w; i++){
-        for(int j = 0; j < lvl->h; j++){
-            fscanf(orig,"%hhd",&lvl->mat[j*(lvl->w)+i]);
-        }
-    }
-    fclose(orig);
+    if(orig != NULL){
+    	printf("Lendo %s\n",S);
+    	fscanf(orig,"%d %d",&lvl->w,&lvl->h);
+    	fscanf(orig,"%s\n",lvl->path_theme);
+    	jogo->le.zoom = 64;
+    	lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
+    	for(int i = 0; i < lvl->h; i++){
+        	for(int j = 0; j < lvl->w; j++){
+            	fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j]);
+        	}
+    	}
+    	fclose(orig);
+	}else{
+		lvl->w = 25;//default
+		lvl->h = 25;//default
+		lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
+    	jogo->le.zoom = 64;
+    	strcpy(lvl->path_theme,".$img$geral$tile-Sheet.png");
+		memset(lvl->mat,0,sizeof(unsigned char)*(lvl->w)*(lvl->h));
+	}
 }
 
 //Transições
@@ -154,6 +163,18 @@ void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
 	if(idx - w >= 0 )mat[idx-w] -= (mat[idx-w] & 8 )?8 :0;//bloco acima
 	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
 }
+
+int JYH_ZoomIn(JYH_Nivel* lvl,SDL_Rect* cam,Uint32* z){//Aumenta o zoom e returna em Booleano se ainda é permitido
+	(*z)*=2;//Assume que a função só é chamada quando pode dar zoom
+	Uint32 zt = (*z)*2;
+	return (2*zt > cam->h || 2*zt > cam->w);
+}
+int JYH_ZoomOut(JYH_Nivel* lvl, SDL_Rect* cam,Uint32* z){
+	(*z)/=2;
+	Uint32 zt = (*z)/2;
+	return (zt*lvl->w < cam->w || zt*lvl->h < cam->h);//Se a câmera é maior que o mundo, então não pode da zoomOut
+}
+
 
 void JYH_Draw_Grade(JYH_GameState* jogo){//Versão antiga
 	//grade contida no retângulo {0,100,1000,600}
@@ -262,9 +283,17 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					jogo->le.botao_P.f = 0;
 					jogo->le.botao_A.f = (jogo->le.botao_A.f)?0:1;
 				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){/*Menu de Temas*/}
-                else if (SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){jogo->le.zoom*=2;}
-                else if (SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){jogo->le.zoom/=2;}
+				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){
+					/*Menu de Temas*/
+				}
+                else if (!jogo->le.botao_ZoomIn.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){
+                	jogo->le.botao_ZoomIn.f = JYH_ZoomIn(&jogo->le.lvl,&jogo->le.r_camera,&jogo->le.zoom);
+                	jogo->le.botao_ZoomOut.f = 0;
+				}
+                else if (!jogo->le.botao_ZoomOut.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){
+                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.r_camera,&jogo->le.zoom);
+                	jogo->le.botao_ZoomIn.f = 0;
+				}
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
@@ -275,31 +304,29 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
         jogo->espera = 10;
 	/*eventos baseados em tempo*/
 	}
-	
-
 }
 
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
-	jogo->le.press = SDL_FALSE;
 	
 	//teste
-	jogo->le.lvl.w = 25;//default
-	jogo->le.lvl.h = 15;//default
-	jogo->le.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
-    jogo->le.zoom = 64;
-    jogo->le.pincel =PINCEL_DESOCUPADO;
-    strcpy(jogo->le.lvl.path_theme,".$img$geral$tile-Sheet.png");
-    strcpy(jogo->le.lvl.nome,"teste");
-	jogo->le.last_idx = (jogo->le.lvl.w)*(jogo->le.lvl.h);
-	const int temp = (jogo->le.lvl.w)*(jogo->le.lvl.h);
-	for(int i = 0; i < temp;i++)jogo->le.lvl.mat[i]= 0;
-	memset(jogo->le.lvl.mat,0,sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
+	//jogo->le.lvl.w = 100;//default
+	//jogo->le.lvl.h = 60;//default
+	//jogo->le.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
+    //jogo->le.zoom = 64;
+    //strcpy(jogo->le.lvl.path_theme,".$img$geral$tile-Sheet.png");
+    //strcpy(jogo->le.lvl.nome,"teste");
+	//const int temp = (jogo->le.lvl.w)*(jogo->le.lvl.h);
+	//for(int i = 0; i < temp;i++)jogo->le.lvl.mat[i]= 0;
+	//memset(jogo->le.lvl.mat,0,sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
+	JYH_Read_lvl(jogo);
 	
-	//teste câmera
+	//Inerentes do editor
 	jogo->le.r_editor = (SDL_Rect){0,100,1000,600};
 	jogo->le.r_camera = (SDL_Rect){0,0,1000,600};
+	jogo->le.press = SDL_FALSE;
+	jogo->le.pincel = PINCEL_DESOCUPADO;
 
 	#ifdef _WIN32
 	
@@ -307,8 +334,7 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"img\\geral\\Save_JYH.png",(SDL_Rect){100,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\geral\\Run_JYH.png",(SDL_Rect){175,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\geral\\Paint_JYH-Sheet.png",(SDL_Rect){250,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\geral\\Run_JYH.png",(SDL_Rect){175,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
     //Icone ainda não desenhado
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){400,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){475,25,50,50},2);

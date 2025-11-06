@@ -89,7 +89,6 @@ enum JYH_PINCEL{//mouse no editor
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
-	Uint32 last_idx;
 	char path[50];
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
