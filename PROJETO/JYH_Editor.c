@@ -126,7 +126,6 @@ void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
 }
 
 void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
-	//int idx = JYH_Converter_Coordenada(jogo,p);
 	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
 	unsigned char *mat = jogo->le.lvl.mat;
 	int              w = jogo->le.lvl.w  ;
@@ -152,7 +151,7 @@ void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
 	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
 }
 
-void JYH_Draw_Grade(JYH_GameState* jogo){
+void JYH_Draw_Grade(JYH_GameState* jogo){//Versão antiga
 	//grade contida no retângulo {0,100,1000,600}
 	//assumir nivel de  50x30
 	Uint32 stepx = jogo->le.editor.w/jogo->le.lvl.w;
@@ -243,7 +242,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
 				    JYH_Save_lvl(jogo);
-				/*Salvar Nível*/}
+				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r)){
 					JYH_LE_to_EX(jogo);
 				}
