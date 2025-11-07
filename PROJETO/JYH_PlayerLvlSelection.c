@@ -93,18 +93,18 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_PL(JYH_GameState* jogo){
-	char S[50];
+	char S[100];
 
     #ifdef _WIN32
     FILE* arq = fopen("JYH\\MeusNiveis\\MeusNiveis.txt","r");
     jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
     AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"img\\geral\\Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
-    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
     #elif __linux__
     FILE* arq = fopen("./JYH/MeusNiveis/MeusNiveis.txt","r");
     jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
     AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"./img/geral/Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
-    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
     
     #endif
     assert(arq!=NULL);
@@ -120,9 +120,11 @@ void JYH_Load_PL(JYH_GameState* jogo){
     SDL_Color clr = {0x00,0x00,0x00,0x00};
     for(int i = 0;i < jogo->pl.n;i++){
         fscanf(arq,"%s",jogo->pl.niveis[i].nome);
+        
 		fscanf(arq,"%s",jogo->pl.niveis[i].path);
         AUX_AdaptarString(jogo->pl.niveis[i].path);
 		jogo->pl.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->pl.niveis[i].nome,clr);
+		
         assert(jogo->pl.niveis[i].txt_nome!=NULL);
     }
 	fclose(arq);

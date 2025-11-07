@@ -26,9 +26,9 @@ void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
 }
 void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
 	JYH_Editor temp;
+	strcpy(temp.lvl.nome,"teste");//temporario
 	AUX_Empilha(&jogo->state,JYH_state_LE);
 	JYH_Destroy_MM(jogo);
-	strcpy(temp.lvl.nome,"teste");//temporario
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
 }

@@ -20,6 +20,7 @@ typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fi
 }JYH_Mundo;
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
+	char nome_mundo[30];
 	char nome[30];//nome do nível
     char path[50];//path para o arquivo do lvl
     char path_theme[50];
@@ -157,6 +158,7 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
 typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tela de seleção de níveis
 	Uint32 n;//quantidade de niveis
 	Uint32 i_sel;
+	char nome[50];//nome do mundo
 	char path[50];//path do mundo
 	JYH_Nivel* niveis;//lista de níveis
 	JYH_Icon titulo;
@@ -178,7 +180,6 @@ void AUX_Desempilha(JYH_Pilha* P);
 typedef struct JYH_GameState{
 	JYH_Pilha state;
 	Uint32 espera;//coordena o tempo de atualização do jogo
-	//Uint32 w_tela, h_tela;//dimensões da tela(caso permitirmos a customização)
 	TTF_Font* fnt;
 	SDL_Window* win;//janela
 	SDL_Renderer* ren;//renderizador

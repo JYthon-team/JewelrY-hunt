@@ -80,36 +80,38 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 }
 
 void JYH_Load_LS(JYH_GameState* jogo){
-	char S[50];
+	char S[100];
 	
 	#ifdef _WIN32
 
-	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
+	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50}   ,1);
 	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
 	
 	#elif __linux__
 
-	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50}   ,1);
+	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50}   ,1);
 	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
 	
 	#endif
-	FILE* arq = fopen(jogo->ls.path,"r");//Assumir path sempre correto
-	fscanf(arq,"%d",&jogo->ls.n);//carrega os níveis(assumir sempre carregamento apropriado
-	
-	fscanf(arq,"%s",S);//icone de seleção de níveis
-    AUX_AdaptarString(S);
+	sprintf(S,".$img$%s$lvlicon.png",jogo->ls.nome);
+	AUX_AdaptarString(S);
 	jogo->ls.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
-
-	fscanf(arq,"%s",S);//icone nome mundo
+	sprintf(S,".$img$%s$titulo.png",jogo->ls.nome);
 	AUX_AdaptarString(S);
 	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,S,(SDL_Rect){450,100,300,90},1);
+	
+	sprintf(S,".$JYH$%s$Niveis.txt",jogo->ls.nome);//Lê o arquivo
+	AUX_AdaptarString(S);
+	FILE* arq = fopen(S,"r");
+	assert(arq != NULL);
+	
+	fscanf(arq,"%d",&jogo->ls.n);//carrega os níveis(assumir sempre carregamento apropriado
 	
 	jogo->ls.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->ls.n);
 
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	for(int i = 0; i < jogo->ls.n; i++){
 		fscanf(arq,"%s",jogo->ls.niveis[i].nome);
-		fscanf(arq,"%s",jogo->ls.niveis[i].path);
     
 		jogo->ls.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->ls.niveis[i].nome,clr);
 	}

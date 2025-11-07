@@ -15,6 +15,7 @@ void JYH_Destroy_WS(JYH_GameState* jogo){
 void JYH_WS_to_LS(JYH_GameState* jogo){
     JYH_Level_Selection temp;
     strcpy(temp.path,jogo->ws.mundos[jogo->ws.i_sel].path);//copia path para arquivo do mundo
+    strcpy(temp.nome,jogo->ws.mundos[jogo->ws.i_sel].nome);//copia nome do mundo
     AUX_Empilha(&jogo->state,JYH_state_LS);
     JYH_Destroy_WS(jogo);
     jogo->ls = temp;//copiao estado
@@ -87,13 +88,13 @@ void JYH_WS(JYH_GameState* jogo){//Atualizar
 }
 
 void JYH_Load_WS(JYH_GameState* jogo){
-	static char S[50];//temporario
+	static char S[100];//temporario
     jogo->ws.idx = 0;
 
     #ifdef _WIN32
     FILE* arq = fopen("JYH\\mundos.txt","r");//arquivo fixo Windows
 	AUX_Start_Icon(jogo->ren,&jogo->ws.titulo,"img\\geral\\Modo_Campanha_JYH.png",(SDL_Rect){450,100,300,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_E,"img\\geral\\esquerda.png",(SDL_Rect){10,300,40,90},1);
 	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_D,"img\\geral\\direita.png",(SDL_Rect){1150,300,40,90},1);
 	
@@ -101,7 +102,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
     #elif __linux__
     FILE* arq = fopen("./JYH/mundos.txt","r");//arquivo fixo Windows
 	AUX_Start_Icon(jogo->ren,&jogo->ws.titulo,"./img/geral/Modo_Campanha_JYH.png",(SDL_Rect){450,100,300,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_E,"./img/geral/esquerda.png",(SDL_Rect){10,300,40,90},1);
 	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_D,"./img/geral/direita.png",(SDL_Rect){1150,300,40,90},1);
 	
@@ -115,9 +116,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
 
     for(int i = 0; i < jogo->ws.n;i++){//carrega as informações dos mundos pelos arquivos
         fscanf(arq,"%s",jogo->ws.mundos[i].nome);
-        fscanf(arq,"%s",jogo->ws.mundos[i].path);
-        AUX_AdaptarString(jogo->ws.mundos[i].path);
-        fscanf(arq,"%s",S);//nome da textura a ser carregada depois
+        sprintf(S,".$img$%s$capa.png",jogo->ws.mundos[i].nome);
         AUX_AdaptarString(S);
         jogo->ws.mundos[i].capa = IMG_LoadTexture(jogo->ren,S);
         assert(jogo->ws.mundos[i].capa != NULL);

@@ -1,5 +1,0 @@
-1
-.$img$geral$lvlicon4.png
-.$img$geral$titulo4.png
-lvl01
-path

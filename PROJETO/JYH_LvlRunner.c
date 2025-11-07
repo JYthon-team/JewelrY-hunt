@@ -96,16 +96,18 @@ void JYH_Load_EX(JYH_GameState* jogo){
     
     #ifdef _WIN32
     AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"img\\geral\\Back_JYH.png"   ,(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"img\\geral\\Save_JYH.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"img\\geral\\Back_JYH.png"   ,(SDL_Rect){175,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"img\\geral\\Run_JYH.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
+    
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"img\\botao\\Back.png"   ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"img\\botao\\Save.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"img\\botao\\Back.png"   ,(SDL_Rect){175,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"img\\botao\\Run.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
     #elif __linux__
     AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"./img/geral/Back_JYH.png"   ,(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"./img/geral/Save_JYH.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"./img/geral/Back_JYH.png"   ,(SDL_Rect){175,20,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"./img/geral/Run_JYH.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
+    
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"./img/botao/Back.png"   ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"./img/botao/Save.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"./img/botao/Back.png"   ,(SDL_Rect){175,20,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"./img/botao/Run.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
     #endif
 
 	jogo->ex.timer = 0;//No Jogo Final depende do nível a ser carregado!!!

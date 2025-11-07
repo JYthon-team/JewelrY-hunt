@@ -309,17 +309,6 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
-	
-	//teste
-	//jogo->le.lvl.w = 100;//default
-	//jogo->le.lvl.h = 60;//default
-	//jogo->le.lvl.mat = (unsigned char*)malloc(sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
-    //jogo->le.zoom = 64;
-    //strcpy(jogo->le.lvl.path_theme,".$img$geral$tile-Sheet.png");
-    //strcpy(jogo->le.lvl.nome,"teste");
-	//const int temp = (jogo->le.lvl.w)*(jogo->le.lvl.h);
-	//for(int i = 0; i < temp;i++)jogo->le.lvl.mat[i]= 0;
-	//memset(jogo->le.lvl.mat,0,sizeof(unsigned char)*(jogo->le.lvl.w)*(jogo->le.lvl.h));
 	JYH_Read_lvl(jogo);
 	
 	//Inerentes do editor
@@ -330,15 +319,16 @@ void JYH_Load_LE(JYH_GameState* jogo){
 
 	#ifdef _WIN32
 	
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"img\\geral\\Back_JYH.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"img\\geral\\Save_JYH.png",(SDL_Rect){100,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\geral\\Run_JYH.png",(SDL_Rect){175,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\geral\\Paint_JYH-Sheet.png",(SDL_Rect){250,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"img\\botao\\Save.png",(SDL_Rect){100,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\botao\\Run.png",(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\botao\\Paint.png",(SDL_Rect){250,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,"img\\botao\\Erase.png",(SDL_Rect){325,25,50,50},2);
     //Icone ainda não desenhado
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){400,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){475,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"img\\geral\\Apaga_JYH-Sheet.png",(SDL_Rect){550,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"img\\botao\\Erase.png",(SDL_Rect){400,25,50,50},2);
+	
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"img\\botao\\ZoomIn.png",(SDL_Rect){475,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"img\\botao\\ZoomOut.png",(SDL_Rect){550,25,50,50},2);
 
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"img\\geral\\side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
@@ -347,15 +337,16 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	
 	#elif __linux__
 	
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"./img/geral/Back_JYH.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"./img/geral/Save_JYH.png",(SDL_Rect){100,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"./img/geral/Run_JYH.png",(SDL_Rect){175,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"./img/geral/Paint_JYH-Sheet.png",(SDL_Rect){250,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){325,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"./img/botao/Save.png",(SDL_Rect){100,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"./img/botao/Run.png",(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"./img/botao/Paint.png",(SDL_Rect){250,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"./img/botao/Erase.png",(SDL_Rect){325,25,50,50},2);
     //Icone Ainda Não Implementado
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){400,25,50,50},2);
-    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){475,25,50,50},2);
-    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"./img/geral/Apaga_JYH-Sheet.png",(SDL_Rect){550,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"./img/botao/Erase.png",(SDL_Rect){400,25,50,50},2);
+	
+    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"./img/botao/ZoomIn.png",(SDL_Rect){475,25,50,50},2);
+    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"./img/botao/ZoomOut.png",(SDL_Rect){550,25,50,50},2);
 
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"./img/geral/side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);

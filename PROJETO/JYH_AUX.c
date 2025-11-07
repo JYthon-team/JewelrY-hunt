@@ -27,8 +27,10 @@ void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a
 		}
 		i++;
     }
+    printf(" ");//por alguma razão, quebra se não existe isto
 }
 void AUX_Start_Icon(SDL_Renderer* ren, JYH_Icon* i, char* txt_name, SDL_Rect r, Uint32 n){
+	printf("%s\n",txt_name);
 	i->txt = IMG_LoadTexture(ren,txt_name);
 	i->f   = 0;
 	i->s   = 0;
@@ -45,8 +47,3 @@ void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i){
 enum GAME_STATE AUX_Top(JYH_Pilha* P){return P->p[P->f];}
 void AUX_Empilha(JYH_Pilha* P,enum GAME_STATE s){P->p[++P->f] = s;}
 void AUX_Desempilha(JYH_Pilha* P){P->f--;}
-
-
-
-
-
