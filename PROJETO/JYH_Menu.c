@@ -26,7 +26,7 @@ void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
 }
 void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
 	JYH_Editor temp;
-	strcpy(temp.lvl.nome,"teste");//temporario
+	strcpy(temp.lvl.nome_nivel,"teste");//temporario
 	AUX_Empilha(&jogo->state,JYH_state_LE);
 	JYH_Destroy_MM(jogo);
 	jogo->le = temp;
@@ -89,22 +89,10 @@ void JYH_Load_MM(JYH_GameState* jogo){
     jogo->mm.txt_msg_edit = AUX_CriarTexto(jogo->ren,jogo->fnt,"Editor",clr);
     jogo->mm.txt_msg_worlds = AUX_CriarTexto(jogo->ren,jogo->fnt,"Modo Campanha",clr);
     jogo->mm.txt_msg_selP = AUX_CriarTexto(jogo->ren,jogo->fnt,"Meus Niveis",clr);
-    
-    #ifdef _WIN32
 
-	jogo->mm.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-	AUX_Start_Icon(jogo->ren,&jogo->mm.titulo  ,"img\\Menu\\Titulo_JYH.png"        ,(SDL_Rect){350,200,500,150},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_WS,"img\\Menu\\Modo_Historia_JYH.png" ,(SDL_Rect){450,450,300,30},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_PL,"img\\Menu\\Player_Library_JYH.png",(SDL_Rect){450,500,300,30},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_LE,"img\\Menu\\Editor_JYH.png"        ,(SDL_Rect){450,550,300,30},1);
-    #elif __linux__
-
-	jogo->mm.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-	AUX_Start_Icon(jogo->ren,&jogo->mm.titulo  ,"./img/menu/Titulo_JYH.png"        ,(SDL_Rect){350,200,500,150},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_WS,"./img/menu/Modo_Historia_JYH.png" ,(SDL_Rect){450,450,300,30},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_PL,"./img/menu/Player_Library_JYH.png",(SDL_Rect){450,500,300,30},1);
-	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_LE,"./img/menu/Editor_JYH.png"        ,(SDL_Rect){450,550,300,30},1);
-
-    #endif
-    
+    jogo->mm.txt_background = IMG_LoadTexture(jogo->ren,IMG_MM_BACKGROUND);
+	AUX_Start_Icon(jogo->ren,&jogo->mm.titulo  ,IMG_MM_TITLE,(SDL_Rect){350,200,500,150},1);
+	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_WS,IMG_MM_WS,(SDL_Rect){450,450,300,30},1);
+	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_PL,IMG_MM_PL,(SDL_Rect){450,500,300,30},1);
+	AUX_Start_Icon(jogo->ren,&jogo->mm.botao_LE,IMG_MM_LE,(SDL_Rect){450,550,300,30},1);
 }

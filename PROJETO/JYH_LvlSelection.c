@@ -22,9 +22,8 @@ void JYH_LS_to_WS(JYH_GameState* jogo){
 }
 void JYH_LS_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
-	strcpy(temp.pathMundo,jogo->ls.path                        );//
-	strcpy(temp.pathNivel,jogo->ls.niveis[jogo->ls.i_sel].path);
-	strcpy(temp.nome     ,jogo->ls.niveis[jogo->ls.i_sel].nome);
+	strcpy(temp.lvl.nome_nivel,jogo->ls.niveis[jogo->ls.i_sel].nome_nivel);
+	strcpy(temp.lvl.nome_mundo,jogo->ls.niveis[jogo->ls.i_sel].nome_mundo);
 	AUX_Empilha(&jogo->state,JYH_state_EX);
 	JYH_Destroy_LS(jogo);
 	jogo->ex = temp;
@@ -82,26 +81,16 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 void JYH_Load_LS(JYH_GameState* jogo){
 	char S[100];
 	
-	#ifdef _WIN32
-
-	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50}   ,1);
-	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
+	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,IMG_B_BACK,(SDL_Rect){25,25,50,50}   ,1);
+	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,IMG_MM_BACKGROUND);
 	
-	#elif __linux__
-
-	AUX_Start_Icon(jogo->ren,&jogo->ls.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50}   ,1);
-	jogo->ls.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-	
-	#endif
-	sprintf(S,".$img$%s$lvlicon.png",jogo->ls.nome);
-	AUX_AdaptarString(S);
+	sprintf(S,WORLD_GET_LVLICON,jogo->ls.nome);
 	jogo->ls.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
-	sprintf(S,".$img$%s$titulo.png",jogo->ls.nome);
-	AUX_AdaptarString(S);
+
+	sprintf(S,WORLD_GET_TITLE,jogo->ls.nome);
 	AUX_Start_Icon(jogo->ren,&jogo->ls.titulo,S,(SDL_Rect){450,100,300,90},1);
 	
-	sprintf(S,".$JYH$%s$Niveis.txt",jogo->ls.nome);//Lê o arquivo
-	AUX_AdaptarString(S);
+	sprintf(S,WORLD_GET_LEVELS,jogo->ls.nome);//Lê o arquivo
 	FILE* arq = fopen(S,"r");
 	assert(arq != NULL);
 	
@@ -111,9 +100,10 @@ void JYH_Load_LS(JYH_GameState* jogo){
 
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	for(int i = 0; i < jogo->ls.n; i++){
-		fscanf(arq,"%s",jogo->ls.niveis[i].nome);
+		fscanf(arq,"%s",jogo->ls.niveis[i].nome_nivel);
+		strcpy(jogo->ls.niveis[i].nome_mundo,jogo->ls.nome);
     
-		jogo->ls.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->ls.niveis[i].nome,clr);
+		jogo->ls.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->ls.niveis[i].nome_nivel,clr);
 	}
 	
 	fclose(arq);

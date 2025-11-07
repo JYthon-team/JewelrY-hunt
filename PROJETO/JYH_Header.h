@@ -11,44 +11,25 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include <assert.h>
+#include "JYH_Object.h"
+#include "JYH_ImagePaths.h"
 
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//lista dos niveis do mundo e estética na hora de seleção
 	char nome[50];//Nome do mundo
-    char path[50];//path para arquivo de níveis do mundo
 	SDL_Texture* capa;//textura
 }JYH_Mundo;
+
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
-	char nome_mundo[30];
-	char nome[30];//nome do nível
-    char path[50];//path para o arquivo do lvl
+    char nome_mundo[50];
+    char nome_nivel[50];
     char path_theme[50];
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
     int w,h;
     unsigned char *mat;
 }JYH_Nivel;
-enum JYH_Event{//codigo dos eventos
-	JYH_BVP,//Botão voltar pressionado
-	JYH_BRP,//Botão reiniciar pressionado
-	JYH_BMP,//Botão mundos pressionado
-	JYH_BEP,//Botão editor pressionado
-	JYH_BBP //Botão biblioteca pressionado
-};
-typedef struct JYH_Icon{
-	SDL_Texture* txt;//textura do botão
-	SDL_Rect       r;//Retângulo de desenho
-	Uint32         f;//frame
-	Uint32         s;//estado
-	Uint32       n_f;//quantidade de frames
-}JYH_Icon;
-typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
-	Uint32 type;
-	SDL_Rect hitbox;//verifica os hits
-	JYH_Icon drawbox;//aonde se desenha
-	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
-}JYH_Objeto;
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 void AUX_AdaptarString(char* S);
@@ -90,7 +71,6 @@ enum JYH_PINCEL{//mouse no editor
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
-	char path[50];
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
 	SDL_Rect r_editor;
@@ -113,9 +93,6 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
 	JYH_Nivel lvl;//Nivel que está sendo jogado
-	char pathNivel[50];
-	char pathMundo[50];
-	char nome[50];
 	JYH_Icon tb;
 	JYH_Icon gem;
 	JYH_Icon clock;
@@ -159,7 +136,6 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 	Uint32 n;//quantidade de niveis
 	Uint32 i_sel;
 	char nome[50];//nome do mundo
-	char path[50];//path do mundo
 	JYH_Nivel* niveis;//lista de níveis
 	JYH_Icon titulo;
 	JYH_Icon botao_V;

@@ -19,7 +19,7 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 void JYH_Save_lvl(JYH_GameState* jogo){
     char S[100];
     JYH_Nivel* lvl = &jogo->le.lvl;
-    sprintf(S,".$JYH$MeusNiveis$%s.txt",lvl->nome);
+    sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
     FILE* dest = fopen(S,"w");
     printf("Salvando em %s\n",S);
@@ -38,11 +38,10 @@ void JYH_Save_lvl(JYH_GameState* jogo){
 void JYH_Read_lvl(JYH_GameState*jogo){
 	char S[100];
     JYH_Nivel* lvl = &jogo->le.lvl;
-    sprintf(S,".$JYH$MeusNiveis$%s.txt",lvl->nome);
+    sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
     FILE* orig =fopen(S,"r");
     if(orig != NULL){
-    	printf("Lendo %s\n",S);
     	fscanf(orig,"%d %d",&lvl->w,&lvl->h);
     	fscanf(orig,"%s\n",lvl->path_theme);
     	jogo->le.zoom = 64;
@@ -257,15 +256,15 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 						case PINCEL_DESOCUPADO:jogo->le.pincel = PINCEL_MOVER_CAMERA;break;
 					}
 				}
+				else if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
+					JYH_LE_goback(jogo);
+				}
 				break;
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				jogo->le.press = SDL_FALSE;
 				if(jogo->le.pincel == PINCEL_MOVER_CAMERA){
 					jogo->le.pincel = PINCEL_DESOCUPADO;
-				}
-				else if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
-					JYH_LE_goback(jogo);
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
 				    JYH_Save_lvl(jogo);
@@ -309,7 +308,8 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
-	JYH_Read_lvl(jogo);
+	
+	JYH_Read_lvl(jogo);//Só executa se o nível não está carregado
 	
 	//Inerentes do editor
 	jogo->le.r_editor = (SDL_Rect){0,100,1000,600};
@@ -318,39 +318,27 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->le.pincel = PINCEL_DESOCUPADO;
 
 	#ifdef _WIN32
-	
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"img\\botao\\Save.png",(SDL_Rect){100,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"img\\botao\\Run.png",(SDL_Rect){175,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"img\\botao\\Paint.png",(SDL_Rect){250,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,"img\\botao\\Erase.png",(SDL_Rect){325,25,50,50},2);
-    //Icone ainda não desenhado
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"img\\botao\\Erase.png",(SDL_Rect){400,25,50,50},2);
-	
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"img\\botao\\ZoomIn.png",(SDL_Rect){475,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"img\\botao\\ZoomOut.png",(SDL_Rect){550,25,50,50},2);
 
-	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"img\\geral\\side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
-	
-	jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"img\\geral\\tile-Sheet.png");//sprite separado em vários de 32*48
+	//jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"img\\geral\\tile-Sheet.png");//sprite separado em vários de 32*48
 	
 	#elif __linux__
-	
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,"./img/botao/Save.png",(SDL_Rect){100,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,"./img/botao/Run.png",(SDL_Rect){175,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,"./img/botao/Paint.png",(SDL_Rect){250,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A       ,"./img/botao/Erase.png",(SDL_Rect){325,25,50,50},2);
-    //Icone Ainda Não Implementado
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,"./img/botao/Erase.png",(SDL_Rect){400,25,50,50},2);
-	
-    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,"./img/botao/ZoomIn.png",(SDL_Rect){475,25,50,50},2);
-    AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,"./img/botao/ZoomOut.png",(SDL_Rect){550,25,50,50},2);
 
-	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
-	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,"./img/geral/side_bar_JYH.png",(SDL_Rect){1000,100,200,600},1);
 	
-	jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"./img/geral/tile-Sheet.png");
+	//jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"./img/geral/tile-Sheet.png");
 	#endif
+	
+	jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
+	
+	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);
+	
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_V  ,IMG_B_BACK,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_S  ,IMG_B_SAVE,(SDL_Rect){100,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,IMG_B_RUN,(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,IMG_B_PAINT,(SDL_Rect){250,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,IMG_B_ERASE,(SDL_Rect){325,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,IMG_B_ERASE,(SDL_Rect){400,25,50,50},2);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,IMG_B_ZOOMIN,(SDL_Rect){475,25,50,50},2);
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,IMG_B_ZOOMOUT,(SDL_Rect){550,25,50,50},2);
+	
 }

@@ -20,7 +20,7 @@ void JYH_PL_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
 	AUX_Empilha(&jogo->state,JYH_state_LE);
 	JYH_Destroy_PL(jogo);
-	strcpy(temp.lvl.nome,jogo->pl.niveis[jogo->pl.i_sel].nome);
+	strcpy(temp.lvl.nome_nivel,jogo->pl.niveis[jogo->pl.i_sel].nome_nivel);
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
 }
@@ -95,18 +95,12 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 void JYH_Load_PL(JYH_GameState* jogo){
 	char S[100];
 
-    #ifdef _WIN32
-    FILE* arq = fopen("JYH\\MeusNiveis\\MeusNiveis.txt","r");
-    jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-    AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"img\\geral\\Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
-    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
-    #elif __linux__
-    FILE* arq = fopen("./JYH/MeusNiveis/MeusNiveis.txt","r");
-    jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-    AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,"./img/geral/Biblioteca_Jogador_JYH.png",(SDL_Rect){450,100,300,90},1);
-    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
+    FILE* arq = fopen(PATH_PL,"r");
     
-    #endif
+    jogo->pl.txt_background = IMG_LoadTexture(jogo->ren,IMG_MM_BACKGROUND);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.botao_V,IMG_B_BACK,(SDL_Rect){25,25,50,50},1);
+    AUX_Start_Icon(jogo->ren,&jogo->pl.titulo,IMG_PL_TITLE,(SDL_Rect){450,100,300,90},1);
+    
     assert(arq!=NULL);
     assert(jogo->pl.txt_background!=NULL);
     assert(jogo->pl.txt_lvl_icon!=NULL);
@@ -119,11 +113,9 @@ void JYH_Load_PL(JYH_GameState* jogo){
     jogo->pl.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->pl.n);
     SDL_Color clr = {0x00,0x00,0x00,0x00};
     for(int i = 0;i < jogo->pl.n;i++){
-        fscanf(arq,"%s",jogo->pl.niveis[i].nome);
+        fscanf(arq,"%s",jogo->pl.niveis[i].nome_nivel);
         
-		fscanf(arq,"%s",jogo->pl.niveis[i].path);
-        AUX_AdaptarString(jogo->pl.niveis[i].path);
-		jogo->pl.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->pl.niveis[i].nome,clr);
+		jogo->pl.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->pl.niveis[i].nome_nivel,clr);
 		
         assert(jogo->pl.niveis[i].txt_nome!=NULL);
     }

@@ -14,7 +14,6 @@ void JYH_Destroy_WS(JYH_GameState* jogo){
 
 void JYH_WS_to_LS(JYH_GameState* jogo){
     JYH_Level_Selection temp;
-    strcpy(temp.path,jogo->ws.mundos[jogo->ws.i_sel].path);//copia path para arquivo do mundo
     strcpy(temp.nome,jogo->ws.mundos[jogo->ws.i_sel].nome);//copia nome do mundo
     AUX_Empilha(&jogo->state,JYH_state_LS);
     JYH_Destroy_WS(jogo);
@@ -91,23 +90,14 @@ void JYH_Load_WS(JYH_GameState* jogo){
 	static char S[100];//temporario
     jogo->ws.idx = 0;
 
-    #ifdef _WIN32
-    FILE* arq = fopen("JYH\\mundos.txt","r");//arquivo fixo Windows
-	AUX_Start_Icon(jogo->ren,&jogo->ws.titulo,"img\\geral\\Modo_Campanha_JYH.png",(SDL_Rect){450,100,300,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"img\\botao\\Back.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_E,"img\\geral\\esquerda.png",(SDL_Rect){10,300,40,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_D,"img\\geral\\direita.png",(SDL_Rect){1150,300,40,90},1);
-	
-	jogo->ws.txt_background = IMG_LoadTexture(jogo->ren,"img\\Menu\\Background_JYH.png");
-    #elif __linux__
-    FILE* arq = fopen("./JYH/mundos.txt","r");//arquivo fixo Windows
-	AUX_Start_Icon(jogo->ren,&jogo->ws.titulo,"./img/geral/Modo_Campanha_JYH.png",(SDL_Rect){450,100,300,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,"./img/botao/Back.png",(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_E,"./img/geral/esquerda.png",(SDL_Rect){10,300,40,90},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_D,"./img/geral/direita.png",(SDL_Rect){1150,300,40,90},1);
-	
-	jogo->ws.txt_background = IMG_LoadTexture(jogo->ren,"./img/menu/Background_JYH.png");
-    #endif
+    FILE* arq = fopen(PATH_WS,"r");//arquivo fixo Windows
+    
+    AUX_Start_Icon(jogo->ren,&jogo->ws.titulo,IMG_WS_TITLE,(SDL_Rect){450,100,300,90},1);
+    AUX_Start_Icon(jogo->ren,&jogo->ws.botao_V,IMG_B_BACK,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_E,IMG_B_LEFT,(SDL_Rect){10,300,40,90},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ws.botao_D,IMG_B_RIGHT,(SDL_Rect){1150,300,40,90},1);
+    jogo->ws.txt_background = IMG_LoadTexture(jogo->ren,IMG_MM_BACKGROUND);
+    
     assert(arq != NULL);
     assert(jogo->ws.txt_background != NULL);
 
@@ -116,7 +106,7 @@ void JYH_Load_WS(JYH_GameState* jogo){
 
     for(int i = 0; i < jogo->ws.n;i++){//carrega as informações dos mundos pelos arquivos
         fscanf(arq,"%s",jogo->ws.mundos[i].nome);
-        sprintf(S,".$img$%s$capa.png",jogo->ws.mundos[i].nome);
+        sprintf(S,WORLD_GET_CAPA,jogo->ws.mundos[i].nome);
         AUX_AdaptarString(S);
         jogo->ws.mundos[i].capa = IMG_LoadTexture(jogo->ren,S);
         assert(jogo->ws.mundos[i].capa != NULL);

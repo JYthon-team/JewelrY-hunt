@@ -12,15 +12,14 @@ void JYH_Destroy_EX(JYH_GameState* jogo){
 }
 void JYH_EX_to_LS(JYH_GameState* jogo){
 	JYH_Level_Selection temp;
-	strcpy(temp.path,jogo->ex.pathMundo);
+	strcpy(temp.nome,jogo->ex.lvl.nome_mundo);
 	JYH_Destroy_EX(jogo);
 	jogo->ls = temp;
 	JYH_Load_LS(jogo);
 }
 void JYH_EX_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
-	strcpy(temp.path,jogo->ex.pathNivel);
-	temp.lvl = jogo->ex.lvl;//copia o nível
+	temp.lvl = jogo->ex.lvl;
 	JYH_Destroy_EX(jogo);
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
@@ -94,21 +93,12 @@ void JYH_Load_EX(JYH_GameState* jogo){
     jogo->ex.txt_tempo = AUX_CriarTexto(jogo->ren,jogo->fnt,"01:30",clr);
     jogo->ex.txt_gem_count = AUX_CriarTexto(jogo->ren,jogo->fnt,"2/10",clr);
     
-    #ifdef _WIN32
-    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"img\\geral\\top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
+    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
+    AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,IMG_B_BACK   ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,IMG_B_SAVE   ,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,IMG_B_BACK   ,(SDL_Rect){175,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,IMG_B_RUN    ,(SDL_Rect){375,25,50,50},1);//trocar
     
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"img\\botao\\Back.png"   ,(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"img\\botao\\Save.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"img\\botao\\Back.png"   ,(SDL_Rect){175,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"img\\botao\\Run.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
-    #elif __linux__
-    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,"./img/geral/top_bar_JYH.png",(SDL_Rect){0,0,1200,100},1);
-    
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,"./img/botao/Back.png"   ,(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,"./img/botao/Save.png"   ,(SDL_Rect){100,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,"./img/botao/Back.png"   ,(SDL_Rect){175,20,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,"./img/botao/Run.png"    ,(SDL_Rect){375,25,50,50},1);//trocar
-    #endif
 
 	jogo->ex.timer = 0;//No Jogo Final depende do nível a ser carregado!!!
 	jogo->ex.gemas_coletadas = 0;
