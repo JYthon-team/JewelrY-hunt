@@ -13,12 +13,19 @@
 #include <assert.h>
 #include "JYH_Object.h"
 #include "JYH_ImagePaths.h"
+#include "JYH_Camera.h"
 
 typedef struct JYH_Mundo{//estrutura de dados representando um mundo do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//lista dos niveis do mundo e estética na hora de seleção
 	char nome[50];//Nome do mundo
 	SDL_Texture* capa;//textura
 }JYH_Mundo;
+
+typedef struct JYH_Ass_Nivel{//Assinatura de um nível
+    char nome_nivel[50];
+    SDL_Texture* txt_nome;
+}JYH_Ass_Nivel;
+
 
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
@@ -30,6 +37,7 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     int w,h;
     unsigned char *mat;
 }JYH_Nivel;
+
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 void AUX_AdaptarString(char* S);
@@ -71,10 +79,9 @@ enum JYH_PINCEL{//mouse no editor
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
+	JYH_Camera cam;
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
-	SDL_Rect r_editor;
-	SDL_Rect r_camera;
 	Uint32 n_obj;
 	JYH_Objeto * objetos;//Lista de todos os objetos do jogo
 	JYH_Icon tb;
@@ -87,12 +94,11 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	JYH_Icon botao_T;//tema da fase
     JYH_Icon botao_ZoomIn;//Aumenta o Zoom
     JYH_Icon botao_ZoomOut;//Diminui o Zoom
-    Uint32 zoom;
-	//adicionar texturas
 }JYH_Editor;
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
 	JYH_Nivel lvl;//Nivel que está sendo jogado
+	JYH_Camera cam;
 	JYH_Icon tb;
 	JYH_Icon gem;
 	JYH_Icon clock;
@@ -125,7 +131,7 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a seleção de níveis criados pelo jogador
 	Uint32 n;//quantidade de niveis
     Uint32 i_sel;
-	JYH_Nivel* niveis;//lista de niveis
+    JYH_Ass_Nivel* niveis;
     JYH_Icon titulo;
     JYH_Icon botao_V;
     SDL_Texture* txt_background;
@@ -136,7 +142,7 @@ typedef struct JYH_Level_Selection{//Guarda os elementos necessários para a tel
 	Uint32 n;//quantidade de niveis
 	Uint32 i_sel;
 	char nome[50];//nome do mundo
-	JYH_Nivel* niveis;//lista de níveis
+    JYH_Ass_Nivel* niveis;
 	JYH_Icon titulo;
 	JYH_Icon botao_V;
 	SDL_Texture* txt_background;
@@ -188,7 +194,13 @@ void JYH_Load_EX(JYH_GameState* jogo);
 void JYH_Load_PL(JYH_GameState* jogo);
 void JYH_Load_LE(JYH_GameState* jogo);
 
+void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam);
+void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam);
+void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam);
+void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
+void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 
+void JYH_Read_lvl(JYH_Nivel* lvl);
 //Controle principal
 void JYH_GameRender(JYH_GameState* jogo);
 #endif

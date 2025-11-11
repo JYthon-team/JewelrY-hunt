@@ -9,7 +9,10 @@ void JYH_Destroy_EX(JYH_GameState* jogo){
     SDL_DestroyTexture(jogo->ex.botao_R.txt);
     SDL_DestroyTexture(jogo->ex.clock.txt);
     SDL_DestroyTexture(jogo->ex.gem.txt);
+    
+    free(jogo->le.lvl.mat);//temporario
 }
+
 void JYH_EX_to_LS(JYH_GameState* jogo){
 	JYH_Level_Selection temp;
 	strcpy(temp.nome,jogo->ex.lvl.nome_mundo);
@@ -17,6 +20,7 @@ void JYH_EX_to_LS(JYH_GameState* jogo){
 	jogo->ls = temp;
 	JYH_Load_LS(jogo);
 }
+
 void JYH_EX_to_LE(JYH_GameState* jogo){
 	JYH_Editor temp;
 	temp.lvl = jogo->ex.lvl;
@@ -24,6 +28,7 @@ void JYH_EX_to_LE(JYH_GameState* jogo){
 	jogo->le = temp;
 	JYH_Load_LE(jogo);
 }
+
 void JYH_EX_to_PL(JYH_GameState* jogo){
 	JYH_Level_Selection_P temp;
 	JYH_Destroy_EX(jogo);
@@ -52,6 +57,9 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
+	
+	JYH_Draw_Grade_Cam(jogo->ren,&jogo->ex.lvl,&jogo->ex.cam);
+	
     AUX_Draw_Icon(jogo->ren,&jogo->ex.tb);
     
     AUX_Draw_Icon(jogo->ren,&jogo->ex.gem);
@@ -78,15 +86,34 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_EX(jogo);
 				break;
+			case SDL_KEYDOWN:
+				switch(jogo->evt.key.keysym.sym){
+					case SDLK_UP:
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,-1);
+						break;
+					case SDLK_DOWN:
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,1);
+						break;
+					case SDLK_LEFT:
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,-1,0);
+						break;
+					case SDLK_RIGHT:
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,1,0);
+						break;
+				}
+				break;
 		}
 	}else{
 		//eventos baseados em tempo
+		jogo->espera = 10
 	}
 
 }
 
 void JYH_Load_EX(JYH_GameState* jogo){
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
+	JYH_Read_lvl(&jogo->ex.lvl);
+	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
 
 	jogo->ex.contagem_gemas =(SDL_Rect){250,25,100,50};//onde é escrita a razão entre as gemas do nível e as gemas coletadas
 	jogo->ex.contagem_tempo = (SDL_Rect){450,25,100,50};//onde é escrita a contagem de tempo
@@ -99,7 +126,7 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,IMG_B_BACK   ,(SDL_Rect){175,25,50,50},1);//trocar
 	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,IMG_B_RUN    ,(SDL_Rect){375,25,50,50},1);//trocar
     
-
+	jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
 	jogo->ex.timer = 0;//No Jogo Final depende do nível a ser carregado!!!
 	jogo->ex.gemas_coletadas = 0;
 	jogo->ex.tesouro_pego = 0;

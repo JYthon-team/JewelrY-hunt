@@ -4,13 +4,16 @@
 //destruir
 
 void JYH_Destroy_PL(JYH_GameState* jogo){
+
 	for(int i = 0; i < jogo->pl.n; i++){
 		SDL_DestroyTexture(jogo->pl.niveis[i].txt_nome);
 	}
+
     SDL_DestroyTexture(jogo->pl.txt_background);
     SDL_DestroyTexture(jogo->pl.txt_lvl_icon);
     SDL_DestroyTexture(jogo->pl.titulo.txt);
     SDL_DestroyTexture(jogo->pl.botao_V.txt);
+
 	free(jogo->pl.niveis);
 }
 
@@ -67,7 +70,10 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->pl.botao_V.r))JYH_PL_to_MM(jogo);
+				if (SDL_PointInRect(&p,&jogo->pl.botao_V.r)){
+                    JYH_PL_to_MM(jogo);
+                    break;
+                }
 				
 				for(int i = 0; i < jogo->pl.n; i++){//verifica se clicou em um mundo
 					r.x = 64  + (i%9)*128;
@@ -109,8 +115,8 @@ void JYH_Load_PL(JYH_GameState* jogo){
     fscanf(arq,"%s",S);//lê path windows
     AUX_AdaptarString(S);
     jogo->pl.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
-    
-    jogo->pl.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->pl.n);
+
+    jogo->pl.niveis = (JYH_Ass_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->pl.n);
     SDL_Color clr = {0x00,0x00,0x00,0x00};
     for(int i = 0;i < jogo->pl.n;i++){
         fscanf(arq,"%s",jogo->pl.niveis[i].nome_nivel);

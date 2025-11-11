@@ -2,10 +2,10 @@
 #ifdef _WIN32
 	//Exclusivos MM
 	#define IMG_MM_BACKGROUND "img\\Menu\\Background_JYH.png"
-	#define IMG_MM_TITLE "img\\Menu\\Titulo_JYH.png"
-	#define IMG_MM_WS "img\\Menu\\Modo_Historia_JYH.png"
-	#define IMG_MM_PL "img\\Menu\\Player_Library_JYH.png"
-	#define IMG_MM_LE "img\\Menu\\Editor_JYH.png"
+	#define IMG_MM_TITLE "img\\menu\\Titulo_JYH.png"
+	#define IMG_MM_WS "img\\menu\\Modo_Historia_JYH.png"
+	#define IMG_MM_PL "img\\menu\\Player_Library_JYH.png"
+	#define IMG_MM_LE "img\\menu\\Editor_JYH.png"
 	//botoes
 	#define IMG_B_BACK "img\\botao\\Back.png"
 	#define IMG_B_SAVE "img\\botao\\Save.png"
@@ -37,11 +37,11 @@
 
 #elif __linux__
 	//Exclusivos MM
-	#define IMG_MM_BACKGROUND "./img/Menu/Background_JYH.png"
-	#define IMG_MM_TITLE "./img/Menu/Titulo_JYH.png"
-	#define IMG_MM_WS "./img/Menu/Modo_Historia_JYH.png"
-	#define IMG_MM_PL "./img/Menu/Player_Library_JYH.png"
-	#define IMG_MM_LE "./img/Menu/Editor_JYH.png"
+	#define IMG_MM_BACKGROUND "./img/menu/Background_JYH.png"
+	#define IMG_MM_TITLE "./img/menu/Titulo_JYH.png"
+	#define IMG_MM_WS "./img/menu/Modo_Historia_JYH.png"
+	#define IMG_MM_PL "./img/menu/Player_Library_JYH.png"
+	#define IMG_MM_LE "./img/menu/Editor_JYH.png"
 	//botoes
 	#define IMG_B_BACK "./img/botao/Back.png"
 	#define IMG_B_SAVE "./img/botao/Save.png"

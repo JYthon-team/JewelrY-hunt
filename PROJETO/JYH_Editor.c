@@ -15,14 +15,11 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	free(jogo->le.lvl.mat);//temporario
 }
 
-
-void JYH_Save_lvl(JYH_GameState* jogo){
+void JYH_Save_lvl(JYH_Nivel* lvl){
     char S[100];
-    JYH_Nivel* lvl = &jogo->le.lvl;
     sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
     FILE* dest = fopen(S,"w");
-    printf("Salvando em %s\n",S);
     assert(dest!=NULL);
     fprintf(dest,"%d %d\n",lvl->w,lvl->h);
     fprintf(dest,"%s\n",lvl->path_theme);
@@ -35,16 +32,14 @@ void JYH_Save_lvl(JYH_GameState* jogo){
     fclose(dest);
 }
 
-void JYH_Read_lvl(JYH_GameState*jogo){
+void JYH_Read_lvl(JYH_Nivel* lvl){
 	char S[100];
-    JYH_Nivel* lvl = &jogo->le.lvl;
     sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
     FILE* orig =fopen(S,"r");
     if(orig != NULL){
     	fscanf(orig,"%d %d",&lvl->w,&lvl->h);
     	fscanf(orig,"%s\n",lvl->path_theme);
-    	jogo->le.zoom = 64;
     	lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
@@ -56,7 +51,6 @@ void JYH_Read_lvl(JYH_GameState*jogo){
 		lvl->w = 25;//default
 		lvl->h = 25;//default
 		lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
-    	jogo->le.zoom = 64;
     	strcpy(lvl->path_theme,".$img$geral$tile-Sheet.png");
 		memset(lvl->mat,0,sizeof(unsigned char)*(lvl->w)*(lvl->h));
 	}
@@ -91,56 +85,17 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
 	AUX_Empilha(&jogo->state,JYH_state_EX);
 	JYH_Destroy_LE(jogo);
+	temp.lvl = jogo->le.lvl;
 	jogo->ex = temp;
 	JYH_Load_EX(jogo);
 }
 
-//Conversão Tela Mundo- Avançado
-void JYH_Converter_TelaMundo(SDL_Point* p, SDL_Rect* r_editor, SDL_Rect* r_camera){
-	p->x = r_camera->x + p->x - r_editor->x;
-	p->y = r_camera->y + p->y - r_editor->y;
-}
-void JYH_Converter_MundoTela(SDL_Point* p, SDL_Rect* r_editor, SDL_Rect* r_camera){
-	p->x = (p->x-r_camera->x) + r_editor->x;
-	p->y = (p->y-r_camera->y) + r_editor->y;
-}
-void JYH_Draw_Grade_Cam(JYH_GameState* jogo){
-	SDL_Point p,coord1, coord2;
-    int z = jogo->le.zoom;
-    SDL_Rect r = {0,0,z,z+z/2};
-	SDL_Rect c = {0,0,32,48};
-	coord1 = (SDL_Point){jogo->le.r_camera.x/z                        ,                        jogo->le.r_camera.y/z};
-	coord2 = (SDL_Point){(jogo->le.r_camera.x + jogo->le.r_camera.w)/z,(jogo->le.r_camera.y + jogo->le.r_camera.h)/z};
-	for(int i = coord1.x; i <= coord2.x; i++){
-		if (i == jogo->le.lvl.w)break;
-		for(int j = coord1.y; j <= coord2.y; j++){
-			if (j == jogo->le.lvl.h)break;
-            p.x = i*z;
-            p.y = j*z -z/2;
-			JYH_Converter_MundoTela(&p,&jogo->le.r_editor,&jogo->le.r_camera);
-			r.x = p.x;
-			r.y = p.y;
-			c.x = c.w*(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i]);
-			SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
-		}
-	}
-}
-void JYH_Move_Camera(JYH_GameState* jogo,int dx,int dy){
-    int z = jogo->le.zoom;
-	jogo->le.r_camera.x -= dx;
-	jogo->le.r_camera.y -= dy;
-	if(jogo->le.r_camera.x < 0)jogo->le.r_camera.x = 0;
-    else if(jogo->le.r_camera.x+jogo->le.r_camera.w  > z*jogo->le.lvl.w)jogo->le.r_camera.x = z*jogo->le.lvl.w - jogo->le.r_camera.w ;
-	if(jogo->le.r_camera.y < 0)jogo->le.r_camera.y = 0;
-    else if(jogo->le.r_camera.y+jogo->le.r_camera.h  > z*jogo->le.lvl.h)jogo->le.r_camera.y = z*jogo->le.lvl.h - jogo->le.r_camera.h ;
-}
-
-void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
-	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
-	unsigned char *mat = jogo->le.lvl.mat;
-	int              w = jogo->le.lvl.w  ;
-	int              h = jogo->le.lvl.h  ;
-    int z = jogo->le.zoom;
+void JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
+    JYH_Converter_TelaMundo(p,cam);
+    unsigned char* mat = lvl->mat;
+    int w = lvl->w;
+    int h = lvl->h;
+    int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
 	                 mat[idx  ] |= 16;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
@@ -149,12 +104,12 @@ void JYH_Coloca_Parede(JYH_GameState* jogo, SDL_Point* p){
 	if(idx + w < w*h)mat[idx+w] |= 2 ;//blocoabaixo
 	
 }
-void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
-	JYH_Converter_TelaMundo(p,&jogo->le.r_editor,&jogo->le.r_camera);
-	unsigned char *mat = jogo->le.lvl.mat;
-	int              w = jogo->le.lvl.w  ;
-	int              h = jogo->le.lvl.h  ;
-    int z = jogo->le.zoom;
+void JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
+    JYH_Converter_TelaMundo(p,cam);
+    unsigned char * mat = lvl->mat;
+    int w = lvl->w;
+    int h = lvl->h;
+    int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
 	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
@@ -163,46 +118,15 @@ void JYH_Apaga_Parede(JYH_GameState* jogo, SDL_Point* p){
 	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
 }
 
-int JYH_ZoomIn(JYH_Nivel* lvl,SDL_Rect* cam,Uint32* z){//Aumenta o zoom e returna em Booleano se ainda é permitido
-	(*z)*=2;//Assume que a função só é chamada quando pode dar zoom
-	Uint32 zt = (*z)*2;
-	return (2*zt > cam->h || 2*zt > cam->w);
+int JYH_ZoomIn(JYH_Nivel* lvl,JYH_Camera* cam){//Aumenta o zoom e returna em Booleano se ainda é permitido
+    cam->zoom *= 2;
+    Uint32 zt = (cam->zoom)*2;
+    return (2*zt > cam->r_cam.h || 2*zt > cam->r_cam.w);
 }
-int JYH_ZoomOut(JYH_Nivel* lvl, SDL_Rect* cam,Uint32* z){
-	(*z)/=2;
-	Uint32 zt = (*z)/2;
-	return (zt*lvl->w < cam->w || zt*lvl->h < cam->h);//Se a câmera é maior que o mundo, então não pode da zoomOut
-}
-
-
-void JYH_Draw_Grade(JYH_GameState* jogo){//Versão antiga
-	//grade contida no retângulo {0,100,1000,600}
-	//assumir nivel de  50x30
-	Uint32 stepx = jogo->le.r_editor.w/jogo->le.lvl.w;
-	Uint32 stepy = jogo->le.r_editor.h/jogo->le.lvl.h;
-	SDL_Rect r = {0,0,stepx,stepy*1.5};
-	SDL_Rect c = {0,0,32,48};//retângulo de recorte dos tilesets
-	SDL_SetRenderDrawColor(jogo->ren,0x00,0x00,0x00,0x00);
-	for(int i = 0; i < jogo->le.lvl.w; i++)SDL_RenderDrawLine(jogo->ren,i*stepx,100,i*stepx,700);
-	for(int i = 0; i < jogo->le.lvl.h; i++)SDL_RenderDrawLine(jogo->ren,0,100+i*stepy,1000,100+i*stepy);
-	
-	for(int i = 0; i < jogo->le.lvl.w; i ++){
-		for(int j = 0; j < jogo->le.lvl.h; j++){
-			r.x = i*stepx ;
-			r.y = 100 + j*stepy - stepy*0.5;
-
-			c.x = c.w*(jogo->le.lvl.mat[j*(jogo->le.lvl.w)+i]);
-			SDL_RenderCopy(jogo->ren,jogo->le.lvl.txt_theme,&c,&r);
-		}
-	}
-}
-
-int JYH_Converter_Coordenada(JYH_GameState* jogo,SDL_Point* p){
-	Uint32 stepx = jogo->le.r_editor.w/jogo->le.lvl.w;
-	Uint32 stepy = jogo->le.r_editor.h/jogo->le.lvl.h;
-	int x = (p->x)/(stepx);
-	int y = (p->y - jogo->le.r_editor.y)/(stepy);
-	return y*(jogo->le.lvl.w) + x;
+int JYH_ZoomOut(JYH_Nivel* lvl,JYH_Camera* cam){
+    cam->zoom /= 2;
+    Uint32 zt = (cam->zoom)/2;
+	return (zt*lvl->w < cam->r_cam.w || zt*lvl->h < cam->r_cam.h);//Se a câmera é maior que o mundo, então não pode da zoomOut
 }
 
 //Execução
@@ -214,11 +138,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(jogo->ren);
 	
-    //JYH_Draw_Grade(jogo);
-
-	//Experimental, Câmera
-
-	JYH_Draw_Grade_Cam(jogo);
+	JYH_Draw_Grade_Cam(jogo->ren,&jogo->le.lvl,&jogo->le.cam);
 
 	AUX_Draw_Icon(jogo->ren,&jogo->le.tb);
 	AUX_Draw_Icon(jogo->ren,&jogo->le.sb);
@@ -238,21 +158,22 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 		switch(jogo->evt.type){
 			case SDL_MOUSEMOTION:
 				p = (SDL_Point){(int)jogo->evt.motion.x,(int)jogo->evt.motion.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.r_editor)){
+				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
 					switch(jogo->le.pincel){
-						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
-						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
-						case PINCEL_MOVER_CAMERA:JYH_Move_Camera(jogo,jogo->evt.motion.xrel,jogo->evt.motion.yrel);break;
+						case PINCEL_PINTANDO:JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
+						case PINCEL_APAGANDO:JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
+						case PINCEL_MOVER_CAMERA:JYH_Move_Camera(&jogo->le.cam,&jogo->le.lvl,-jogo->evt.motion.xrel,-jogo->evt.motion.yrel);break;
 					}
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				jogo->le.press = SDL_TRUE;
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.r_editor)){
+				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
 					switch(jogo->le.pincel){
-						case PINCEL_PINTANDO:JYH_Coloca_Parede(jogo,&p);break;
-						case PINCEL_APAGANDO:JYH_Apaga_Parede(jogo,&p);break;
+                        case PINCEL_PINTANDO:JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
+						case PINCEL_APAGANDO:JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
+
 						case PINCEL_DESOCUPADO:jogo->le.pincel = PINCEL_MOVER_CAMERA;break;
 					}
 				}
@@ -267,7 +188,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					jogo->le.pincel = PINCEL_DESOCUPADO;
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
-				    JYH_Save_lvl(jogo);
+				    JYH_Save_lvl(&jogo->le.lvl);
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r)){
 					JYH_LE_to_EX(jogo);
@@ -286,11 +207,11 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					/*Menu de Temas*/
 				}
                 else if (!jogo->le.botao_ZoomIn.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){
-                	jogo->le.botao_ZoomIn.f = JYH_ZoomIn(&jogo->le.lvl,&jogo->le.r_camera,&jogo->le.zoom);
+                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.cam);
                 	jogo->le.botao_ZoomOut.f = 0;
 				}
                 else if (!jogo->le.botao_ZoomOut.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){
-                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.r_camera,&jogo->le.zoom);
+                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.cam);
                 	jogo->le.botao_ZoomIn.f = 0;
 				}
 				break;
@@ -308,24 +229,11 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
+	JYH_Read_lvl(&jogo->le.lvl);//Só executa se o nível não está carregado
+	JYH_Inicia_Camera(&jogo->le.cam,(SDL_Rect){0,100,1000,600},(SDL_Rect){0,0,1000,600},64);
 	
-	JYH_Read_lvl(jogo);//Só executa se o nível não está carregado
-	
-	//Inerentes do editor
-	jogo->le.r_editor = (SDL_Rect){0,100,1000,600};
-	jogo->le.r_camera = (SDL_Rect){0,0,1000,600};
 	jogo->le.press = SDL_FALSE;
 	jogo->le.pincel = PINCEL_DESOCUPADO;
-
-	#ifdef _WIN32
-
-	//jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"img\\geral\\tile-Sheet.png");//sprite separado em vários de 32*48
-	
-	#elif __linux__
-
-	
-	//jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,"./img/geral/tile-Sheet.png");
-	#endif
 	
 	jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
 	

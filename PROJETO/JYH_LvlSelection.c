@@ -23,7 +23,7 @@ void JYH_LS_to_WS(JYH_GameState* jogo){
 void JYH_LS_to_EX(JYH_GameState* jogo){
 	JYH_Level_Runner temp;
 	strcpy(temp.lvl.nome_nivel,jogo->ls.niveis[jogo->ls.i_sel].nome_nivel);
-	strcpy(temp.lvl.nome_mundo,jogo->ls.niveis[jogo->ls.i_sel].nome_mundo);
+	strcpy(temp.lvl.nome_mundo,jogo->ls.nome);
 	AUX_Empilha(&jogo->state,JYH_state_EX);
 	JYH_Destroy_LS(jogo);
 	jogo->ex = temp;
@@ -96,12 +96,11 @@ void JYH_Load_LS(JYH_GameState* jogo){
 	
 	fscanf(arq,"%d",&jogo->ls.n);//carrega os níveis(assumir sempre carregamento apropriado
 	
-	jogo->ls.niveis = (JYH_Nivel*)malloc(sizeof(JYH_Nivel)*jogo->ls.n);
+    jogo->ls.niveis = (JYH_Ass_Nivel*)malloc(sizeof(JYH_Ass_Nivel)*jogo->ls.n);
 
 	SDL_Color clr = {0x00,0x00,0x00,0x00};
 	for(int i = 0; i < jogo->ls.n; i++){
 		fscanf(arq,"%s",jogo->ls.niveis[i].nome_nivel);
-		strcpy(jogo->ls.niveis[i].nome_mundo,jogo->ls.nome);
     
 		jogo->ls.niveis[i].txt_nome = AUX_CriarTexto(jogo->ren,jogo->fnt,jogo->ls.niveis[i].nome_nivel,clr);
 	}
