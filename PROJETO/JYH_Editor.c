@@ -13,6 +13,8 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	SDL_DestroyTexture(jogo->le.lvl.txt_theme);
 	
 	free(jogo->le.lvl.mat);//temporario
+	for(int i = 0; i < jogo->le.n_theme;i++)SDL_DestroyTexture(jogo->le.temas[i].txt);
+	free(jogo->le.temas);
 }
 
 void JYH_Save_lvl(JYH_Nivel* lvl){
@@ -22,7 +24,7 @@ void JYH_Save_lvl(JYH_Nivel* lvl){
     FILE* dest = fopen(S,"w");
     assert(dest!=NULL);
     fprintf(dest,"%d %d\n",lvl->w,lvl->h);
-    fprintf(dest,"%s\n",lvl->path_theme);
+    fprintf(dest,"%s\n",lvl->tema);
     for(int i = 0; i < lvl->h; i++){
         for(int j = 0; j < lvl->w; j++){
             fprintf(dest,"%hhd ",lvl->mat[i*(lvl->w)+j]);
@@ -39,7 +41,7 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
     FILE* orig =fopen(S,"r");
     if(orig != NULL){
     	fscanf(orig,"%d %d",&lvl->w,&lvl->h);
-    	fscanf(orig,"%s\n",lvl->path_theme);
+    	fscanf(orig,"%s\n",lvl->tema);
     	lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
@@ -51,7 +53,7 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
 		lvl->w = 25;//default
 		lvl->h = 25;//default
 		lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
-    	strcpy(lvl->path_theme,".$img$geral$tile-Sheet.png");
+		strcpy(lvl->tema,"tema1");
 		memset(lvl->mat,0,sizeof(unsigned char)*(lvl->w)*(lvl->h));
 	}
 }
@@ -204,6 +206,9 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					jogo->le.botao_A.f = (jogo->le.botao_A.f)?0:1;
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){
+					jogo->le.i_theme = (jogo->le.i_theme+1)%(jogo->le.n_theme);
+					jogo->le.lvl.txt_theme = jogo->le.temas[jogo->le.i_theme].txt;
+					strcpy(jogo->le.lvl.tema,jogo->le.temas[jogo->le.i_theme].nome);
 					/*Menu de Temas*/
 				}
                 else if (!jogo->le.botao_ZoomIn.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){
@@ -229,13 +234,32 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 //Load
 
 void JYH_Load_LE(JYH_GameState* jogo){
+	printf("Iniciando\n");
+	char S[100];
 	JYH_Read_lvl(&jogo->le.lvl);//Só executa se o nível não está carregado
 	JYH_Inicia_Camera(&jogo->le.cam,(SDL_Rect){0,100,1000,600},(SDL_Rect){0,0,1000,600},64);
 	
 	jogo->le.press = SDL_FALSE;
 	jogo->le.pincel = PINCEL_DESOCUPADO;
+	printf("Lendo temas\n");
+	printf("%s\n",PATH_THEME_LIST);
+	FILE* arq = fopen(PATH_THEME_LIST,"r");
 	
-	jogo->le.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
+	fscanf(arq,"%u",&jogo->le.n_theme);
+	assert(arq != NULL);
+	jogo->le.temas = (JYH_Theme*)malloc(sizeof(JYH_Theme)*(jogo->le.n_theme));
+	jogo->le.i_theme = 0;
+	for(int i = 0; i <jogo->le.n_theme;i++){
+		fscanf(arq,"%s",jogo->le.temas[i].nome);
+		sprintf(S,IMG_GET_THEME,jogo->le.temas[i].nome);
+		jogo->le.temas[i].txt = IMG_LoadTexture(jogo->ren,S);
+		if(!strcmp(jogo->le.temas[i].nome,jogo->le.lvl.tema)){
+			jogo->le.lvl.txt_theme = jogo->le.temas[i].txt;
+			jogo->le.i_theme = i;//o tema selecionado é o tema inicial do nível
+		}
+	}
+	fclose(arq);
+	printf("Fechei o arquivo\n");
 	
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);

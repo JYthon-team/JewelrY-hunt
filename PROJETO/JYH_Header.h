@@ -31,7 +31,7 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
 	//Grid do nível e posições dos objetos
     char nome_mundo[50];
     char nome_nivel[50];
-    char path_theme[50];
+    char       tema[50];
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
     int w,h;
@@ -75,6 +75,10 @@ enum JYH_PINCEL{//mouse no editor
 	PINCEL_ARRASTANDO,
 	PINCEL_MOVER_CAMERA
 };
+typedef struct JYH_Theme{
+	char nome[50];
+	SDL_Texture* txt;
+}JYH_Theme;
 
 
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
@@ -84,6 +88,9 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	enum JYH_PINCEL pincel;
 	Uint32 n_obj;
 	JYH_Objeto * objetos;//Lista de todos os objetos do jogo
+	Uint32 n_theme;
+	Uint32 i_theme;//tema selecionado
+	JYH_Theme * temas;//lista dos temas
 	JYH_Icon tb;
 	JYH_Icon sb;
 	JYH_Icon botao_V;//volta

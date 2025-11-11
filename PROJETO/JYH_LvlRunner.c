@@ -105,12 +105,13 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 		}
 	}else{
 		//eventos baseados em tempo
-		jogo->espera = 10
+		jogo->espera = 10;
 	}
 
 }
 
 void JYH_Load_EX(JYH_GameState* jogo){
+	char S[100];
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
 	JYH_Read_lvl(&jogo->ex.lvl);
 	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
@@ -126,7 +127,12 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,IMG_B_BACK   ,(SDL_Rect){175,25,50,50},1);//trocar
 	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,IMG_B_RUN    ,(SDL_Rect){375,25,50,50},1);//trocar
     
-	jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
+	//jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
+	sprintf(S,IMG_GET_THEME,jogo->ex.lvl.tema);
+	jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,S);
+	
+	
+	
 	jogo->ex.timer = 0;//No Jogo Final depende do nível a ser carregado!!!
 	jogo->ex.gemas_coletadas = 0;
 	jogo->ex.tesouro_pego = 0;

@@ -29,10 +29,12 @@
 	//Paths importantes
 	#define PATH_WS "JYH\\mundos.txt"
 	#define PATH_PL "JYH\\MundoP\\Niveis.txt"
+	#define PATH_THEME_LIST "img\\tema\\temas.txt"
 	#define WORLD_GET_CAPA ".\\img\\%s\\capa.png"
 	#define WORLD_GET_LVLICON ".\\img\\%s\\lvlicon.png"
 	#define WORLD_GET_TITLE ".\\img\\%s\\titulo.png"
 	#define WORLD_GET_LEVELS ".\\JYH\\%s\\Niveis.txt"
+	#define IMG_GET_THEME ".\\img\\tema\\%s.png"
 	
 
 #elif __linux__
@@ -65,9 +67,12 @@
 	//Paths importantes
 	#define PATH_WS "./JYH/mundos.txt"
 	#define PATH_PL "./JYH/MundoP/Niveis.txt"
+	#define PATH_THEME_LIST "./img/tema/temas.txt"
 	#define WORLD_GET_CAPA "./img/%s/capa.png"
 	#define WORLD_GET_LVLICON "./img/%s/lvlicon.png"
 	#define WORLD_GET_TITLE "./img/%s/titulo.png"
 	#define WORLD_GET_LEVELS "./JYH/%s/Niveis.txt"
+	#define IMG_GET_THEME "./img/tema/%s.png"
+	
 
 #endif
