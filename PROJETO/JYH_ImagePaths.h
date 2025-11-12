@@ -14,8 +14,16 @@
 	#define IMG_B_RUN "img\\botao\\Run.png"
 	#define IMG_B_PAINT "img\\botao\\Paint.png"
 	#define IMG_B_ERASE "img\\botao\\Erase.png"
+	#define IMG_B_BRUSH "img\\botao\\Brush.png"
+	#define IMG_B_RESTART "img\\botao\\Restart.png"
 	#define IMG_B_LEFT "img\\botao\\esquerda.png"
 	#define IMG_B_RIGHT "img\\botao\\direita.png"
+	//icones
+	#define IMG_I_CLOCK "img\\geral\\clock_icon.png"
+	#define IMG_I_GEM "img\\geral\\gem_icon.png"
+	
+	
+	
 	//Exclusivos LE
 	#define IMG_LE_TB "img\\geral\\top_bar_JYH.png"
 	#define IMG_LE_SB "img\\geral\\side_bar_JYH.png"
@@ -52,8 +60,15 @@
 	#define IMG_B_RUN "./img/botao/Run.png"
 	#define IMG_B_PAINT "./img/botao/Paint.png"
 	#define IMG_B_ERASE "./img/botao/Erase.png"
+	#define IMG_B_BRUSH "./img/botao/Brush.png"	
+	#define IMG_B_RESTART "./img/botao/Restart.png"
 	#define IMG_B_LEFT "./img/botao/esquerda.png"
 	#define IMG_B_RIGHT "./img/botao/direita.png"
+	//icones
+	#define IMG_I_CLOCK "./img/geral/clock_icon.png"
+	#define IMG_I_GEM "./img/geral/gem_icon.png"
+	
+	
 	//Exclusivos LE
 	#define IMG_LE_TB "./img/geral/top_bar_JYH.png"
 	#define IMG_LE_SB "./img/geral/side_bar_JYH.png"

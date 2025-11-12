@@ -123,7 +123,7 @@ void JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
 int JYH_ZoomIn(JYH_Nivel* lvl,JYH_Camera* cam){//Aumenta o zoom e returna em Booleano se ainda é permitido
     cam->zoom *= 2;
     Uint32 zt = (cam->zoom)*2;
-    return (2*zt > cam->r_cam.h || 2*zt > cam->r_cam.w);
+    return (/*zt > cam->r_cam.h || zt > cam->r_cam.w*/zt > 256);
 }
 int JYH_ZoomOut(JYH_Nivel* lvl,JYH_Camera* cam){
     cam->zoom /= 2;
@@ -212,7 +212,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 					/*Menu de Temas*/
 				}
                 else if (!jogo->le.botao_ZoomIn.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){
-                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.cam);
+                	jogo->le.botao_ZoomIn.f = JYH_ZoomIn(&jogo->le.lvl,&jogo->le.cam);
                 	jogo->le.botao_ZoomOut.f = 0;
 				}
                 else if (!jogo->le.botao_ZoomOut.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){
@@ -269,7 +269,7 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,IMG_B_RUN,(SDL_Rect){175,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,IMG_B_PAINT,(SDL_Rect){250,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,IMG_B_ERASE,(SDL_Rect){325,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,IMG_B_ERASE,(SDL_Rect){400,25,50,50},2);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,IMG_B_BRUSH,(SDL_Rect){400,25,50,50},2);//trocar
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,IMG_B_ZOOMIN,(SDL_Rect){475,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,IMG_B_ZOOMOUT,(SDL_Rect){550,25,50,50},2);
 	

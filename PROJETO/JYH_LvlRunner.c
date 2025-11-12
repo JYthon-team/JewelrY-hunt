@@ -89,16 +89,16 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 			case SDL_KEYDOWN:
 				switch(jogo->evt.key.keysym.sym){
 					case SDLK_UP:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,-1);
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,-4);
 						break;
 					case SDLK_DOWN:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,1);
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,4);
 						break;
 					case SDLK_LEFT:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,-1,0);
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,-4,0);
 						break;
 					case SDLK_RIGHT:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,1,0);
+						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,4,0);
 						break;
 				}
 				break;
@@ -107,7 +107,6 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 		//eventos baseados em tempo
 		jogo->espera = 10;
 	}
-
 }
 
 void JYH_Load_EX(JYH_GameState* jogo){
@@ -121,13 +120,12 @@ void JYH_Load_EX(JYH_GameState* jogo){
     jogo->ex.txt_tempo = AUX_CriarTexto(jogo->ren,jogo->fnt,"01:30",clr);
     jogo->ex.txt_gem_count = AUX_CriarTexto(jogo->ren,jogo->fnt,"2/10",clr);
     
-    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
-    AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,IMG_B_BACK   ,(SDL_Rect){25,25,50,50},1);
-	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,IMG_B_SAVE   ,(SDL_Rect){100,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,IMG_B_BACK   ,(SDL_Rect){175,25,50,50},1);//trocar
-	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,IMG_B_RUN    ,(SDL_Rect){375,25,50,50},1);//trocar
+    AUX_Start_Icon(jogo->ren,&jogo->ex.tb     ,IMG_LE_TB   ,(SDL_Rect){0,0,1200,100},1);
+    AUX_Start_Icon(jogo->ren,&jogo->ex.botao_V,IMG_B_BACK  ,(SDL_Rect){25,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.botao_R,IMG_B_RESTART,(SDL_Rect){100,25,50,50},1);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->ex.gem    ,IMG_I_GEM   ,(SDL_Rect){175,25,50,50},1);
+	AUX_Start_Icon(jogo->ren,&jogo->ex.clock  ,IMG_I_CLOCK ,(SDL_Rect){375,25,50,50},1);
     
-	//jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,IMG_THEME_1);//sprite separado em vários de 32*48
 	sprintf(S,IMG_GET_THEME,jogo->ex.lvl.tema);
 	jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,S);
 	
