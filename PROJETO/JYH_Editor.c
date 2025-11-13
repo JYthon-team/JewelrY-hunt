@@ -162,9 +162,15 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				p = (SDL_Point){(int)jogo->evt.motion.x,(int)jogo->evt.motion.y};
 				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
 					switch(jogo->le.pincel){
-						case PINCEL_PINTANDO:JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
-						case PINCEL_APAGANDO:JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
-						case PINCEL_MOVER_CAMERA:JYH_Move_Camera(&jogo->le.cam,&jogo->le.lvl,-jogo->evt.motion.xrel,-jogo->evt.motion.yrel);break;
+						case PINCEL_PINTANDO:
+                            JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
+                            break;
+						case PINCEL_APAGANDO:
+                            JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
+                            break;
+						case PINCEL_MOVER_CAMERA:
+                            JYH_Move_Camera(&jogo->le.cam,&jogo->le.lvl,-jogo->evt.motion.xrel,-jogo->evt.motion.yrel);
+                            break;
 					}
 				}
 				break;
@@ -173,10 +179,15 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
 					switch(jogo->le.pincel){
-                        case PINCEL_PINTANDO:JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
-						case PINCEL_APAGANDO:JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);break;
-
-						case PINCEL_DESOCUPADO:jogo->le.pincel = PINCEL_MOVER_CAMERA;break;
+                        case PINCEL_PINTANDO:
+                            JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
+                            break;
+						case PINCEL_APAGANDO:
+                            JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
+                            break;
+						case PINCEL_DESOCUPADO:
+                            jogo->le.pincel = PINCEL_MOVER_CAMERA;
+                            break;
 					}
 				}
 				else if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
@@ -189,7 +200,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				if(jogo->le.pincel == PINCEL_MOVER_CAMERA){
 					jogo->le.pincel = PINCEL_DESOCUPADO;
 				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_S.r)){
+				else if (!jogo->le.botao_S.f && SDL_PointInRect(&p,&jogo->le.botao_S.r)){
 				    JYH_Save_lvl(&jogo->le.lvl);
 				}
 				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r)){
@@ -238,11 +249,11 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	char S[100];
 	JYH_Read_lvl(&jogo->le.lvl);//Só executa se o nível não está carregado
 	JYH_Inicia_Camera(&jogo->le.cam,(SDL_Rect){0,100,1000,600},(SDL_Rect){0,0,1000,600},64);
-	
+
 	jogo->le.press = SDL_FALSE;
 	jogo->le.pincel = PINCEL_DESOCUPADO;
-	printf("Lendo temas\n");
-	printf("%s\n",PATH_THEME_LIST);
+	//printf("Lendo temas\n");
+	//printf("%s\n",PATH_THEME_LIST);
 	FILE* arq = fopen(PATH_THEME_LIST,"r");
 	
 	fscanf(arq,"%u",&jogo->le.n_theme);
@@ -259,7 +270,7 @@ void JYH_Load_LE(JYH_GameState* jogo){
 		}
 	}
 	fclose(arq);
-	printf("Fechei o arquivo\n");
+	//printf("Fechei o arquivo\n");
 	
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);
@@ -269,8 +280,13 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_R  ,IMG_B_RUN,(SDL_Rect){175,25,50,50},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_P  ,IMG_B_PAINT,(SDL_Rect){250,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_A  ,IMG_B_ERASE,(SDL_Rect){325,25,50,50},2);
-	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,IMG_B_BRUSH,(SDL_Rect){400,25,50,50},2);//trocar
+	AUX_Start_Icon(jogo->ren,&jogo->le.botao_T       ,IMG_B_BRUSH,(SDL_Rect){400,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomIn  ,IMG_B_ZOOMIN,(SDL_Rect){475,25,50,50},2);
 	AUX_Start_Icon(jogo->ren,&jogo->le.botao_ZoomOut ,IMG_B_ZOOMOUT,(SDL_Rect){550,25,50,50},2);
-	
+    //verifica se pode dar zoomOut no inicio do jogo
+	jogo->le.botao_ZoomOut.f = ((jogo->le.cam.zoom/2)*(jogo->le.lvl.w) < (jogo->le.cam.r_cam.w) || (jogo->le.cam.zoom/2)*(jogo->le.lvl.h) < (jogo->le.cam.r_cam.h));
+    //no começo o nivel não tem alterações
+    jogo->le.botao_S.f = 1;
+
+
 }
