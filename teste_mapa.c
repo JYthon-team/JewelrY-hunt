@@ -35,7 +35,7 @@ int main(int argc,char* argv[]) {
     SDL_Window* window = SDL_CreateWindow("Mapa SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer* ren = SDL_CreateRenderer(window, -1, 0);
 
-    /*SDL_Surface* chaoSurface = IMG_Load("chao.png");
+    SDL_Surface* chaoSurface = IMG_Load("chao.png");
     SDL_Surface* paredeSurface = IMG_Load("parede.png");
     SDL_Surface* caliceSurface = IMG_Load("calice.png");
     SDL_Surface* joiasSurface = IMG_Load("joias.png");
@@ -47,14 +47,14 @@ int main(int argc,char* argv[]) {
     assert(caliceSurface != NULL);
     assert(joiasSurface != NULL);
     assert(spriteSurface != NULL);
-    assert(inimigoSurface != NULL);*/
+    assert(inimigoSurface != NULL);
 
-    SDL_Texture* chaoTexture = IMG_LoadTexture(ren,"chao.png");//SDL_CreateTextureFromSurface(ren, chaoSurface);
-    SDL_Texture* paredeTexture = IMG_LoadTexture(ren,"parede.jpg");//SDL_CreateTextureFromSurface(ren, paredeSurface);
-    SDL_Texture* caliceTexture = IMG_LoadTexture(ren,"calice.png");//SDL_CreateTextureFromSurface(ren, caliceSurface);
-    SDL_Texture* joiasTexture = IMG_LoadTexture(ren,"joias.png");//SDL_CreateTextureFromSurface(ren, joiasSurface);
-    SDL_Texture* jogadorTexture = IMG_LoadTexture(ren,"sprite.png");//SDL_CreateTextureFromSurface(ren, spriteSurface);
-    SDL_Texture* inimigoTexture = IMG_LoadTexture(ren,"inimigo.png");//SDL_CreateTextureFromSurface(ren, inimigoSurface);
+    SDL_Texture* chaoTexture = SDL_CreateTextureFromSurface(ren, chaoSurface);
+    SDL_Texture* paredeTexture = SDL_CreateTextureFromSurface(ren, paredeSurface);
+    SDL_Texture* caliceTexture = SDL_CreateTextureFromSurface(ren, caliceSurface);
+    SDL_Texture* joiasTexture = SDL_CreateTextureFromSurface(ren, joiasSurface);
+    SDL_Texture* jogadorTexture = SDL_CreateTextureFromSurface(ren, spriteSurface);
+    SDL_Texture* inimigoTexture = SDL_CreateTextureFromSurface(ren, inimigoSurface);
     
     assert(chaoTexture != NULL);
     assert(paredeTexture != NULL);
@@ -63,12 +63,12 @@ int main(int argc,char* argv[]) {
     assert(jogadorTexture != NULL);
     assert(inimigoTexture != NULL);
     
-    /*SDL_FreeSurface(chaoSurface);
+    SDL_FreeSurface(chaoSurface);
     SDL_FreeSurface(paredeSurface);
     SDL_FreeSurface(caliceSurface);
     SDL_FreeSurface(joiasSurface);
     SDL_FreeSurface(spriteSurface);
-    SDL_FreeSurface(inimigoSurface);*/
+    SDL_FreeSurface(inimigoSurface);
 
     Rect walls[] = {
         {0, 0, 800, 64},
@@ -101,9 +101,7 @@ int main(int argc,char* argv[]) {
     int inimigoFrameAtual = 0;
     double inimigoAnimTempo = 0;
 
-	//Onde está esta fonte?
-    //TTF_Font* font = TTF_OpenFont("ComicNeue-BoldItalic.ttf", 48);
-    TTF_Font* font = TTF_OpenFont("PROJETO\\tiny.ttf", 48);
+    TTF_Font* font = TTF_OpenFont("ComicNeue-BoldItalic.ttf", 48);
 
     bool running = true;
     Uint32 startTime = SDL_GetTicks();
