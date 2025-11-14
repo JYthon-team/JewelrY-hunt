@@ -26,11 +26,20 @@ typedef struct{
 typedef struct{
 }JYH_Obj_Enemy;
 
+typedef struct JYH_Ass_Obj{
+	char nome[50];
+	SDL_Texture* txt;
+}JYH_Ass_Obj;
+
 
 typedef struct JYH_Objeto{//estrutura de dados representando os objetos de uma fase.
 	Uint32 type;
-	SDL_Rect hitbox;//verifica colisao nas coordenadas reais
-	JYH_Icon drawbox;//aonde se desenha
+	char nome[50];
+	SDL_Texture* txt;
+	SDL_Point p;//localização
+	Uint32 s;
+	Uint32 f;
+	Uint32 n_f;
 	union{
 		JYH_Obj_Player o_p;
 		JYH_Obj_Trofeu o_t;

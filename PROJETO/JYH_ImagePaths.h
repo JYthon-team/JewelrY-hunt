@@ -21,12 +21,10 @@
 	//icones
 	#define IMG_I_CLOCK "img\\geral\\clock_icon.png"
 	#define IMG_I_GEM "img\\geral\\gem_icon.png"
-	
-	
-	
 	//Exclusivos LE
 	#define IMG_LE_TB "img\\geral\\top_bar_JYH.png"
 	#define IMG_LE_SB "img\\geral\\side_bar_JYH.png"
+	#define IMG_LE_FRAME "img\\geral\\slot.png"
 	//Exclusivos WS
 	#define IMG_WS_TITLE "img\\geral\\Modo_Campanha_JYH.png"
 	//Exclusivos PL
@@ -37,12 +35,14 @@
 	//Paths importantes
 	#define PATH_WS "JYH\\mundos.txt"
 	#define PATH_PL "JYH\\MundoP\\Niveis.txt"
+	#define PATH_OBJ "img\\obj\\obj.txt"
 	#define PATH_THEME_LIST "img\\tema\\temas.txt"
 	#define WORLD_GET_CAPA ".\\img\\%s\\capa.png"
 	#define WORLD_GET_LVLICON ".\\img\\%s\\lvlicon.png"
 	#define WORLD_GET_TITLE ".\\img\\%s\\titulo.png"
 	#define WORLD_GET_LEVELS ".\\JYH\\%s\\Niveis.txt"
 	#define IMG_GET_THEME ".\\img\\tema\\%s.png"
+	#define OBJ_GET_IMG ".\\img\\obj\\%s.png"
 	
 
 #elif __linux__
@@ -72,6 +72,7 @@
 	//Exclusivos LE
 	#define IMG_LE_TB "./img/geral/top_bar_JYH.png"
 	#define IMG_LE_SB "./img/geral/side_bar_JYH.png"
+	#define IMG_LE_FRAME "./img/geral/slot.png"
 	//Exclusivos WS
 	#define IMG_WS_TITLE "./img/geral/Modo_Campanha_JYH.png"
 	//Exclusivos PL
@@ -82,12 +83,14 @@
 	//Paths importantes
 	#define PATH_WS "./JYH/mundos.txt"
 	#define PATH_PL "./JYH/MundoP/Niveis.txt"
+	#define PATH_OBJ "./img/obj/obj.txt"
 	#define PATH_THEME_LIST "./img/tema/temas.txt"
 	#define WORLD_GET_CAPA "./img/%s/capa.png"
 	#define WORLD_GET_LVLICON "./img/%s/lvlicon.png"
 	#define WORLD_GET_TITLE "./img/%s/titulo.png"
 	#define WORLD_GET_LEVELS "./JYH/%s/Niveis.txt"
 	#define IMG_GET_THEME "./img/tema/%s.png"
+	#define OBJ_GET_IMG "./img/obj/%s.png"
 	
 
 #endif

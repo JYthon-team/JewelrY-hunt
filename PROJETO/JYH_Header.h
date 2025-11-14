@@ -26,6 +26,10 @@ typedef struct JYH_Ass_Nivel{//Assinatura de um nível
     SDL_Texture* txt_nome;
 }JYH_Ass_Nivel;
 
+typedef struct JYH_Tile{
+	Uint32 t;//tile a ser desenhado, objeto no tile
+	Uint32 o;//obj
+}JYH_Tile;
 
 typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. Fica armazenada em arquivos para ser carregada para esta estrutura
 	//Grid do nível e posições dos objetos
@@ -36,6 +40,8 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     SDL_Texture* txt_theme;
     int w,h;
     unsigned char *mat;
+    //JYH_Tile* mat;
+    
 }JYH_Nivel;
 
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
@@ -43,6 +49,7 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
 void AUX_AdaptarString(char* S);
 void AUX_Start_Icon(SDL_Renderer* ren, JYH_Icon* i, char* txt_name, SDL_Rect r, Uint32 n);
 void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i);
+void AUX_CriarEvento(int code, void* data);
 
 enum GAME_STATE{
 	JYH_END_GAME = 0,//estado para encerrar o jogo
@@ -80,14 +87,14 @@ typedef struct JYH_Theme{
 	SDL_Texture* txt;
 }JYH_Theme;
 
-
 typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funcionar
 	JYH_Nivel lvl;        //Nivel a ser editado
 	JYH_Camera cam;
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
 	Uint32 n_obj;
-	JYH_Objeto * objetos;//Lista de todos os objetos do jogo
+	//JYH_Objeto * objetos;//Lista de todos os objetos do jogo
+	JYH_Ass_Obj* objetos;
 	Uint32 n_theme;
 	Uint32 i_theme;//tema selecionado
 	JYH_Theme * temas;//lista dos temas
@@ -101,6 +108,7 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	JYH_Icon botao_T;//tema da fase
     JYH_Icon botao_ZoomIn;//Aumenta o Zoom
     JYH_Icon botao_ZoomOut;//Diminui o Zoom
+    SDL_Texture* txt_frame;
 }JYH_Editor;
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível

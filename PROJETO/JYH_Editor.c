@@ -1,6 +1,12 @@
 //Editor Nível
 #include "JYH_Header.h"
 
+enum LE_EVENT{
+	JYH_LE_SAVE,
+	JYH_LE_GOBACK,
+	JYH_LE_RUN
+};
+
 void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	SDL_DestroyTexture(jogo->le.botao_V.txt);
 	SDL_DestroyTexture(jogo->le.botao_P.txt);
@@ -10,11 +16,14 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	SDL_DestroyTexture(jogo->le.botao_A.txt);
 	SDL_DestroyTexture(jogo->le.tb.txt);
 	SDL_DestroyTexture(jogo->le.sb.txt);
-	SDL_DestroyTexture(jogo->le.lvl.txt_theme);
+	//SDL_DestroyTexture(jogo->le.lvl.txt_theme);
+	SDL_DestroyTexture(jogo->le.txt_frame);
 	
 	free(jogo->le.lvl.mat);//temporario
 	for(int i = 0; i < jogo->le.n_theme;i++)SDL_DestroyTexture(jogo->le.temas[i].txt);
 	free(jogo->le.temas);
+	for(int i = 0; i < jogo->le.n_obj;i++)SDL_DestroyTexture(jogo->le.objetos[i].txt);
+	free(jogo->le.objetos);
 }
 
 void JYH_Save_lvl(JYH_Nivel* lvl){
@@ -92,38 +101,42 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 	JYH_Load_EX(jogo);
 }
 
-void JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
+int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
     unsigned char* mat = lvl->mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
+    if(mat[idx]&16)return 1;//se já era uma parede, então não houve mudança
 	                 mat[idx  ] |= 16;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
 	if(idx - w >= 0 )mat[idx-w] |= 8 ;//bloco acima
 	if(idx + w < w*h)mat[idx+w] |= 2 ;//blocoabaixo
+	return 0;
 	
 }
-void JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
+int JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
     unsigned char * mat = lvl->mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
+    if(!(mat[idx]&16))return 1;//se já era chão, então não house mudança
 	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
 	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1] -= (mat[idx+1] & 4 )?4 :0;//bloco à direita tem parede
 	if(idx - w >= 0 )mat[idx-w] -= (mat[idx-w] & 8 )?8 :0;//bloco acima
 	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo
+	return 0;
 }
 
 int JYH_ZoomIn(JYH_Nivel* lvl,JYH_Camera* cam){//Aumenta o zoom e returna em Booleano se ainda é permitido
     cam->zoom *= 2;
     Uint32 zt = (cam->zoom)*2;
-    return (/*zt > cam->r_cam.h || zt > cam->r_cam.w*/zt > 256);
+    return (zt > 256);
 }
 int JYH_ZoomOut(JYH_Nivel* lvl,JYH_Camera* cam){
     cam->zoom /= 2;
@@ -133,103 +146,156 @@ int JYH_ZoomOut(JYH_Nivel* lvl,JYH_Camera* cam){
 
 //Execução
 
+void JYH_LE_Draw_TB(SDL_Renderer* ren,JYH_Editor* le){
+	AUX_Draw_Icon(ren,&le->tb);
+	//Botões
+	AUX_Draw_Icon(ren,&le->botao_V);
+	AUX_Draw_Icon(ren,&le->botao_S);
+	AUX_Draw_Icon(ren,&le->botao_R);
+	AUX_Draw_Icon(ren,&le->botao_P);
+	AUX_Draw_Icon(ren,&le->botao_A);
+	AUX_Draw_Icon(ren,&le->botao_T);
+    AUX_Draw_Icon(ren,&le->botao_ZoomIn);
+    AUX_Draw_Icon(ren,&le->botao_ZoomOut);
+}
+void JYH_LE_Draw_SB(SDL_Renderer* ren, JYH_Editor* le){
+	//sb  = {1000,100,200,600},1
+	AUX_Draw_Icon(ren,&le->sb);
+	SDL_Rect r_obj = (SDL_Rect){0,0,32,32};
+	SDL_Rect r_frame = (SDL_Rect){0,0,48,48};
+	SDL_Rect c_obj = (SDL_Rect){0,0,32,32};
+	SDL_Rect c_frame = (SDL_Rect){0,0,48,48};
+	
+	for(int i = 0; i < le->n_obj; i++){
+		r_frame.x = le->sb.r.x + 14 + (48+14)*(i%3);
+		r_frame.y = le->sb.r.y + 14 + (48+14)*(i/3);
+		c_frame.y = 0;//depende do estado da célula/assinatura;
+		r_obj.x = r_frame.x + 8;
+		r_obj.y = r_frame.y + 8;
+		SDL_RenderCopy(ren,le->txt_frame,&c_frame,&r_frame);
+		SDL_RenderCopy(ren,le->objetos[i].txt,&c_obj,&r_obj);
+	}
+}
+
+void JYH_Draw_LE(SDL_Renderer* ren,JYH_Editor* le){
+	SDL_SetRenderDrawColor(ren,0xff,0xff,0xff,0x00);//background
+	SDL_RenderClear(ren);
+	JYH_Draw_Grade_Cam(ren,&le->lvl,&le->cam);
+	JYH_LE_Draw_TB(ren,le);
+	JYH_LE_Draw_SB(ren,le);
+}
+
+void JYH_LE_MOUSEMOTION(JYH_Editor* le,SDL_MouseMotionEvent* evt){
+	SDL_Point p = (SDL_Point){(int)evt->x,(int)evt->y};
+	if(le->press && SDL_PointInRect(&p,&le->cam.r_box)){
+		switch(le->pincel){
+			case PINCEL_PINTANDO:
+                le->botao_S.f &= JYH_Coloca_Parede(&le->cam,&le->lvl,&p);
+            	break;
+			case PINCEL_APAGANDO:
+                le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
+                break;
+			case PINCEL_MOVER_CAMERA:
+                JYH_Move_Camera(&le->cam,&le->lvl,-evt->xrel,-evt->yrel);
+                break;
+			}
+	}
+}
+void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
+	le->press = SDL_TRUE;
+	SDL_Point p = (SDL_Point){(int)evt->x,(int)evt->y};
+	if(SDL_PointInRect(&p,&le->cam.r_box)){
+		switch(le->pincel){
+            case PINCEL_PINTANDO:
+                le->botao_S.f &= JYH_Coloca_Parede(&le->cam,&le->lvl,&p);
+                break;
+			case PINCEL_APAGANDO:
+                le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
+            	break;
+			case PINCEL_DESOCUPADO:
+                le->pincel = PINCEL_MOVER_CAMERA;
+                break;
+		}
+	}
+}
+
+void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
+	SDL_Point p = (SDL_Point){(int)evt->x,(int)evt->y};
+	le->press = SDL_FALSE;
+	if(le->pincel == PINCEL_MOVER_CAMERA){
+		le->pincel = PINCEL_DESOCUPADO;
+	}
+	else if (!le->botao_S.f && SDL_PointInRect(&p,&le->botao_S.r)){
+		le->botao_S.f = 1;
+		AUX_CriarEvento(JYH_LE_SAVE,NULL);
+	}
+	else if (!le->botao_R.f && SDL_PointInRect(&p,&le->botao_R.r)){
+		le->botao_R.f = 1;
+		AUX_CriarEvento(JYH_LE_RUN,NULL);
+	}
+	else if (SDL_PointInRect(&p,&le->botao_P.r)){
+		le->pincel = (le->pincel == PINCEL_PINTANDO)?PINCEL_DESOCUPADO:PINCEL_PINTANDO;
+		le->botao_P.f = (le->botao_P.f)?0:1;
+		le->botao_A.f = 0;
+	}
+	else if (SDL_PointInRect(&p,&le->botao_A.r)){
+		le->pincel = (le->pincel == PINCEL_APAGANDO)?PINCEL_DESOCUPADO:PINCEL_APAGANDO;
+		le->botao_P.f = 0;
+		le->botao_A.f = (le->botao_A.f)?0:1;
+	}
+	else if (SDL_PointInRect(&p,&le->botao_T.r)){
+		le->i_theme = (le->i_theme+1)%(le->n_theme);
+		le->lvl.txt_theme = le->temas[le->i_theme].txt;
+		strcpy(le->lvl.tema,le->temas[le->i_theme].nome);
+		le->botao_S.f = 0;
+	}
+    else if (!le->botao_ZoomIn.f && SDL_PointInRect(&p,&le->botao_ZoomIn.r)){
+        le->botao_ZoomIn.f = JYH_ZoomIn(&le->lvl,&le->cam);
+        le->botao_ZoomOut.f = 0;
+	}
+    else if (!le->botao_ZoomOut.f && SDL_PointInRect(&p,&le->botao_ZoomOut.r)){
+        le->botao_ZoomOut.f = JYH_ZoomOut(&le->lvl,&le->cam);
+        le->botao_ZoomIn.f = 0;
+	}
+	else if(SDL_PointInRect(&p,&le->botao_V.r)){
+		le->botao_V.f = 1;
+		AUX_CriarEvento(JYH_LE_GOBACK,NULL);
+	}
+}
+
+void JYH_LE_USEREVENT(JYH_GameState* jogo,SDL_UserEvent* evt){
+	switch(evt->code){
+		case JYH_LE_SAVE:
+			JYH_Save_lvl(&jogo->le.lvl);
+			break;
+		case JYH_LE_RUN:
+			JYH_LE_to_EX(jogo);
+			break;
+		case JYH_LE_GOBACK:
+			JYH_LE_goback(jogo);
+			break;
+	}
+}
+
 void JYH_LE(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	Uint32 idx;
 	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	SDL_RenderClear(jogo->ren);
-	
-	JYH_Draw_Grade_Cam(jogo->ren,&jogo->le.lvl,&jogo->le.cam);
-
-	AUX_Draw_Icon(jogo->ren,&jogo->le.tb);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.sb);
-	
-	//desenhar botões
-
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_V);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_S);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_R);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_P);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_A);
-	AUX_Draw_Icon(jogo->ren,&jogo->le.botao_T);
-    AUX_Draw_Icon(jogo->ren,&jogo->le.botao_ZoomIn);
-    AUX_Draw_Icon(jogo->ren,&jogo->le.botao_ZoomOut);
+	JYH_Draw_LE(jogo->ren,&jogo->le);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEMOTION:
-				p = (SDL_Point){(int)jogo->evt.motion.x,(int)jogo->evt.motion.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
-					switch(jogo->le.pincel){
-						case PINCEL_PINTANDO:
-                            JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
-                            break;
-						case PINCEL_APAGANDO:
-                            JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
-                            break;
-						case PINCEL_MOVER_CAMERA:
-                            JYH_Move_Camera(&jogo->le.cam,&jogo->le.lvl,-jogo->evt.motion.xrel,-jogo->evt.motion.yrel);
-                            break;
-					}
-				}
+				JYH_LE_MOUSEMOTION(&jogo->le,&jogo->evt.motion);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				jogo->le.press = SDL_TRUE;
-				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
-				if(jogo->le.press && SDL_PointInRect(&p,&jogo->le.cam.r_box)){
-					switch(jogo->le.pincel){
-                        case PINCEL_PINTANDO:
-                            JYH_Coloca_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
-                            break;
-						case PINCEL_APAGANDO:
-                            JYH_Apaga_Parede(&jogo->le.cam,&jogo->le.lvl,&p);
-                            break;
-						case PINCEL_DESOCUPADO:
-                            jogo->le.pincel = PINCEL_MOVER_CAMERA;
-                            break;
-					}
-				}
-				else if      (SDL_PointInRect(&p,&jogo->le.botao_V.r)){
-					JYH_LE_goback(jogo);
-				}
+				JYH_LE_MOUSEBUTTONDOWN(&jogo->le,&jogo->evt.button);
 				break;
-			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
-				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
-				jogo->le.press = SDL_FALSE;
-				if(jogo->le.pincel == PINCEL_MOVER_CAMERA){
-					jogo->le.pincel = PINCEL_DESOCUPADO;
-				}
-				else if (!jogo->le.botao_S.f && SDL_PointInRect(&p,&jogo->le.botao_S.r)){
-				    JYH_Save_lvl(&jogo->le.lvl);
-				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_R.r)){
-					JYH_LE_to_EX(jogo);
-				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_P.r)){
-					jogo->le.pincel = (jogo->le.pincel == PINCEL_PINTANDO)?PINCEL_DESOCUPADO:PINCEL_PINTANDO;
-					jogo->le.botao_P.f = (jogo->le.botao_P.f)?0:1;
-					jogo->le.botao_A.f = 0;
-				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_A.r)){
-					jogo->le.pincel = (jogo->le.pincel == PINCEL_APAGANDO)?PINCEL_DESOCUPADO:PINCEL_APAGANDO;
-					jogo->le.botao_P.f = 0;
-					jogo->le.botao_A.f = (jogo->le.botao_A.f)?0:1;
-				}
-				else if (SDL_PointInRect(&p,&jogo->le.botao_T.r)){
-					jogo->le.i_theme = (jogo->le.i_theme+1)%(jogo->le.n_theme);
-					jogo->le.lvl.txt_theme = jogo->le.temas[jogo->le.i_theme].txt;
-					strcpy(jogo->le.lvl.tema,jogo->le.temas[jogo->le.i_theme].nome);
-					/*Menu de Temas*/
-				}
-                else if (!jogo->le.botao_ZoomIn.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomIn.r)){
-                	jogo->le.botao_ZoomIn.f = JYH_ZoomIn(&jogo->le.lvl,&jogo->le.cam);
-                	jogo->le.botao_ZoomOut.f = 0;
-				}
-                else if (!jogo->le.botao_ZoomOut.f && SDL_PointInRect(&p,&jogo->le.botao_ZoomOut.r)){
-                	jogo->le.botao_ZoomOut.f = JYH_ZoomOut(&jogo->le.lvl,&jogo->le.cam);
-                	jogo->le.botao_ZoomIn.f = 0;
-				}
+			case SDL_MOUSEBUTTONUP:
+				JYH_LE_MOUSEBUTTONUP(&jogo->le,&jogo->evt.button);
+				break;
+			case SDL_USEREVENT:
+				JYH_LE_USEREVENT(jogo,&jogo->evt.user);
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
@@ -238,40 +304,55 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 		}
 	}else{
         jogo->espera = 10;
-	/*eventos baseados em tempo*/
 	}
 }
 
 //Load
 
-void JYH_Load_LE(JYH_GameState* jogo){
-	printf("Iniciando\n");
+void JYH_LE_Load_Themes(SDL_Renderer* ren,JYH_Editor* le){
 	char S[100];
+	FILE* arq = fopen(PATH_THEME_LIST,"r");
+	fscanf(arq,"%u",&le->n_theme);
+	assert(arq != NULL);
+	le->temas = (JYH_Theme*)malloc(sizeof(JYH_Theme)*(le->n_theme));
+	le->i_theme = 0;
+	for(int i = 0; i < le->n_theme;i++){
+		fscanf(arq,"%s",le->temas[i].nome);
+		sprintf(S,IMG_GET_THEME,le->temas[i].nome);
+		le->temas[i].txt = IMG_LoadTexture(ren,S);
+		assert(le->temas[i].txt!= NULL);
+		if(!strcmp(le->temas[i].nome,le->lvl.tema)){
+			le->lvl.txt_theme = le->temas[i].txt;
+			le->i_theme = i;//o tema selecionado é o tema inicial do nível
+		}
+	}
+	fclose(arq);
+}
+
+void JYH_LE_Load_Obj(SDL_Renderer* ren,JYH_Editor* le ){
+	char S[100];
+	FILE* arq = fopen(PATH_OBJ,"r");
+	fscanf(arq,"%u",&le->n_obj);
+	assert(arq != NULL);
+	le->objetos = (JYH_Ass_Obj*)malloc(sizeof(JYH_Ass_Obj)*(le->n_obj));
+	for(int i = 0; i < le->n_obj;i++){
+		fscanf(arq,"%s",le->objetos[i].nome);
+		sprintf(S,OBJ_GET_IMG,le->objetos[i].nome);
+		le->objetos[i].txt = IMG_LoadTexture(ren,S);
+		assert(le->objetos[i].txt!= NULL);
+	}
+	fclose(arq);
+}
+
+void JYH_Load_LE(JYH_GameState* jogo){
 	JYH_Read_lvl(&jogo->le.lvl);//Só executa se o nível não está carregado
 	JYH_Inicia_Camera(&jogo->le.cam,(SDL_Rect){0,100,1000,600},(SDL_Rect){0,0,1000,600},64);
 
 	jogo->le.press = SDL_FALSE;
 	jogo->le.pincel = PINCEL_DESOCUPADO;
-	//printf("Lendo temas\n");
-	//printf("%s\n",PATH_THEME_LIST);
-	FILE* arq = fopen(PATH_THEME_LIST,"r");
-	
-	fscanf(arq,"%u",&jogo->le.n_theme);
-	assert(arq != NULL);
-	jogo->le.temas = (JYH_Theme*)malloc(sizeof(JYH_Theme)*(jogo->le.n_theme));
-	jogo->le.i_theme = 0;
-	for(int i = 0; i <jogo->le.n_theme;i++){
-		fscanf(arq,"%s",jogo->le.temas[i].nome);
-		sprintf(S,IMG_GET_THEME,jogo->le.temas[i].nome);
-		jogo->le.temas[i].txt = IMG_LoadTexture(jogo->ren,S);
-		if(!strcmp(jogo->le.temas[i].nome,jogo->le.lvl.tema)){
-			jogo->le.lvl.txt_theme = jogo->le.temas[i].txt;
-			jogo->le.i_theme = i;//o tema selecionado é o tema inicial do nível
-		}
-	}
-	fclose(arq);
-	//printf("Fechei o arquivo\n");
-	
+	JYH_LE_Load_Themes(jogo->ren,&jogo->le);
+	JYH_LE_Load_Obj(jogo->ren,&jogo->le);
+	jogo->le.txt_frame = IMG_LoadTexture(jogo->ren,IMG_LE_FRAME);
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);
 	
@@ -287,6 +368,4 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->le.botao_ZoomOut.f = ((jogo->le.cam.zoom/2)*(jogo->le.lvl.w) < (jogo->le.cam.r_cam.w) || (jogo->le.cam.zoom/2)*(jogo->le.lvl.h) < (jogo->le.cam.r_cam.h));
     //no começo o nivel não tem alterações
     jogo->le.botao_S.f = 1;
-
-
 }

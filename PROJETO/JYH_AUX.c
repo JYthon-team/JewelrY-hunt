@@ -43,6 +43,14 @@ void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i){
 	SDL_RenderCopy(ren,i->txt,&c,&i->r);
 }
 
+void AUX_CriarEvento(int code, void* data){
+	SDL_Event evt;
+	evt.type = SDL_USEREVENT;
+	evt.user.code = code;
+	evt.user.data1 = data;
+	SDL_PushEvent(&evt);
+}
+
 enum GAME_STATE AUX_Top(JYH_Pilha* P){return P->p[P->f];}
 void AUX_Empilha(JYH_Pilha* P,enum GAME_STATE s){P->p[++P->f] = s;}
 void AUX_Desempilha(JYH_Pilha* P){P->f--;}
