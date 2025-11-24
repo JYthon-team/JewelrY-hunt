@@ -27,7 +27,8 @@ typedef struct JYH_Ass_Nivel{//Assinatura de um nível
 }JYH_Ass_Nivel;
 
 typedef struct JYH_Tile{
-	Uint32 t;//tile a ser desenhado, objeto no tile
+	//Uint32 t;//tile a ser desenhado, objeto no tile
+    unsigned char t;
 	Uint32 o;//obj
 }JYH_Tile;
 
@@ -39,8 +40,8 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
     int w,h;
-    unsigned char *mat;
-    //JYH_Tile* mat;
+    //unsigned char *mat;
+    JYH_Tile* mat;
     
 }JYH_Nivel;
 
@@ -211,7 +212,7 @@ void JYH_Load_LE(JYH_GameState* jogo);
 
 void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam);
 void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam);
-void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam);
+void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj);
 void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
 void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 

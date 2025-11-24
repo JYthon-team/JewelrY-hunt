@@ -9,7 +9,7 @@ void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam){
     p->x = p->x - cam->r_cam.x + cam->r_box.x;
     p->y = p->y - cam->r_cam.y + cam->r_box.y;
 }
-void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam){
+void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj){
 	SDL_Point p,coord1, coord2;
     int z = cam->zoom;
     SDL_Rect* r_box = &cam->r_box;
@@ -17,19 +17,31 @@ void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam){
 
     SDL_Rect r = {0,0,z,z+z/2};
 	SDL_Rect c = {0,0,32,48};
+    SDL_Rect ro = {0,0,z,z};
+    SDL_Rect co = {0,0,32,32};
     coord1 = (SDL_Point){r_cam->x/z             ,             r_cam->y/z};
     coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z};
-	for(int i = coord1.x; i <= coord2.x; i++){
-		if (i == lvl->w)break;
-		for(int j = coord1.y; j <= coord2.y; j++){
-			if (j == lvl->h)break;
+	for(int j = coord1.y; j <= coord2.y; j++){
+		if (j == lvl->h)break;
+		for(int i = coord1.x; i <= coord2.x; i++){
+			if (i == lvl->w)break;
             p.x = i*z;
             p.y = j*z -z/2;
 			JYH_Converter_MundoTela(&p,cam);
 			r.x = p.x;
 			r.y = p.y;
-			c.x = c.w*(lvl->mat[j*(lvl->w)+i]);
+			//c.x = c.w*(lvl->mat[j*(lvl->w)+i]);
+            c.x = c.w*(lvl->mat[j*(lvl->w)+i].t);
 			SDL_RenderCopy(ren,lvl->txt_theme,&c,&r);
+            
+            if(lvl->mat[j*(lvl->w)+i].o != N_OBJECTS && !(lvl->mat[j*(lvl->w)+i].t & 16)){//segunda proposição temporária
+                //r.y += z/2;
+                ro.x = r.x;
+                ro.y = r.y+z/2;
+                SDL_RenderCopy(ren,obj[lvl->mat[j*(lvl->w)+i].o].txt,&co,&ro);
+            }
+
+
 		}
 	}
 }

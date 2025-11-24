@@ -58,7 +58,7 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 	SDL_RenderClear(jogo->ren);
 	
 	
-	JYH_Draw_Grade_Cam(jogo->ren,&jogo->ex.lvl,&jogo->ex.cam);
+	JYH_Draw_Grade_Cam(jogo->ren,&jogo->ex.lvl,&jogo->ex.cam,NULL);
 	
     AUX_Draw_Icon(jogo->ren,&jogo->ex.tb);
     
@@ -75,7 +75,7 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
-			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
+			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if (SDL_PointInRect(&p,&jogo->ex.botao_V.r))JYH_EX_goback(jogo);
@@ -113,6 +113,16 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	char S[100];
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
 	JYH_Read_lvl(&jogo->ex.lvl);
+    for(int i = 0; i < jogo->ex.lvl.h; i++){//Temporario para não bugar o lvl_Runner
+        for(int j = 0; j < jogo->ex.lvl.w; j++){
+            //fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j]);
+            //fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j].t);
+            jogo->ex.lvl.mat[i*(jogo->ex.lvl.w)+j].o = N_OBJECTS;//Começa vazio
+            //lvl->mat[i*(lvl->w)+j].o =         0;
+        }
+    }
+
+
 	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
 
 	jogo->ex.contagem_gemas =(SDL_Rect){250,25,100,50};//onde é escrita a razão entre as gemas do nível e as gemas coletadas
