@@ -30,12 +30,10 @@ void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_A
 			JYH_Converter_MundoTela(&p,cam);
 			r.x = p.x;
 			r.y = p.y;
-			//c.x = c.w*(lvl->mat[j*(lvl->w)+i]);
             c.x = c.w*(lvl->mat[j*(lvl->w)+i].t);
 			SDL_RenderCopy(ren,lvl->txt_theme,&c,&r);
             
             if(lvl->mat[j*(lvl->w)+i].o != N_OBJECTS && !(lvl->mat[j*(lvl->w)+i].t & 16)){//segunda proposição temporária
-                //r.y += z/2;
                 ro.x = r.x;
                 ro.y = r.y+z/2;
                 SDL_RenderCopy(ren,obj[lvl->mat[j*(lvl->w)+i].o].txt,&co,&ro);

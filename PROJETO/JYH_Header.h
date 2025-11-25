@@ -39,8 +39,8 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     char       tema[50];
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
+    JYH_Objeto* objetos;
     int w,h;
-    //unsigned char *mat;
     JYH_Tile* mat;
     
 }JYH_Nivel;
@@ -94,7 +94,8 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
 	Uint32 n_obj;
-	//JYH_Objeto * objetos;//Lista de todos os objetos do jogo
+    SDL_Point mouse_tile;
+    //Lista de todos os objetos(texturas) do jogo
 	JYH_Ass_Obj* objetos;
 	Uint32 n_theme;
 	Uint32 i_theme;//tema selecionado
@@ -110,6 +111,7 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
     JYH_Icon botao_ZoomIn;//Aumenta o Zoom
     JYH_Icon botao_ZoomOut;//Diminui o Zoom
     SDL_Texture* txt_frame;
+    SDL_Texture* txt_sel;
 }JYH_Editor;
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível

@@ -25,6 +25,7 @@
 	#define IMG_LE_TB "img\\geral\\top_bar_JYH.png"
 	#define IMG_LE_SB "img\\geral\\side_bar_JYH.png"
 	#define IMG_LE_FRAME "img\\geral\\slot.png"
+    #define IMG_LE_SEL "img\\geral\\place.png"
 	//Exclusivos WS
 	#define IMG_WS_TITLE "img\\geral\\Modo_Campanha_JYH.png"
 	//Exclusivos PL
@@ -73,6 +74,7 @@
 	#define IMG_LE_TB "./img/geral/top_bar_JYH.png"
 	#define IMG_LE_SB "./img/geral/side_bar_JYH.png"
 	#define IMG_LE_FRAME "./img/geral/slot.png"
+    #define IMG_LE_SEL "./img/geral/place.png"
 	//Exclusivos WS
 	#define IMG_WS_TITLE "./img/geral/Modo_Campanha_JYH.png"
 	//Exclusivos PL

@@ -17,12 +17,28 @@ void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
 	SDL_DestroyTexture(jogo->le.tb.txt);
 	SDL_DestroyTexture(jogo->le.sb.txt);
 	SDL_DestroyTexture(jogo->le.txt_frame);
+    SDL_DestroyTexture(jogo->le.txt_sel);
 	
 	free(jogo->le.lvl.mat);//temporario
 	for(int i = 0; i < jogo->le.n_theme;i++)SDL_DestroyTexture(jogo->le.temas[i].txt);
 	free(jogo->le.temas);
 	for(int i = 0; i < jogo->le.n_obj;i++)SDL_DestroyTexture(jogo->le.objetos[i].txt);
 	free(jogo->le.objetos);
+}
+void JYH_Draw_Sel(SDL_Renderer* ren,JYH_Editor* le){
+    SDL_Point p;
+    SDL_GetMouseState(&p.x,&p.y);
+    JYH_Converter_TelaMundo(&p,&le->cam);
+    p.x /= le->cam.zoom;
+    p.y /= le->cam.zoom;
+    if(p.x > le->lvl.w || p.y >le->lvl.h || p.x < 0 || p.y < 0)return;
+    int idx = (p.y)*(le->lvl.w)+(p.x);
+    p.x *= le->cam.zoom;
+    p.y *= le->cam.zoom;
+    JYH_Converter_MundoTela(&p,&le->cam);
+    SDL_Rect r = {p.x,p.y,le->cam.zoom,le->cam.zoom};
+    SDL_Rect c = {0,32*((le->lvl.mat[idx].t & 16)!=0),32,32};
+    SDL_RenderCopy(ren,le->txt_sel,&c,&r);
 }
 
 void JYH_Save_lvl(JYH_Nivel* lvl){
@@ -50,13 +66,10 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
     if(orig != NULL){
     	fscanf(orig,"%d %d",&lvl->w,&lvl->h);
     	fscanf(orig,"%s\n",lvl->tema);
-    	//lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
         lvl->mat = (JYH_Tile*)malloc(sizeof(JYH_Tile)*(lvl->w)*(lvl->h));
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
-            	//fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j]);
                 fscanf(orig,"%hhu",&lvl->mat[i*(lvl->w)+j].t);
-                //lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;//Começa vazio
                 lvl->mat[i*(lvl->w)+j].o = JYH_OBJ_PLAYER;//Começa vazio
         	}
     	}
@@ -64,13 +77,10 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
 	}else{
 		lvl->w = 25;//default
 		lvl->h = 25;//default
-		//lvl->mat = (unsigned char*)malloc(sizeof(unsigned char)*(lvl->w)*(lvl->h));
         lvl->mat = (JYH_Tile*)malloc(sizeof(JYH_Tile)*(lvl->w)*(lvl->h));
 		strcpy(lvl->tema,"tema1");
-		//memset(lvl->mat,0,sizeof(unsigned char)*(lvl->w)*(lvl->h));
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
-            	//fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j]);
                 fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j].t);
                 lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;//Começa vazio
                 lvl->mat[i*(lvl->w)+j].o =         0;
@@ -115,18 +125,11 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 
 int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
-    //unsigned char* mat = lvl->mat;
     JYH_Tile* mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
-    /*if(mat[idx]&16)return 1;//se já era uma parede, então não houve mudança
-	                 mat[idx  ] |= 16;//bloco em si vira parede
-	if(idx%w        )mat[idx-1] |= 1 ;//bloco à esquerda tem parede
-	if((idx+1)%w    )mat[idx+1] |= 4 ;//bloco à direita tem parede
-	if(idx - w >= 0 )mat[idx-w] |= 8 ;//bloco acima
-	if(idx + w < w*h)mat[idx+w] |= 2 ;//blocoabaixo*/
     if(mat[idx].t&16)return 1;//se já era uma parede, então não houve mudança
 	                 mat[idx  ].t |= 16;//bloco em si vira parede
 	if(idx%w        )mat[idx-1].t |= 1 ;//bloco à esquerda tem parede
@@ -134,22 +137,14 @@ int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
 	if(idx - w >= 0 )mat[idx-w].t |= 8 ;//bloco acima
 	if(idx + w < w*h)mat[idx+w].t |= 2 ;//blocoabaixo
 	return 0;
-	
 }
 int JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
-    //unsigned char * mat = lvl->mat;
     JYH_Tile* mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
     int idx = (p->x/z)+(p->y/z)*w;
-    /*if(!(mat[idx]&16))return 1;//se já era chão, então não house mudança
-	                 mat[idx  ] -= (mat[idx  ] & 16)?16:0;//bloco em si vira parede
-	if(idx%w        )mat[idx-1] -= (mat[idx-1] & 1 )?1 :0;//bloco à esquerda tem parede
-	if((idx+1)%w    )mat[idx+1] -= (mat[idx+1] & 4 )?4 :0;//bloco à direita tem parede
-	if(idx - w >= 0 )mat[idx-w] -= (mat[idx-w] & 8 )?8 :0;//bloco acima
-	if(idx + w < w*h)mat[idx+w] -= (mat[idx+w] & 2 )?2 :0;//blocoabaixo*/
     if(!(mat[idx].t&16))return 1;//se já era chão, então não house mudança
 	                 mat[idx  ].t -= (mat[idx  ].t & 16)?16:0;//bloco em si vira parede
 	if(idx%w        )mat[idx-1].t -= (mat[idx-1].t & 1 )?1 :0;//bloco à esquerda tem parede
@@ -207,6 +202,7 @@ void JYH_Draw_LE(SDL_Renderer* ren,JYH_Editor* le){
 	SDL_SetRenderDrawColor(ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(ren);
 	JYH_Draw_Grade_Cam(ren,&le->lvl,&le->cam,le->objetos);
+    JYH_Draw_Sel(ren,le);
 	JYH_LE_Draw_TB(ren,le);
 	JYH_LE_Draw_SB(ren,le);
 }
@@ -379,6 +375,7 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	JYH_LE_Load_Themes(jogo->ren,&jogo->le);
 	JYH_LE_Load_Obj(jogo->ren,&jogo->le);
 	jogo->le.txt_frame = IMG_LoadTexture(jogo->ren,IMG_LE_FRAME);
+    jogo->le.txt_sel = IMG_LoadTexture(jogo->ren,IMG_LE_SEL);
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);
 	
