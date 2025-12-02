@@ -37,7 +37,7 @@ void JYH_Draw_Sel(SDL_Renderer* ren,JYH_Editor* le){
     p.y *= le->cam.zoom;
     JYH_Converter_MundoTela(&p,&le->cam);
     SDL_Rect r = {p.x,p.y,le->cam.zoom,le->cam.zoom};
-    SDL_Rect c = {0,32*((le->lvl.mat[idx].t & 16)!=0),32,32};
+    SDL_Rect c = {0,32*((le->lvl.mat[idx].t & 16)!=0 || (le->lvl.mat[idx].o != N_OBJECTS)),32,32};
     SDL_RenderCopy(ren,le->txt_sel,&c,&r);
 }
 
@@ -70,7 +70,7 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
                 fscanf(orig,"%hhu",&lvl->mat[i*(lvl->w)+j].t);
-                lvl->mat[i*(lvl->w)+j].o = JYH_OBJ_PLAYER;//Começa vazio
+                lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;
         	}
     	}
     	fclose(orig);
@@ -83,7 +83,6 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
         	for(int j = 0; j < lvl->w; j++){
                 fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j].t);
                 lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;//Começa vazio
-                lvl->mat[i*(lvl->w)+j].o =         0;
         	}
     	}
 	}
@@ -190,11 +189,27 @@ void JYH_LE_Draw_SB(SDL_Renderer* ren, JYH_Editor* le){
 	for(int i = 0; i < le->n_obj; i++){
 		r_frame.x = le->sb.r.x + 14 + (48+14)*(i%3);
 		r_frame.y = le->sb.r.y + 14 + (48+14)*(i/3);
-		c_frame.y = 0;//depende do estado da célula/assinatura;
+		c_frame.y = le->objetos[i].s*48;//depende do estado da célula/assinatura;
 		r_obj.x = r_frame.x + 8;
 		r_obj.y = r_frame.y + 8;
 		SDL_RenderCopy(ren,le->txt_frame,&c_frame,&r_frame);
 		SDL_RenderCopy(ren,le->objetos[i].txt,&c_obj,&r_obj);
+	}
+}
+
+void JYH_LE_SD_SELECT(SDL_MouseButtonEvent* evt, JYH_Editor* le){
+    SDL_Point p = {evt->x,evt->y};
+    SDL_Rect r = {0,0,48,48};
+	for(int i = 0; i < le->n_obj; i++){
+		r.x = le->sb.r.x + 14 + (48+14)*(i%3);
+		r.y = le->sb.r.y + 14 + (48+14)*(i/3);
+        if((le->objetos[i].s == 0) && SDL_PointInRect(&p,&r)){
+            le->pincel = PINCEL_ARRASTANDO;
+            le->sel_obj = i;
+            le->botao_P.f = le->botao_A.f = 0;
+            le->objetos[i].s = 1;
+            return;
+        }
 	}
 }
 
@@ -205,6 +220,12 @@ void JYH_Draw_LE(SDL_Renderer* ren,JYH_Editor* le){
     JYH_Draw_Sel(ren,le);
 	JYH_LE_Draw_TB(ren,le);
 	JYH_LE_Draw_SB(ren,le);
+    if(le->pincel == PINCEL_ARRASTANDO){
+        SDL_Rect r = {0,0,32,32};
+        SDL_Rect c = {0,0,32,32};
+        SDL_GetMouseState(&r.x, &r.y);
+        SDL_RenderCopy(ren,le->objetos[le->sel_obj].txt,&c,&r);
+    }
 }
 
 void JYH_LE_MOUSEMOTION(JYH_Editor* le,SDL_MouseMotionEvent* evt){
@@ -239,6 +260,9 @@ void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
                 break;
 		}
 	}
+    else if(SDL_PointInRect(&p,&le->sb.r)){
+        JYH_LE_SD_SELECT(evt,le);
+    }
 }
 
 void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
@@ -283,6 +307,20 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
 		le->botao_V.f = 1;
 		AUX_CriarEvento(JYH_LE_GOBACK,NULL);
 	}
+    else if(SDL_PointInRect(&p,&le->cam.r_box) && le->pincel == PINCEL_ARRASTANDO){
+        //dropar na grade
+        le->pincel = PINCEL_DESOCUPADO;
+        JYH_Converter_TelaMundo(&p,&le->cam);
+        p.x /= le->cam.zoom;
+        p.y /= le->cam.zoom;
+        int idx = p.x + p.y*(le->lvl.w);
+        JYH_Tile* mat = le->lvl.mat;
+        if(((mat[idx].t&16) == 0) && (mat[idx].o == N_OBJECTS)){//verifica se pode dropar
+            //dropa
+            le->lvl.mat[idx].o = le->sel_obj;
+            le->objetos[le->sel_obj].s = 0;//verificar o limite
+        }
+    }
 }
 
 void JYH_LE_USEREVENT(JYH_GameState* jogo,SDL_UserEvent* evt){
@@ -361,6 +399,7 @@ void JYH_LE_Load_Obj(SDL_Renderer* ren,JYH_Editor* le ){
 		fscanf(arq,"%s",le->objetos[i].nome);
 		sprintf(S,OBJ_GET_IMG,le->objetos[i].nome);
 		le->objetos[i].txt = IMG_LoadTexture(ren,S);
+        le->objetos[i].s = 0;
 		assert(le->objetos[i].txt!= NULL);
 	}
 	fclose(arq);

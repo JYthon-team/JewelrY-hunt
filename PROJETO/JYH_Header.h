@@ -94,6 +94,7 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
 	SDL_bool press;//mouse pressionado
 	enum JYH_PINCEL pincel;
 	Uint32 n_obj;
+    Uint32 sel_obj;//índice do elemento sendo arrastado
     SDL_Point mouse_tile;
     //Lista de todos os objetos(texturas) do jogo
 	JYH_Ass_Obj* objetos;
