@@ -198,6 +198,7 @@ void JYH_LE_Draw_SB(SDL_Renderer* ren, JYH_Editor* le){
 }
 
 void JYH_LE_SD_SELECT(SDL_MouseButtonEvent* evt, JYH_Editor* le){
+	//selecionar um dos objetos na side bar
     SDL_Point p = {evt->x,evt->y};
     SDL_Rect r = {0,0,48,48};
 	for(int i = 0; i < le->n_obj; i++){
@@ -307,19 +308,21 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
 		le->botao_V.f = 1;
 		AUX_CriarEvento(JYH_LE_GOBACK,NULL);
 	}
-    else if(SDL_PointInRect(&p,&le->cam.r_box) && le->pincel == PINCEL_ARRASTANDO){
+    else if(le->pincel == PINCEL_ARRASTANDO){
         //dropar na grade
         le->pincel = PINCEL_DESOCUPADO;
-        JYH_Converter_TelaMundo(&p,&le->cam);
-        p.x /= le->cam.zoom;
-        p.y /= le->cam.zoom;
-        int idx = p.x + p.y*(le->lvl.w);
-        JYH_Tile* mat = le->lvl.mat;
-        if(((mat[idx].t&16) == 0) && (mat[idx].o == N_OBJECTS)){//verifica se pode dropar
-            //dropa
-            le->lvl.mat[idx].o = le->sel_obj;
-            le->objetos[le->sel_obj].s = 0;//verificar o limite
-        }
+        le->objetos[le->sel_obj].s = 0;//largar o item
+        if(SDL_PointInRect(&p,&le->cam.r_box)){
+        	JYH_Converter_TelaMundo(&p,&le->cam);
+        	p.x /= le->cam.zoom;
+        	p.y /= le->cam.zoom;
+        	int idx = p.x + p.y*(le->lvl.w);
+        	JYH_Tile* mat = le->lvl.mat;
+        	if(((mat[idx].t&16) == 0) && (mat[idx].o == N_OBJECTS)){//verifica se pode dropar
+            	//dropa
+            	le->lvl.mat[idx].o = le->sel_obj;
+        	}
+    	}
     }
 }
 
