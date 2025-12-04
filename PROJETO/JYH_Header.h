@@ -37,6 +37,7 @@ typedef struct JYH_Nivel{//estrutura de dados representando um nível do jogo. F
     char nome_mundo[50];
     char nome_nivel[50];
     char       tema[50];
+    Uint32 qtd_obj;
     SDL_Texture* txt_nome;
     SDL_Texture* txt_theme;
     JYH_Objeto* objetos;

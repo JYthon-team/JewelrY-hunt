@@ -41,6 +41,9 @@ void JYH_Draw_Sel(SDL_Renderer* ren,JYH_Editor* le){
     SDL_RenderCopy(ren,le->txt_sel,&c,&r);
 }
 
+typedef struct {Uint32 x,y,o;} JYH_Obj_Pos;
+
+
 void JYH_Save_lvl(JYH_Nivel* lvl){
     char S[100];
     sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
@@ -49,17 +52,31 @@ void JYH_Save_lvl(JYH_Nivel* lvl){
     assert(dest!=NULL);
     fprintf(dest,"%d %d\n",lvl->w,lvl->h);
     fprintf(dest,"%s\n",lvl->tema);
+    //lê a quantidade de objetos e aloca temporariamente    
+    Uint32 k = 0;
+    JYH_Obj_Pos* l_obj = (JYH_Obj_Pos*)malloc(sizeof(JYH_Obj_Pos)*(lvl->qtd_obj));
+
     for(int i = 0; i < lvl->h; i++){
         for(int j = 0; j < lvl->w; j++){
             fprintf(dest,"%hhd ",lvl->mat[i*(lvl->w)+j].t);
+            if(lvl->mat[i*(lvl->w)+j].o != N_OBJECTS){
+                l_obj[k] = (JYH_Obj_Pos){j,i,lvl->mat[i*(lvl->w)+j].o};
+                k++;
+            }
         }
         fprintf(dest,"\n");
     }
+    fprintf(dest,"%u\n",lvl->qtd_obj);//salva objetos
+    for(int i = 0; i < lvl->qtd_obj;i++)fprintf(dest,"%u %u %u\n",l_obj[i].x,l_obj[i].y,l_obj[i].o);
+
+
+    free(l_obj);
     fclose(dest);
 }
 
 void JYH_Read_lvl(JYH_Nivel* lvl){
 	char S[100];
+    Uint32 x,y,o,idx;
     sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
     FILE* orig =fopen(S,"r");
@@ -73,18 +90,31 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
                 lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;
         	}
     	}
+        
+        fscanf(orig,"%u",&lvl->qtd_obj);//lê a quantidade de objetos
+        for(int i = 0; i < lvl->qtd_obj; i++){
+            fscanf(orig,"%u %u %u",&x,&y,&o);//lê coordenadas e tipos
+            idx = x + y*(lvl->w);
+            lvl->mat[idx].o = o;
+        }
     	fclose(orig);
 	}else{
+        printf("Nivel não existe\n");
 		lvl->w = 25;//default
 		lvl->h = 25;//default
+        printf("Antes do Malloc\n");
         lvl->mat = (JYH_Tile*)malloc(sizeof(JYH_Tile)*(lvl->w)*(lvl->h));
+        printf("Depois do Malloc, %p\n",lvl->mat);
+        lvl->qtd_obj = 0;//inicia com 0 objetos
 		strcpy(lvl->tema,"tema1");
     	for(int i = 0; i < lvl->h; i++){
         	for(int j = 0; j < lvl->w; j++){
-                fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j].t);
-                lvl->mat[i*(lvl->w)+j].o = N_OBJECTS;//Começa vazio
+                Uint32 idx = i*(lvl->w)+j;
+                lvl->mat[idx].o = N_OBJECTS;//Começa vazio
+                lvl->mat[idx].t = 0;
         	}
     	}
+        printf("Nivel Teste criado\n");
 	}
 }
 
@@ -124,7 +154,7 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 
 int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
-    JYH_Tile* mat;
+    JYH_Tile* mat = lvl->mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
@@ -139,7 +169,7 @@ int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
 }
 int JYH_Apaga_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     JYH_Converter_TelaMundo(p,cam);
-    JYH_Tile* mat;
+    JYH_Tile* mat = lvl->mat;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
@@ -320,7 +350,9 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
         	JYH_Tile* mat = le->lvl.mat;
         	if(((mat[idx].t&16) == 0) && (mat[idx].o == N_OBJECTS)){//verifica se pode dropar
             	//dropa
+                le->lvl.qtd_obj ++;
             	le->lvl.mat[idx].o = le->sel_obj;
+                le->botao_S.f = 0;//informa que o nível foi alterado
         	}
     	}
     }
