@@ -99,12 +99,9 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
         }
     	fclose(orig);
 	}else{
-        printf("Nivel não existe\n");
 		lvl->w = 25;//default
 		lvl->h = 25;//default
-        printf("Antes do Malloc\n");
         lvl->mat = (JYH_Tile*)malloc(sizeof(JYH_Tile)*(lvl->w)*(lvl->h));
-        printf("Depois do Malloc, %p\n",lvl->mat);
         lvl->qtd_obj = 0;//inicia com 0 objetos
 		strcpy(lvl->tema,"tema1");
     	for(int i = 0; i < lvl->h; i++){
@@ -114,10 +111,22 @@ void JYH_Read_lvl(JYH_Nivel* lvl){
                 lvl->mat[idx].t = 0;
         	}
     	}
-        printf("Nivel Teste criado\n");
 	}
 }
 
+void JYH_LE_Count_Obj(JYH_Editor* le){
+	int l = (le->lvl.h)*(le->lvl.w);
+	JYH_Ass_Obj* l_obj = le->objetos;
+	JYH_Tile* mat = le->lvl.mat;
+	for(int i = 0; i < l; i++){
+		if(mat[i].o!=N_OBJECTS){
+			l_obj[mat[i].o].qtd++;
+		}	
+	}
+	for(int i = 0; i < le->n_obj; i++){
+		l_obj[i].s = (l_obj[i].qtd >= l_obj[i].lim)?2:0;
+	}
+}
 //Transições
 
 void JYH_LE_to_PL(JYH_GameState* jogo){//editor à biblioteca do player
@@ -161,6 +170,10 @@ int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
     int idx = (p->x/z)+(p->y/z)*w;
     if(mat[idx].t&16)return 1;//se já era uma parede, então não houve mudança
 	                 mat[idx  ].t |= 16;//bloco em si vira parede
+	if(mat[idx].o != N_OBJECTS){//apaga objetos
+		lvl->qtd_obj--;
+		mat[idx].o = N_OBJECTS;
+	}
 	if(idx%w        )mat[idx-1].t |= 1 ;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1].t |= 4 ;//bloco à direita tem parede
 	if(idx - w >= 0 )mat[idx-w].t |= 8 ;//bloco acima
@@ -275,6 +288,7 @@ void JYH_LE_MOUSEMOTION(JYH_Editor* le,SDL_MouseMotionEvent* evt){
 			}
 	}
 }
+
 void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
 	le->press = SDL_TRUE;
 	SDL_Point p = (SDL_Point){(int)evt->x,(int)evt->y};
@@ -293,6 +307,8 @@ void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
                     int idx = p.x/z + (p.y/z)*(le->lvl.w);
                     if (idx >= 0 && idx < (le->lvl.w*le->lvl.h) && le->lvl.mat[idx].o != N_OBJECTS){
                         le->sel_obj = le->lvl.mat[idx].o;
+                        le->objetos[le->sel_obj].qtd--;
+                        le->objetos[le->sel_obj].s = 1;
                         le->pincel = PINCEL_ARRASTANDO;
                         le->lvl.mat[idx].o = N_OBJECTS;
                         le->lvl.qtd_obj--;
@@ -355,7 +371,7 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
     else if(le->pincel == PINCEL_ARRASTANDO){
         //dropar na grade
         le->pincel = PINCEL_DESOCUPADO;
-        le->objetos[le->sel_obj].s = 0;//largar o item
+        //le->objetos[le->sel_obj].s = 0;//largar o item
         if(SDL_PointInRect(&p,&le->cam.r_box)){
         	JYH_Converter_TelaMundo(&p,&le->cam);
         	p.x /= le->cam.zoom;
@@ -366,9 +382,11 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
             	//dropa
                 le->lvl.qtd_obj ++;
             	le->lvl.mat[idx].o = le->sel_obj;
+            	le->objetos[le->lvl.mat[idx].o].qtd++;
                 le->botao_S.f = 0;//informa que o nível foi alterado
         	}
     	}
+    	le->objetos[le->sel_obj].s = (le->objetos[le->sel_obj].qtd>=le->objetos[le->sel_obj].lim)?2:0;//largar o item
     }
 }
 
@@ -412,6 +430,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				break;
 		}
 	}else{
+		jogo->le.botao_R.f =(jogo->le.objetos[JYH_OBJ_PLAYER].qtd != 1 || jogo->le.objetos[JYH_OBJ_TROFEU].qtd != 1);
         jogo->espera = 10;
 	}
 }
@@ -445,10 +464,11 @@ void JYH_LE_Load_Obj(SDL_Renderer* ren,JYH_Editor* le ){
 	assert(arq != NULL);
 	le->objetos = (JYH_Ass_Obj*)malloc(sizeof(JYH_Ass_Obj)*(le->n_obj));
 	for(int i = 0; i < le->n_obj;i++){
-		fscanf(arq,"%s",le->objetos[i].nome);
+		fscanf(arq,"%s %d",le->objetos[i].nome,&le->objetos[i].lim);
 		sprintf(S,OBJ_GET_IMG,le->objetos[i].nome);
 		le->objetos[i].txt = IMG_LoadTexture(ren,S);
         le->objetos[i].s = 0;
+        le->objetos[i].qtd = 0;
 		assert(le->objetos[i].txt!= NULL);
 	}
 	fclose(arq);
@@ -462,8 +482,10 @@ void JYH_Load_LE(JYH_GameState* jogo){
 	jogo->le.pincel = PINCEL_DESOCUPADO;
 	JYH_LE_Load_Themes(jogo->ren,&jogo->le);
 	JYH_LE_Load_Obj(jogo->ren,&jogo->le);
+	JYH_LE_Count_Obj(&jogo->le);
 	jogo->le.txt_frame = IMG_LoadTexture(jogo->ren,IMG_LE_FRAME);
     jogo->le.txt_sel = IMG_LoadTexture(jogo->ren,IMG_LE_SEL);
+    
 	AUX_Start_Icon(jogo->ren,&jogo->le.tb       ,IMG_LE_TB,(SDL_Rect){0,0,1200,100},1);
 	AUX_Start_Icon(jogo->ren,&jogo->le.sb       ,IMG_LE_SB,(SDL_Rect){1000,100,200,600},1);
 	

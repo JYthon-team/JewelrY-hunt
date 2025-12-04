@@ -30,6 +30,8 @@ typedef struct JYH_Ass_Obj{
 	char nome[50];
 	SDL_Texture* txt;
     Uint32 s;//estado
+    Uint32 lim;
+    Uint32 qtd;
 }JYH_Ass_Obj;
 
 

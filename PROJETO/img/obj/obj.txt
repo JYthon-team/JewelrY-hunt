@@ -1,5 +1,5 @@
 4
-player
-gem
-trofeu
-inimigo
+player 1
+gem -1
+trofeu 1
+inimigo -1
