@@ -130,6 +130,8 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
 	SDL_Rect contagem_tempo;
     SDL_Texture* txt_tempo;
 
+	SDL_Texture** txts;
+
 	Uint32 gemas_coletadas;//gemas coletadas até o momento no nível
 	Uint32 tesouro_pego;//se o artefato do nível foi pego
 	Uint32 tempo_de_jogo;//tempo que o nível está sendo jogado
@@ -217,6 +219,7 @@ void JYH_Load_LE(JYH_GameState* jogo);
 void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam);
 void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam);
 void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj);
+void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Objeto* obj);
 void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
 void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 

@@ -10,7 +10,10 @@ void JYH_Destroy_EX(JYH_GameState* jogo){
     SDL_DestroyTexture(jogo->ex.clock.txt);
     SDL_DestroyTexture(jogo->ex.gem.txt);
     
-    free(jogo->le.lvl.mat);//temporario
+    free(jogo->ex.lvl.mat);//temporario
+    free(jogo->ex.lvl.objetos);
+    for(int i = 0; i < N_OBJECTS; i++)SDL_DestroyTexture(jogo->ex.txts[i]);//desaloca texturas
+    free(jogo->ex.txts);
 }
 
 void JYH_EX_to_LS(JYH_GameState* jogo){
@@ -51,27 +54,31 @@ void JYH_EX_goback(JYH_GameState* jogo){
 	}
 }
 
-void JYH_EX(JYH_GameState* jogo){//Atualizar
-	static SDL_Point p;
+void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
+	SDL_SetRenderDrawColor(ren,0xff,0xff,0xff,0x00);//background
+	SDL_RenderClear(ren);
 	
-	SDL_SetRenderDrawColor(jogo->ren,0xff,0xff,0xff,0x00);//background
-	SDL_RenderClear(jogo->ren);
+	JYH_Draw_Grade_EX(ren, &ex->lvl, &ex->cam, ex->lvl.objetos);
 	
-	
-	JYH_Draw_Grade_Cam(jogo->ren,&jogo->ex.lvl,&jogo->ex.cam,NULL);
-	
-    AUX_Draw_Icon(jogo->ren,&jogo->ex.tb);
+    AUX_Draw_Icon(ren,&ex->tb);
     
-    AUX_Draw_Icon(jogo->ren,&jogo->ex.gem);
-    AUX_Draw_Icon(jogo->ren,&jogo->ex.clock);
+    AUX_Draw_Icon(ren,&ex->gem);
+    AUX_Draw_Icon(ren,&ex->clock);
 	
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_gem_count,NULL,&jogo->ex.contagem_gemas);
-    SDL_RenderCopy(jogo->ren,jogo->ex.txt_tempo,NULL,&jogo->ex.contagem_tempo);
+    SDL_RenderCopy(ren,ex->txt_gem_count,NULL,&ex->contagem_gemas);
+    SDL_RenderCopy(ren,ex->txt_tempo,NULL,&ex->contagem_tempo);
 	
 	//desenhar botões
 	
-    AUX_Draw_Icon(jogo->ren,&jogo->ex.botao_R);
-    AUX_Draw_Icon(jogo->ren,&jogo->ex.botao_V);
+    AUX_Draw_Icon(ren,&ex->botao_R);
+    AUX_Draw_Icon(ren,&ex->botao_V);
+}
+
+
+void JYH_EX(JYH_GameState* jogo){//Atualizar
+	static SDL_Point p;
+	
+	JYH_DRAW_EX(jogo->ren,&jogo->ex);
 	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
@@ -87,7 +94,7 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 				JYH_Destroy_EX(jogo);
 				break;
 			case SDL_KEYDOWN:
-				switch(jogo->evt.key.keysym.sym){
+				switch(jogo->evt.key.keysym.sym){//temporario
 					case SDLK_UP:
 						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,-4);
 						break;
@@ -108,20 +115,52 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 		jogo->espera = 10;
 	}
 }
+void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
+	char S[100],nome[50];
+	int temp;
+	FILE* arq = fopen(PATH_OBJ,"r");
+	assert(arq != NULL);
+	fscanf(arq,"%u",&temp);
+	(*txts) = (SDL_Texture**)malloc(sizeof(SDL_Texture*)*(N_OBJECTS));
+	for(int i = 0; i < N_OBJECTS;i++){
+		fscanf(arq,"%s %d",nome,&temp);
+		sprintf(S,OBJ_GET_IMG,nome);
+		(*txts)[i] = IMG_LoadTexture(ren,S);
+		assert((*txts)[i]!= NULL);
+	}
+	fclose(arq);
+	
+}
+
+void JYH_EX_Start_Obj(JYH_Nivel* lvl,Uint32 z,SDL_Texture** txts){
+	lvl->objetos = (JYH_Objeto*)malloc(sizeof(JYH_Objeto)*lvl->qtd_obj);
+
+	JYH_Objeto* l_obj = lvl->objetos;
+	JYH_Tile* mat = lvl->mat;
+	int k = 0;
+	int w = lvl->w;
+	int l = (lvl->h)*(lvl->w);
+	for(int i = 0; i < l; i++){
+		if(mat[i].o != N_OBJECTS){
+			l_obj[k].type = mat[i].o;
+			l_obj[k].p = (SDL_Point){z*(i%w),z*(i/w)};
+			l_obj[k].txt = txts[mat[i].o];
+			l_obj[k].s = 0;//estado inicial é sempre 0
+			l_obj[k].f = 0;
+			l_obj[k].n_f = 4;//fazer variar com o sprite
+			k++;
+			mat[i].o = N_OBJECTS;
+		}
+	}
+}
+
 
 void JYH_Load_EX(JYH_GameState* jogo){
 	char S[100];
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
 	JYH_Read_lvl(&jogo->ex.lvl);
-    for(int i = 0; i < jogo->ex.lvl.h; i++){//Temporario para não bugar o lvl_Runner
-        for(int j = 0; j < jogo->ex.lvl.w; j++){
-            //fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j]);
-            //fscanf(orig,"%hhd",&lvl->mat[i*(lvl->w)+j].t);
-            jogo->ex.lvl.mat[i*(jogo->ex.lvl.w)+j].o = N_OBJECTS;//Começa vazio
-            //lvl->mat[i*(lvl->w)+j].o =         0;
-        }
-    }
-
+	JYH_EX_Load_Txts(jogo->ren,&jogo->ex.txts);
+	JYH_EX_Start_Obj(&jogo->ex.lvl,64,jogo->ex.txts);
 
 	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
 

@@ -44,6 +44,48 @@ void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_A
 	}
 }
 
+void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Objeto* obj){
+	SDL_Point p,coord1, coord2;
+    int z = cam->zoom;
+    SDL_Rect* r_box = &cam->r_box;
+    SDL_Rect* r_cam = &cam->r_cam;
+
+    SDL_Rect r = {0,0,z,z+z/2};
+	SDL_Rect c = {0,0,32,48};
+    SDL_Rect ro = {0,0,z,z};
+    SDL_Rect co = {0,0,32,32};
+    coord1 = (SDL_Point){r_cam->x/z             ,             r_cam->y/z};
+    coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z};
+    int k = 0;
+	for(int j = coord1.y; j <= coord2.y; j++){
+		if (j == lvl->h)break;
+		//Desenha chão e paredes
+		for(int i = coord1.x; i <= coord2.x; i++){
+			if (i == lvl->w)break;
+            p.x = i*z;
+            p.y = j*z -z/2;
+			JYH_Converter_MundoTela(&p,cam);
+			r.x = p.x;
+			r.y = p.y;
+            c.x = c.w*(lvl->mat[j*(lvl->w)+i].t);
+			SDL_RenderCopy(ren,lvl->txt_theme,&c,&r);
+		}
+		//desenha objetos cujo extremidade inferior seja considerada nesta linha
+		while((obj[k].p.y+z-1)/z <= j && k < lvl->qtd_obj){//enquanto o indice for menor ou igual ao j
+			if((obj[k].p.y+z-1)/z == j){//se é igual a j desenhar
+				p = obj[k].p;
+				JYH_Converter_MundoTela(&p,cam);
+				ro = (SDL_Rect){p.x,p.y,z,z};
+				co = (SDL_Rect){obj[k].f*32,obj[k].s*32,32,32};
+				SDL_RenderCopy(ren,obj[k].txt,&co,&ro);
+			}
+			k++;
+		}
+	}
+}
+
+
+
 void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom){
 	cam->r_box = r_box;
 	cam->r_cam = r_cam;
