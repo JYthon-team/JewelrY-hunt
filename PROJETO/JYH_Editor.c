@@ -287,7 +287,21 @@ void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
                 le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
             	break;
 			case PINCEL_DESOCUPADO:
-                le->pincel = PINCEL_MOVER_CAMERA;
+                if (evt->button == SDL_BUTTON_LEFT){//arrastar para outra posição
+                    JYH_Converter_TelaMundo(&p,&le->cam);
+                    int z = le->cam.zoom;
+                    int idx = p.x/z + (p.y/z)*(le->lvl.w);
+                    if (idx >= 0 && idx < (le->lvl.w*le->lvl.h) && le->lvl.mat[idx].o != N_OBJECTS){
+                        le->sel_obj = le->lvl.mat[idx].o;
+                        le->pincel = PINCEL_ARRASTANDO;
+                        le->lvl.mat[idx].o = N_OBJECTS;
+                        le->lvl.qtd_obj--;
+                    }
+                }
+                else if (evt->button == SDL_BUTTON_RIGHT){
+                    le->pincel = PINCEL_MOVER_CAMERA;
+                }
+         
                 break;
 		}
 	}
