@@ -129,25 +129,20 @@ void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
 		assert((*txts)[i]!= NULL);
 	}
 	fclose(arq);
-	
 }
 
-void JYH_EX_Start_Obj(JYH_Nivel* lvl,Uint32 z,SDL_Texture** txts){
-	lvl->objetos = (JYH_Objeto*)malloc(sizeof(JYH_Objeto)*lvl->qtd_obj);
+void JYH_EX_Start_Obj(JYH_Level_Runner* ex,Uint32 z,SDL_Texture** txts){
+	ex->lvl.objetos = (JYH_Objeto*)malloc(sizeof(JYH_Objeto)*(ex->lvl.qtd_obj));
 
-	JYH_Objeto* l_obj = lvl->objetos;
-	JYH_Tile* mat = lvl->mat;
+	JYH_Objeto* l_obj = ex->lvl.objetos;
+	JYH_Tile* mat = ex->lvl.mat;
 	int k = 0;
-	int w = lvl->w;
-	int l = (lvl->h)*(lvl->w);
+	int w = ex->lvl.w;
+	int l = (ex->lvl.h)*(ex->lvl.w);
 	for(int i = 0; i < l; i++){
 		if(mat[i].o != N_OBJECTS){
 			l_obj[k].type = mat[i].o;
-			l_obj[k].p = (SDL_Point){z*(i%w),z*(i/w)};
-			l_obj[k].txt = txts[mat[i].o];
-			l_obj[k].s = 0;//estado inicial é sempre 0
-			l_obj[k].f = 0;
-			l_obj[k].n_f = 4;//fazer variar com o sprite
+			JYH_Start_Obj(ex,&l_obj[k],i);
 			k++;
 			mat[i].o = N_OBJECTS;
 		}
@@ -160,9 +155,8 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
 	JYH_Read_lvl(&jogo->ex.lvl);
 	JYH_EX_Load_Txts(jogo->ren,&jogo->ex.txts);
-	JYH_EX_Start_Obj(&jogo->ex.lvl,64,jogo->ex.txts);
-
 	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
+	JYH_EX_Start_Obj(&jogo->ex,64,jogo->ex.txts);
 
 	jogo->ex.contagem_gemas =(SDL_Rect){250,25,100,50};//onde é escrita a razão entre as gemas do nível e as gemas coletadas
 	jogo->ex.contagem_tempo = (SDL_Rect){450,25,100,50};//onde é escrita a contagem de tempo

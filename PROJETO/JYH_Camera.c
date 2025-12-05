@@ -1,5 +1,12 @@
 //JYH_Camera.c
-#include "JYH_Header.h"
+//#include "JYH_Header.h"
+#include "JYH_Camera.h"
+#include "JYH_Nivel.h"
+#include "JYH_Object.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include <stdio.h>
 
 void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam){
     p->x = cam->r_cam.x + p->x - cam->r_box.x;
@@ -71,13 +78,13 @@ void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ob
 			SDL_RenderCopy(ren,lvl->txt_theme,&c,&r);
 		}
 		//desenha objetos cujo extremidade inferior seja considerada nesta linha
-		while((obj[k].p.y+z-1)/z <= j && k < lvl->qtd_obj){//enquanto o indice for menor ou igual ao j
-			if((obj[k].p.y+z-1)/z == j){//se é igual a j desenhar
-				p = obj[k].p;
+		while((obj[k].g.r.y+z-1)/z <= j && k < lvl->qtd_obj){//enquanto o indice for menor ou igual ao j
+			if((obj[k].g.r.y+z-1)/z == j){//se é igual a j desenhar
+				p = (SDL_Point){obj[k].g.r.x,obj[k].g.r.y};
 				JYH_Converter_MundoTela(&p,cam);
 				ro = (SDL_Rect){p.x,p.y,z,z};
-				co = (SDL_Rect){obj[k].f*32,obj[k].s*32,32,32};
-				SDL_RenderCopy(ren,obj[k].txt,&co,&ro);
+				co = (SDL_Rect){obj[k].g.f*32,obj[k].g.s*32,32,32};
+				SDL_RenderCopy(ren,obj[k].g.txt,&co,&ro);
 			}
 			k++;
 		}
@@ -102,3 +109,4 @@ void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy){
     else if(cam->r_cam.y+cam->r_cam.h  > z*lvl->h)cam->r_cam.y = z*lvl->h - cam->r_cam.h ;
 
 }
+

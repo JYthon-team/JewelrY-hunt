@@ -1,5 +1,6 @@
 //Selecionar Nível
 #include "JYH_Header.h"
+//#include "JYH_LS.h"
 
 void JYH_Destroy_LS(JYH_GameState* jogo){
 	for(int i = 0; i < jogo->ls.n; i++){

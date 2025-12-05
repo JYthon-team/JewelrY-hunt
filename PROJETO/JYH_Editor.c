@@ -161,9 +161,12 @@ void JYH_LE_to_EX(JYH_GameState* jogo){
 	JYH_Load_EX(jogo);
 }
 
-int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
+int JYH_Coloca_Parede(/*JYH_Camera* cam,JYH_Nivel* lvl*/JYH_Editor* le, SDL_Point* p){
+	JYH_Camera* cam = &le->cam;
+	JYH_Nivel*  lvl = &le->lvl;
     JYH_Converter_TelaMundo(p,cam);
     JYH_Tile* mat = lvl->mat;
+    JYH_Ass_Obj* l_obj = le->objetos;
     int w = lvl->w;
     int h = lvl->h;
     int z = cam->zoom;
@@ -172,7 +175,12 @@ int JYH_Coloca_Parede(JYH_Camera* cam,JYH_Nivel* lvl, SDL_Point* p){
 	                 mat[idx  ].t |= 16;//bloco em si vira parede
 	if(mat[idx].o != N_OBJECTS){//apaga objetos
 		lvl->qtd_obj--;
+		l_obj[mat[idx].o].qtd--;
+		l_obj[mat[idx].o].s = 0;
 		mat[idx].o = N_OBJECTS;
+		//l_obj[mat[idx].o].qtd--;
+		//l_obj[mat[idx].o].s = 0;
+		//l_obj[mat[idx].o].s = (l_obj[mat[idx].o].qtd >= l_obj[mat[idx].o].lim)?2:0;
 	}
 	if(idx%w        )mat[idx-1].t |= 1 ;//bloco à esquerda tem parede
 	if((idx+1)%w    )mat[idx+1].t |= 4 ;//bloco à direita tem parede
@@ -277,7 +285,7 @@ void JYH_LE_MOUSEMOTION(JYH_Editor* le,SDL_MouseMotionEvent* evt){
 	if(le->press && SDL_PointInRect(&p,&le->cam.r_box)){
 		switch(le->pincel){
 			case PINCEL_PINTANDO:
-                le->botao_S.f &= JYH_Coloca_Parede(&le->cam,&le->lvl,&p);
+                le->botao_S.f &= JYH_Coloca_Parede(/*&le->cam,&le->lvl*/le,&p);
             	break;
 			case PINCEL_APAGANDO:
                 le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
@@ -295,7 +303,7 @@ void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
 	if(SDL_PointInRect(&p,&le->cam.r_box)){
 		switch(le->pincel){
             case PINCEL_PINTANDO:
-                le->botao_S.f &= JYH_Coloca_Parede(&le->cam,&le->lvl,&p);
+                le->botao_S.f &= JYH_Coloca_Parede(/*&le->cam,&le->lvl*/le,&p);
                 break;
 			case PINCEL_APAGANDO:
                 le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);

@@ -1,5 +1,6 @@
 //Selecionar Mundo
 #include "JYH_Header.h"
+#include "JYH_WS.h"
 
 void JYH_Destroy_WS(JYH_GameState* jogo){
 	SDL_DestroyTexture(jogo->ws.titulo.txt);

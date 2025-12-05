@@ -10,13 +10,9 @@ JYH_GameState* JYH_Init(){//todas as inicializações do jogo vão aqui
     jogo->ren = SDL_CreateRenderer(jogo->win, -1, 0);
     jogo->fnt = TTF_OpenFont("tiny.ttf", 20);
     
-    //outras inicializações abaixo
-    //jogo->estado = JYH_state_MM;
     jogo->state.p[0] = JYH_state_MM;
     jogo->state.f = 0;
     jogo->espera = TEMPO_UPDATE;
-    //jogo->w_tela = JYH_SCREEN_WIDTH;
-    //jogo->h_tela = JYH_SCREEN_HEIGHT;
     JYH_Load_MM(jogo);
     return jogo;
 }
@@ -47,7 +43,7 @@ void JYH_GameRender(JYH_GameState* jogo){
 
 int main (int argc, char* args[]){
 	JYH_GameState* jogo = JYH_Init();
-	while(/*jogo->estado*/AUX_Top(&jogo->state))JYH_GameRender(jogo);
+	while(AUX_Top(&jogo->state))JYH_GameRender(jogo);
     JYH_EndGame(jogo);
 }
 

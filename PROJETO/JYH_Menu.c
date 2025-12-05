@@ -1,6 +1,5 @@
 //Menu Principal
 #include "JYH_Header.h"
-
 //destruir
 
 void JYH_Destroy_MM(JYH_GameState* jogo){
