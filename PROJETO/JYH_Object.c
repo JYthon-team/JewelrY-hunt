@@ -29,7 +29,7 @@ void JYH_OBJ_PLAYER_START(JYH_Obj_Player* obj,JYH_Level_Runner* ex,  int idx){
 	obj->n_f = 4;//fazer variar com o sprite
 	obj->cam = &ex->cam;//Player manipula a câmera
 	obj->lvl = &ex->lvl;
-	JYH_Move_Camera(obj->cam,&ex->lvl,obj->r.x/2,obj->r.y/2);
+	JYH_Move_Camera(obj->cam,&ex->lvl,/*obj->r.x/2*/-(obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x),-(obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y));
 	memset(obj->K,0,sizeof(short)*4);
 	
 }

@@ -27,7 +27,7 @@ void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_A
     SDL_Rect ro = {0,0,z,z};
     SDL_Rect co = {0,0,32,32};
     coord1 = (SDL_Point){r_cam->x/z             ,             r_cam->y/z};
-    coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z};
+    coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z+1};
 	for(int j = coord1.y; j <= coord2.y; j++){
 		if (j == lvl->h)break;
 		for(int i = coord1.x; i <= coord2.x; i++){
@@ -62,7 +62,7 @@ void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ob
     SDL_Rect ro = {0,0,z,z};
     SDL_Rect co = {0,0,32,32};
     coord1 = (SDL_Point){r_cam->x/z             ,             r_cam->y/z};
-    coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z};
+    coord2 = (SDL_Point){(r_cam->x + r_cam->w)/z,(r_cam->y + r_cam->h)/z+1};
     int k = 0;
 	for(int j = coord1.y; j <= coord2.y; j++){
 		if (j == lvl->h)break;
