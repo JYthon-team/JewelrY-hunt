@@ -5,11 +5,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+typedef struct JYH_Level_Runner JYH_Level_Runner;
+typedef struct JYH_Camera JYH_Camera;
+typedef struct JYH_Nivel JYH_Nivel;
 #include "OBJ/JYH_OBJ_Player.h"
 #include "OBJ/JYH_OBJ_Gem.h"
 #include "OBJ/JYH_OBJ_Trofeu.h"
 #include "OBJ/JYH_OBJ_Enemy.h"
-typedef struct JYH_Level_Runner JYH_Level_Runner;
+
+//typedef struct JYH_Level_Runner JYH_Level_Runner;
 enum JYH_OBJ_TYPE{
 	JYH_OBJ_PLAYER,
 	JYH_OBJ_GEM,
@@ -46,7 +50,9 @@ typedef struct {//estrutura de dados representando os objetos de uma fase.
 	};
 	//Sprites + tipo do objeto e o necessário para gerênciar a atualização
 }JYH_Objeto;
-//void JYH_Update_Obj(JYH_GameState* jogo, JYH_Objeto* obj);
-void JYH_Start_Obj(JYH_Level_Runner* ex, JYH_Objeto* obj, int idx);
+
+void JYH_Update_Obj(JYH_Objeto* obj, SDL_Event* evt);
+void JYH_Start_Obj(JYH_Objeto* obj,JYH_Level_Runner* ex,  int idx);
+int JYH_Comp_Obj(const void* p1,const void* p2);
 //void JYH_Draw_Obj(JYH_GameState* jogo,JYH_Objeto* obj);
 #endif

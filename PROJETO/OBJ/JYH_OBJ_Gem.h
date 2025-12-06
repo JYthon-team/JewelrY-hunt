@@ -10,6 +10,4 @@ typedef struct JYH_Obj_Gem{
 	Uint32 f;
 	Uint32 n_f;
 }JYH_Obj_Gem;
-//void JYH_OBJ_GEM_START(JYH_Obj_Gem* obj, JYH_Level_Runner* ex, int idx);
-//void JYH_OBJ_GEM_UPDATE(JYH_Obj_Gem* obj, SDL_Event* evt);
 #endif

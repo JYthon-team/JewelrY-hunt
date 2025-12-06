@@ -5,7 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "JYH_Object.h"
-
+//typedef struct JYH_Objeto JYH_Objeto;
 typedef struct JYH_Tile{
     unsigned char t;//tile
 	Uint32 o;//tipo do objeto

@@ -10,6 +10,9 @@ typedef struct JYH_Camera{
     Uint32 zoom;
 }JYH_Camera;
 
+typedef struct JYH_Nivel JYH_Nivel;
 void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam);
 void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam);
+void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
+void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 #endif

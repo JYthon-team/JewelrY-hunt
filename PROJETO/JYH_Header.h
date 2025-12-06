@@ -24,18 +24,6 @@
 #include "JYH_Nivel.h"
 #include "JYH_Icon.h"
 
-//typedef struct JYH_Menu              JYH_Menu;
-//typedef struct JYH_Editor            JYH_Editor;
-//typedef struct JYH_Level_Runner      JYH_Level_Runner;
-//typedef struct JYH_World_Selection   JYH_World_Selection;
-//typedef struct JYH_Level_Selection   JYH_Level_Selection;
-//typedef struct JYH_Level_Selection_P JYH_Level_Selection_P;
-//typedef struct JYH_Nivel             JYH_Nivel;
-//typedef struct JYH_Camera            JYH_Camera;
-//typedef struct JYH_Objeto            JYH_Objeto;
-//typedef struct JYH_Ass_Obj           JYH_Ass_Obj;
-//typedef struct JYH_Icon              JYH_Icon;
-
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 void AUX_AdaptarString(char* S);
@@ -60,7 +48,6 @@ typedef struct JYH_Pilha{
 enum GAME_STATE AUX_Top(JYH_Pilha* P);
 void AUX_Empilha(JYH_Pilha* P,enum GAME_STATE s);
 void AUX_Desempilha(JYH_Pilha* P);
-
 
 typedef struct JYH_GameState{
 	JYH_Pilha state;
@@ -97,18 +84,12 @@ void JYH_Load_EX(JYH_GameState* jogo);
 void JYH_Load_PL(JYH_GameState* jogo);
 void JYH_Load_LE(JYH_GameState* jogo);
 
-//void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam);
-//void JYH_Converter_MundoTela(SDL_Point* p,JYH_Camera* cam);
 void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj);
 void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Objeto* obj);
-void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
-void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
+//void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
+//void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 
 void JYH_Read_lvl(JYH_Nivel* lvl);
 //Controle principal
 void JYH_GameRender(JYH_GameState* jogo);
-
-//void JYH_Update_Obj(JYH_GameState* jogo, JYH_Objeto* obj);
-//void JYH_Start_Obj(JYH_Level_Runner* ex, JYH_Objeto* obj, int idx);
-//void JYH_Draw_Obj(JYH_GameState* jogo,JYH_Objeto* obj);
 #endif

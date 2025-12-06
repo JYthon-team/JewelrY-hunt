@@ -1,5 +1,6 @@
 //Executar Nível
 #include "JYH_Header.h"
+#include <stdlib.h>
 
 void JYH_Destroy_EX(JYH_GameState* jogo){
     SDL_DestroyTexture(jogo->ex.txt_gem_count);
@@ -94,26 +95,15 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 				JYH_Destroy_EX(jogo);
 				break;
 			case SDL_KEYDOWN:
-				switch(jogo->evt.key.keysym.sym){//temporario
-					case SDLK_UP:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,-4);
-						break;
-					case SDLK_DOWN:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,0,4);
-						break;
-					case SDLK_LEFT:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,-4,0);
-						break;
-					case SDLK_RIGHT:
-						JYH_Move_Camera(&jogo->ex.cam,&jogo->ex.lvl,4,0);
-						break;
-				}
 				break;
 		}
+		//Atualiza as entidades
+		for(int i = 0; i < jogo->ex.lvl.qtd_obj; i++)JYH_Update_Obj(&jogo->ex.lvl.objetos[i],&(jogo->evt));
 	}else{
 		//eventos baseados em tempo
 		jogo->espera = 10;
 	}
+	qsort(jogo->ex.lvl.objetos,jogo->ex.lvl.qtd_obj,sizeof(JYH_Objeto),JYH_Comp_Obj);
 }
 void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
 	char S[100],nome[50];
@@ -142,7 +132,7 @@ void JYH_EX_Start_Obj(JYH_Level_Runner* ex,Uint32 z,SDL_Texture** txts){
 	for(int i = 0; i < l; i++){
 		if(mat[i].o != N_OBJECTS){
 			l_obj[k].type = mat[i].o;
-			JYH_Start_Obj(ex,&l_obj[k],i);
+			JYH_Start_Obj(&l_obj[k],ex,i);
 			k++;
 			mat[i].o = N_OBJECTS;
 		}
