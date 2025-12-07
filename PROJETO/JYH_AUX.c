@@ -27,7 +27,7 @@ void AUX_AdaptarString(char* S){//lê um path em um dado formato e apapta para a
 		}
 		i++;
     }
-    printf(" ");//por alguma razão, quebra se não existe isto
+    //printf(" ");//por alguma razão, quebra se não existe isto
 }
 void AUX_Start_Icon(SDL_Renderer* ren, JYH_Icon* i, char* txt_name, SDL_Rect r, Uint32 n){
 	i->txt = IMG_LoadTexture(ren,txt_name);

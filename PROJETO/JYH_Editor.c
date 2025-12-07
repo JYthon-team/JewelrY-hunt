@@ -48,6 +48,7 @@ void JYH_Save_lvl(JYH_Nivel* lvl){
     char S[100];
     sprintf(S,".$JYH$MundoP$%s.txt",lvl->nome_nivel);
     AUX_AdaptarString(S);
+    printf("%s\n",S);
     FILE* dest = fopen(S,"w");
     assert(dest!=NULL);
     fprintf(dest,"%d %d\n",lvl->w,lvl->h);
@@ -266,7 +267,7 @@ void JYH_Draw_LE(SDL_Renderer* ren,JYH_Editor* le){
 	SDL_SetRenderDrawColor(ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(ren);
 	JYH_Draw_Grade_Cam(ren,&le->lvl,&le->cam,le->objetos);
-    JYH_Draw_Sel(ren,le);
+    if(le->pincel == PINCEL_ARRASTANDO)JYH_Draw_Sel(ren,le);
 	JYH_LE_Draw_TB(ren,le);
 	JYH_LE_Draw_SB(ren,le);
     if(le->pincel == PINCEL_ARRASTANDO){

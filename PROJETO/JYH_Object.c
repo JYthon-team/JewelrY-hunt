@@ -148,30 +148,14 @@ void JYH_OBJ_PLAYER_UPDATE(JYH_Obj_Player* obj,SDL_Event* evt){
 			break;
 	}
 	int hor = 4*(obj->K[1]-obj->K[0]), ver = 4*(obj->K[3]-obj->K[2]);
-	//SDL_Rect r = obj->r;
 	JYH_Obj_Colisao_Parede(obj->r.w,obj->lvl,&obj->r,&hor,&ver);
 	int dist1 = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x;
 	int dist2 = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y;
 	JYH_Move_Camera(obj->cam,obj->lvl,-dist1,-dist2);
-	if(hor){
-		//obj->r.x += 4*(hor);
-		//r.x += 4*(hor);
-		
-		//int dist = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x;
-		obj->s = (hor == 4)?3:2;
-		//JYH_Move_Camera(obj->cam,obj->lvl,-dist,0);
-	}
-	if(ver){
-		//obj->r.y += 4*(ver);
-		//r.y += 4*(ver);
-		
-		
-		//int dist = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y;
-		obj->s = (ver == 4)?0:1;
-		//JYH_Move_Camera(obj->cam,obj->lvl,0,-dist);
-	}
-	
+	if(hor)obj->s = (hor == 4)?3:2;
+	if(ver)obj->s = (ver == 4)?0:1;
 }
+
 void JYH_OBJ_GEM_UPDATE(JYH_Obj_Gem* obj,SDL_Event* evt){
 	switch(evt->type){
 		case SDL_USEREVENT:
@@ -184,6 +168,7 @@ void JYH_OBJ_GEM_UPDATE(JYH_Obj_Gem* obj,SDL_Event* evt){
 			break;
 	}
 }
+
 void JYH_OBJ_TROFEU_UPDATE(JYH_Obj_Trofeu* obj,SDL_Event* evt){
 	switch(evt->type){
 		case SDL_USEREVENT:
