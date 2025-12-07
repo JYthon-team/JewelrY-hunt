@@ -18,4 +18,7 @@ typedef struct JYH_Menu{//Guarda os elementos necessários para o menu rodar
 	Uint32 estado;
 	//adicionar texturas dos botões
 }JYH_Menu;
+
+void JYH_Destroy_MM(JYH_Menu* mm);
+//JYH_Load_MM(JYH_Menu* mm);
 #endif

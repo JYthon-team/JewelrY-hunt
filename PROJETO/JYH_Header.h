@@ -87,6 +87,9 @@ void JYH_Load_LE(JYH_GameState* jogo);
 void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj);
 void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Objeto** obj);
 
+void JYH_Trans(JYH_GameState*,enum GAME_STATE,enum GAME_STATE);
+void JYH_GoBack(JYH_GameState*);
+
 void JYH_Read_lvl(JYH_Nivel* lvl);
 //Controle principal
 void JYH_GameRender(JYH_GameState* jogo);

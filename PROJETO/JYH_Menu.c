@@ -2,43 +2,17 @@
 #include "JYH_Header.h"
 //destruir
 
-void JYH_Destroy_MM(JYH_GameState* jogo){
-	SDL_DestroyTexture(jogo->mm.txt_background);
-	SDL_DestroyTexture(jogo->mm.titulo.txt);
-	SDL_DestroyTexture(jogo->mm.botao_WS.txt);
-	SDL_DestroyTexture(jogo->mm.botao_PL.txt);
-	SDL_DestroyTexture(jogo->mm.botao_LE.txt);
+void JYH_Destroy_MM(JYH_Menu* mm){
+	SDL_DestroyTexture(mm->txt_background);
+	SDL_DestroyTexture(mm->titulo.txt);
+	SDL_DestroyTexture(mm->botao_WS.txt);
+	SDL_DestroyTexture(mm->botao_PL.txt);
+	SDL_DestroyTexture(mm->botao_LE.txt);
 	
-	SDL_DestroyTexture(jogo->mm.txt_msg_edit);
-	SDL_DestroyTexture(jogo->mm.txt_msg_worlds);
-	SDL_DestroyTexture(jogo->mm.txt_msg_selP);
+	SDL_DestroyTexture(mm->txt_msg_edit);
+	SDL_DestroyTexture(mm->txt_msg_worlds);
+	SDL_DestroyTexture(mm->txt_msg_selP);
 }
-
-//Transições
-
-void JYH_MM_to_WS(JYH_GameState* jogo){//Menu para World Selection
-    JYH_World_Selection temp;
-    AUX_Empilha(&jogo->state,JYH_state_WS);
-    JYH_Destroy_MM(jogo);
-    jogo->ws = temp;
-    JYH_Load_WS(jogo);
-}
-void JYH_MM_to_LE(JYH_GameState* jogo){//Menu para Level Editor
-	JYH_Editor temp;
-	strcpy(temp.lvl.nome_nivel,"teste");//temporario
-	AUX_Empilha(&jogo->state,JYH_state_LE);
-	JYH_Destroy_MM(jogo);
-	jogo->le = temp;
-	JYH_Load_LE(jogo);
-}
-void JYH_MM_to_PL(JYH_GameState* jogo){//Menu para Player Library
-	JYH_Level_Selection_P temp;
-	AUX_Empilha(&jogo->state,JYH_state_PL);
-	JYH_Destroy_MM(jogo);
-	jogo->pl = temp;
-	JYH_Load_PL(jogo);
-}
-
 //Execução
 
 void JYH_MM(JYH_GameState* jogo){
@@ -64,17 +38,18 @@ void JYH_MM(JYH_GameState* jogo){
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if      (SDL_PointInRect(&p,&jogo->mm.botao_WS.r))JYH_MM_to_WS(jogo);
-				else if (SDL_PointInRect(&p,&jogo->mm.botao_PL.r))JYH_MM_to_PL(jogo);
-				else if (SDL_PointInRect(&p,&jogo->mm.botao_LE.r))JYH_MM_to_LE(jogo);
+				if      (SDL_PointInRect(&p,&jogo->mm.botao_WS.r))JYH_Trans(jogo,JYH_state_MM,JYH_state_WS);
+				else if (SDL_PointInRect(&p,&jogo->mm.botao_PL.r))JYH_Trans(jogo,JYH_state_MM,JYH_state_PL);
+				else if (SDL_PointInRect(&p,&jogo->mm.botao_LE.r))JYH_Trans(jogo,JYH_state_MM,JYH_state_LE);
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_MM(jogo);
+				JYH_Destroy_MM(&jogo->mm);
 				break;
 		}
 	}else{
 		//eventos baseados em tempo
+		jogo->espera = 10;
 	}
 	
 }

@@ -2,32 +2,14 @@
 #include "JYH_Header.h"
 #include "JYH_WS.h"
 
-void JYH_Destroy_WS(JYH_GameState* jogo){
-	SDL_DestroyTexture(jogo->ws.titulo.txt);
-	SDL_DestroyTexture(jogo->ws.botao_V.txt);
-	SDL_DestroyTexture(jogo->ws.botao_E.txt);
-	SDL_DestroyTexture(jogo->ws.botao_D.txt);
-	SDL_DestroyTexture(jogo->ws.txt_background);
-	for(int i = 0; i < jogo->ws.n;i++)SDL_DestroyTexture(jogo->ws.mundos[i].capa);//limpa os mundos
-    free(jogo->ws.mundos);
-}
-
-
-void JYH_WS_to_LS(JYH_GameState* jogo){
-    JYH_Level_Selection temp;
-    strcpy(temp.nome,jogo->ws.mundos[jogo->ws.i_sel].nome);//copia nome do mundo
-    AUX_Empilha(&jogo->state,JYH_state_LS);
-    JYH_Destroy_WS(jogo);
-    jogo->ls = temp;//copiao estado
-    JYH_Load_LS(jogo);
-}
-
-void JYH_WS_to_MM(JYH_GameState* jogo){
-    JYH_Menu temp;
-    AUX_Desempilha(&jogo->state);
-    JYH_Destroy_WS(jogo);
-    jogo->mm = temp;
-    JYH_Load_MM(jogo);
+void JYH_Destroy_WS(JYH_World_Selection* ws){
+	SDL_DestroyTexture(ws->titulo.txt);
+	SDL_DestroyTexture(ws->botao_V.txt);
+	SDL_DestroyTexture(ws->botao_E.txt);
+	SDL_DestroyTexture(ws->botao_D.txt);
+	SDL_DestroyTexture(ws->txt_background);
+	for(int i = 0; i < ws->n;i++)SDL_DestroyTexture(ws->mundos[i].capa);//limpa os mundos
+    free(ws->mundos);
 }
 
 void JYH_WS(JYH_GameState* jogo){//Atualizar
@@ -58,7 +40,7 @@ void JYH_WS(JYH_GameState* jogo){//Atualizar
 				p.x = (int)jogo->evt.button.x; p.y = (int)jogo->evt.button.y;
 				
 				if (SDL_PointInRect(&p,&jogo->ws.botao_V.r)){//botão de voltar atrás
-				    JYH_WS_to_MM(jogo);
+				    JYH_Trans(jogo,JYH_state_WS,JYH_state_MM);
 					break;
 				}else if(jogo->ws.idx && jogo->ws.n > 3 && SDL_PointInRect(&p,&jogo->ws.botao_E.r)){
 					jogo->ws.idx--;
@@ -72,14 +54,14 @@ void JYH_WS(JYH_GameState* jogo){//Atualizar
 					r.x = (75)+i*375;
 					if(SDL_PointInRect(&p,&r)){//se existe a colisão, então vai para os níveis do mundo
                         jogo->ws.i_sel = i + jogo->ws.idx;
-                        JYH_WS_to_LS(jogo);
+                        JYH_Trans(jogo,JYH_state_WS,JYH_state_LS);
 						break;
 					}
 				}
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_WS(jogo);
+				JYH_Destroy_WS(&jogo->ws);
 				break;
 		}
 	}else{

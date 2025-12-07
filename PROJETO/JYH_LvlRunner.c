@@ -2,62 +2,22 @@
 #include "JYH_Header.h"
 #include <stdlib.h>
 
-void JYH_Destroy_EX(JYH_GameState* jogo){
-    SDL_DestroyTexture(jogo->ex.txt_gem_count);
-    SDL_DestroyTexture(jogo->ex.txt_tempo);
-    SDL_DestroyTexture(jogo->ex.tb.txt);
-    SDL_DestroyTexture(jogo->ex.botao_V.txt);
-    SDL_DestroyTexture(jogo->ex.botao_R.txt);
-    SDL_DestroyTexture(jogo->ex.clock.txt);
-    SDL_DestroyTexture(jogo->ex.gem.txt);
+void JYH_Destroy_EX(JYH_Level_Runner* ex){
+    SDL_DestroyTexture(ex->txt_gem_count);
+    SDL_DestroyTexture(ex->txt_tempo);
+    SDL_DestroyTexture(ex->tb.txt);
+    SDL_DestroyTexture(ex->botao_V.txt);
+    SDL_DestroyTexture(ex->botao_R.txt);
+    SDL_DestroyTexture(ex->clock.txt);
+    SDL_DestroyTexture(ex->gem.txt);
     
-    free(jogo->ex.lvl.mat);//temporario
-    free(jogo->ex.lvl.objetos);
-    for(int i = 0; i < N_OBJECTS; i++)SDL_DestroyTexture(jogo->ex.txts[i]);//desaloca texturas
-    free(jogo->ex.txts);
+    free(ex->lvl.mat);//temporario
+    free(ex->lvl.objetos);
+    for(int i = 0; i < N_OBJECTS; i++)SDL_DestroyTexture(ex->txts[i]);//desaloca texturas
+    free(ex->txts);
     
-    free(jogo->ex.lvl.l_obj);
+    free(ex->lvl.l_obj);
 }
-
-void JYH_EX_to_LS(JYH_GameState* jogo){
-	JYH_Level_Selection temp;
-	strcpy(temp.nome,jogo->ex.lvl.nome_mundo);
-	JYH_Destroy_EX(jogo);
-	jogo->ls = temp;
-	JYH_Load_LS(jogo);
-}
-
-void JYH_EX_to_LE(JYH_GameState* jogo){
-	JYH_Editor temp;
-	temp.lvl = jogo->ex.lvl;
-	JYH_Destroy_EX(jogo);
-	jogo->le = temp;
-	JYH_Load_LE(jogo);
-}
-
-void JYH_EX_to_PL(JYH_GameState* jogo){
-	JYH_Level_Selection_P temp;
-	JYH_Destroy_EX(jogo);
-	jogo->pl = temp;
-	JYH_Load_PL(jogo);
-}
-
-void JYH_EX_goback(JYH_GameState* jogo){
-	AUX_Desempilha(&jogo->state);
-	switch(AUX_Top(&jogo->state)){
-        case JYH_state_LS:
-            JYH_EX_to_LS(jogo);
-            break;
-        case JYH_state_LE:
-            JYH_EX_to_LE(jogo);
-            break;
-        case JYH_state_PL:
-            JYH_EX_to_PL(jogo);
-            break;
-	}
-}
-
-
 
 void JYH_EX_Atualiza_Timer(SDL_Renderer* ren, TTF_Font* fnt, JYH_Level_Runner* ex){
 	char S[10];
@@ -104,23 +64,26 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if (SDL_PointInRect(&p,&jogo->ex.botao_V.r)){
-					JYH_EX_goback(jogo);
+					JYH_GoBack(jogo);
 					return;
 				}
-				else if (SDL_PointInRect(&p,&jogo->ex.botao_R.r)){/*Reinicia o nivel*/}
+				else if (SDL_PointInRect(&p,&jogo->ex.botao_R.r)){
+					JYH_Destroy_EX(&jogo->ex);
+					JYH_Load_EX(jogo);
+				}
 				
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_EX(jogo);
+				JYH_Destroy_EX(&jogo->ex);
 				return;
 		}
 		//Atualiza as entidades
 		for(int i = 0; i < jogo->ex.lvl.qtd_obj; i++)JYH_Update_Obj(&jogo->ex.lvl.objetos[i],&(jogo->evt));
 	}else{
 		//eventos baseados em tempo
-		jogo->espera = 15;
-		jogo->ex.tempo_restante -= 15;
+		jogo->espera = 10;
+		jogo->ex.tempo_restante -= 10;
 		SDL_DestroyTexture(jogo->ex.txt_tempo);
 		JYH_EX_Atualiza_Timer(jogo->ren,jogo->fnt,&jogo->ex);
 		AUX_CriarEvento(JYH_EX_UPDATE_FRAME,NULL,NULL);

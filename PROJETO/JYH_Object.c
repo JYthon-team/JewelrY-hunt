@@ -28,12 +28,12 @@ void JYH_Obj_Colisao_Parede(const int z, JYH_Nivel* lvl, SDL_Rect* ro,int* dx, i
 	int idxBR = ((r.x+z-1)/z)%w + w*((r.y+z-1)/z);
 	
 	if((*dx) > 0){
-		if((lvl->mat[idxTR].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede à direita
+		if((idxTR%w<idxTL%w)||(lvl->mat[idxTR].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede à direita
 			(*dx) -= (r.x%z);
 			r.x   -= (r.x%z);
 		}	
 	}else if((*dx) < 0){
-		if((lvl->mat[idxTL].t&16) || (lvl->mat[idxBL].t&16)){//se têm parede à esquerda
+		if((idxTR%w<idxTL%w)||(lvl->mat[idxTL].t&16) || (lvl->mat[idxBL].t&16)){//se têm parede à esquerda
 			(*dx) += (z - r.x%z);
 			r.x += (z - r.x%z);
 		}
@@ -45,12 +45,12 @@ void JYH_Obj_Colisao_Parede(const int z, JYH_Nivel* lvl, SDL_Rect* ro,int* dx, i
 	idxBR = ((r.x+z-1)/z)%w + w*((r.y+z-1)/z);//Bottom Right
 	
 	if((*dy)>0){
-		if((lvl->mat[idxBL].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede abaixo
+		if((idxBR>=h*w)||(lvl->mat[idxBL].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede abaixo
 			(*dy) -= (r.y%z);
 			r.y -= (r.y%z);
 		}
 	}else if((*dy) < 0){
-		if((lvl->mat[idxTL].t&16) || (lvl->mat[idxTR].t&16)){//se têm parede à esquerda
+		if((idxTR < 0)||(lvl->mat[idxTL].t&16) || (lvl->mat[idxTR].t&16)){//se têm parede à esquerda
 			(*dy) += (z - r.y%z);
 			r.y += (z - r.y%z);
 		}
@@ -155,8 +155,8 @@ void JYH_OBJ_PLAYER_UPDATE(JYH_Obj_Player* obj,SDL_Event* evt){
 	}
 	int hor = 4*(obj->K[1]-obj->K[0]), ver = 4*(obj->K[3]-obj->K[2]);
 	JYH_Obj_Colisao_Parede(obj->r.w,obj->lvl,&obj->r,&hor,&ver);
-	int dist1 = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x;
-	int dist2 = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y;
+	int dist1 = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x-obj->r.w/2;
+	int dist2 = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y-obj->r.h/2;
 	JYH_Move_Camera(obj->cam,obj->lvl,-dist1,-dist2);
 	if(hor)obj->s = (hor == 4)?3:2;
 	if(ver)obj->s = (ver == 4)?0:1;

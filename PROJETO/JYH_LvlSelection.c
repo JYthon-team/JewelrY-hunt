@@ -1,34 +1,16 @@
 //Selecionar Nível
 #include "JYH_Header.h"
-//#include "JYH_LS.h"
 
-void JYH_Destroy_LS(JYH_GameState* jogo){
-	for(int i = 0; i < jogo->ls.n; i++){
-		SDL_DestroyTexture(jogo->ls.niveis[i].txt_nome);
+void JYH_Destroy_LS(JYH_Level_Selection* ls){
+	for(int i = 0; i < ls->n; i++){
+		SDL_DestroyTexture(ls->niveis[i].txt_nome);
 	}//desalocar detalhes da lista de níveis
-	SDL_DestroyTexture(jogo->ls.botao_V.txt);
-	SDL_DestroyTexture(jogo->ls.titulo.txt);
-	SDL_DestroyTexture(jogo->ls.txt_background);
-	SDL_DestroyTexture(jogo->ls.txt_lvl_icon);
+	SDL_DestroyTexture(ls->botao_V.txt);
+	SDL_DestroyTexture(ls->titulo.txt);
+	SDL_DestroyTexture(ls->txt_background);
+	SDL_DestroyTexture(ls->txt_lvl_icon);
 	
-	free(jogo->ls.niveis);
-}
-
-void JYH_LS_to_WS(JYH_GameState* jogo){
-	JYH_World_Selection temp;
-	AUX_Desempilha(&jogo->state);
-	JYH_Destroy_LS(jogo);
-	jogo->ws = temp;
-	JYH_Load_WS(jogo);
-}
-void JYH_LS_to_EX(JYH_GameState* jogo){
-	JYH_Level_Runner temp;
-	strcpy(temp.lvl.nome_nivel,jogo->ls.niveis[jogo->ls.i_sel].nome_nivel);
-	strcpy(temp.lvl.nome_mundo,jogo->ls.nome);
-	AUX_Empilha(&jogo->state,JYH_state_EX);
-	JYH_Destroy_LS(jogo);
-	jogo->ex = temp;
-	JYH_Load_EX(jogo);
+	free(ls->niveis);
 }
 
 void JYH_LS(JYH_GameState* jogo){//Atualizar
@@ -58,20 +40,20 @@ void JYH_LS(JYH_GameState* jogo){//Atualizar
 			case SDL_MOUSEBUTTONDOWN://verifica os cliques do botão
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
-				if (SDL_PointInRect(&p,&jogo->ls.botao_V.r))JYH_LS_to_WS(jogo);
+				if (SDL_PointInRect(&p,&jogo->ls.botao_V.r))JYH_Trans(jogo,JYH_state_LS,JYH_state_WS);
 				
 				for(int i = 0; i < jogo->ls.n; i++){//verifica se clicou em um mundo
 					r.x = 64  + (i%9)*128;r.y = 300 + (i/9)*128;
 					if(SDL_PointInRect(&p,&r)){
 						jogo->ls.i_sel = i;
-						JYH_LS_to_EX(jogo);
+						JYH_Trans(jogo,JYH_state_LS,JYH_state_EX);
 						break;
 					}
 				}
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_LS(jogo);
+				JYH_Destroy_LS(&jogo->ls);
 				break;
 		}
 	}else{

@@ -34,4 +34,7 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necess√°rios para a execu√
 	Uint32 trofeu_pego;
 	Uint32 tempo_restante;
 }JYH_Level_Runner;
+
+void JYH_Destroy_EX(JYH_Level_Runner* ex);
+//JYH_Load_EX(JYH_Level_Runner* ex);
 #endif

@@ -51,4 +51,7 @@ typedef struct JYH_Editor{//Guarda os elementos necessários para o editor funci
     SDL_Texture* txt_frame;
     SDL_Texture* txt_sel;
 }JYH_Editor;
+
+void JYH_Destroy_LE(JYH_Editor* ex);
+//JYH_Load_LE(JYH_Editor* ex);
 #endif

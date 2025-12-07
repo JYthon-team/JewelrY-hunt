@@ -16,4 +16,7 @@ typedef struct JYH_Level_Selection_P{//Guarda os elementos necessários para a s
     SDL_Texture* txt_background;
     SDL_Texture* txt_lvl_icon;
 }JYH_Level_Selection_P;
+
+void JYH_Destroy_PL(JYH_Level_Selection_P* ex);
+//JYH_Load_PL(JYH_Level_Selection_P* ex);
 #endif

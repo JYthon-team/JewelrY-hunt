@@ -1,48 +1,19 @@
 //Seleção de Níveis do player
 #include "JYH_Header.h"
 
-//destruir
+void JYH_Destroy_PL(JYH_Level_Selection_P* pl){
 
-void JYH_Destroy_PL(JYH_GameState* jogo){
-
-	for(int i = 0; i < jogo->pl.n; i++){
-		SDL_DestroyTexture(jogo->pl.niveis[i].txt_nome);
+	for(int i = 0; i < pl->n; i++){
+		SDL_DestroyTexture(pl->niveis[i].txt_nome);
 	}
 
-    SDL_DestroyTexture(jogo->pl.txt_background);
-    SDL_DestroyTexture(jogo->pl.txt_lvl_icon);
-    SDL_DestroyTexture(jogo->pl.titulo.txt);
-    SDL_DestroyTexture(jogo->pl.botao_V.txt);
+    SDL_DestroyTexture(pl->txt_background);
+    SDL_DestroyTexture(pl->txt_lvl_icon);
+    SDL_DestroyTexture(pl->titulo.txt);
+    SDL_DestroyTexture(pl->botao_V.txt);
 
-	free(jogo->pl.niveis);
+	free(pl->niveis);
 }
-
-//Transições
-
-void JYH_PL_to_LE(JYH_GameState* jogo){
-	JYH_Editor temp;
-	AUX_Empilha(&jogo->state,JYH_state_LE);
-	strcpy(temp.lvl.nome_nivel,jogo->pl.niveis[jogo->pl.i_sel].nome_nivel);
-	JYH_Destroy_PL(jogo);
-	jogo->le = temp;
-	JYH_Load_LE(jogo);
-}
-void JYH_PL_to_MM(JYH_GameState* jogo){
-	JYH_Menu temp;
-	AUX_Desempilha(&jogo->state);
-	JYH_Destroy_PL(jogo);
-	jogo->mm = temp;
-	JYH_Load_MM(jogo);
-}
-void JYH_PL_to_EX(JYH_GameState* jogo){
-	JYH_Level_Runner temp;
-	AUX_Empilha(&jogo->state, JYH_state_EX);
-	JYH_Destroy_PL(jogo);
-	jogo->ex = temp;
-	JYH_Load_PL(jogo);
-}
-
-//Execução
 
 void JYH_PL(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
@@ -71,7 +42,7 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 				p = (SDL_Point){(int)jogo->evt.button.x,(int)jogo->evt.button.y};
 				
 				if (SDL_PointInRect(&p,&jogo->pl.botao_V.r)){
-                    JYH_PL_to_MM(jogo);
+                    JYH_Trans(jogo,JYH_state_PL,JYH_state_MM);
                     break;
                 }
 				
@@ -80,7 +51,7 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 					r.y = 300 + (i/9)*128;
 					if(SDL_PointInRect(&p,&r)){
 						jogo->pl.i_sel = i;
-						JYH_PL_to_LE(jogo);
+						JYH_Trans(jogo,JYH_state_PL,JYH_state_LE);
 						break;
 					}
 				}
@@ -88,10 +59,11 @@ void JYH_PL(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_PL(jogo);
+				JYH_Destroy_PL(&jogo->pl);
 				break;
 		}
 	}else{
+		jogo->espera = 10;
 		//eventos baseados em tempo
 	}
 }

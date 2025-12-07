@@ -17,4 +17,7 @@ typedef struct JYH_World_Selection{//Guarda os elementos necessários para a sel
 	JYH_Icon botao_E;
 	SDL_Texture* txt_background;
 }JYH_World_Selection;
+
+void JYH_Destroy_WS(JYH_World_Selection* ws);
+//JYH_Load_WS(JYH_World_Selection* ws);
 #endif

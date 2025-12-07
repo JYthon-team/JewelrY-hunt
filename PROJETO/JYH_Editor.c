@@ -7,24 +7,26 @@ enum LE_EVENT{
 	JYH_LE_RUN
 };
 
-void JYH_Destroy_LE(JYH_GameState* jogo){//desalocar
-	SDL_DestroyTexture(jogo->le.botao_V.txt);
-	SDL_DestroyTexture(jogo->le.botao_P.txt);
-	SDL_DestroyTexture(jogo->le.botao_R.txt);
-	SDL_DestroyTexture(jogo->le.botao_S.txt);
-	SDL_DestroyTexture(jogo->le.botao_T.txt);
-	SDL_DestroyTexture(jogo->le.botao_A.txt);
-	SDL_DestroyTexture(jogo->le.tb.txt);
-	SDL_DestroyTexture(jogo->le.sb.txt);
-	SDL_DestroyTexture(jogo->le.txt_frame);
-    SDL_DestroyTexture(jogo->le.txt_sel);
+void JYH_Destroy_LE(JYH_Editor* le){//desalocar
+	SDL_DestroyTexture(le->botao_V.txt);
+	SDL_DestroyTexture(le->botao_P.txt);
+	SDL_DestroyTexture(le->botao_R.txt);
+	SDL_DestroyTexture(le->botao_S.txt);
+	SDL_DestroyTexture(le->botao_T.txt);
+	SDL_DestroyTexture(le->botao_A.txt);
+	SDL_DestroyTexture(le->tb.txt);
+	SDL_DestroyTexture(le->sb.txt);
+	SDL_DestroyTexture(le->txt_frame);
+    SDL_DestroyTexture(le->txt_sel);
 	
-	free(jogo->le.lvl.mat);//temporario
-	for(int i = 0; i < jogo->le.n_theme;i++)SDL_DestroyTexture(jogo->le.temas[i].txt);
-	free(jogo->le.temas);
-	for(int i = 0; i < jogo->le.n_obj;i++)SDL_DestroyTexture(jogo->le.objetos[i].txt);
-	free(jogo->le.objetos);
+	free(le->lvl.mat);//temporario
+	for(int i = 0; i < le->n_theme;i++)SDL_DestroyTexture(le->temas[i].txt);
+	free(le->temas);
+	for(int i = 0; i < le->n_obj;i++)SDL_DestroyTexture(le->objetos[i].txt);
+	free(le->objetos);
 }
+
+
 void JYH_Draw_Sel(SDL_Renderer* ren,JYH_Editor* le){
     SDL_Point p;
     SDL_GetMouseState(&p.x,&p.y);
@@ -129,38 +131,6 @@ void JYH_LE_Count_Obj(JYH_Editor* le){
 	}
 }
 //Transições
-
-void JYH_LE_to_PL(JYH_GameState* jogo){//editor à biblioteca do player
-	JYH_Level_Selection_P temp;
-	JYH_Destroy_LE(jogo);
-	jogo->pl = temp;
-	JYH_Load_PL(jogo);
-}
-void JYH_LE_to_MM(JYH_GameState* jogo){//editor ao menu inicial
-	JYH_Menu temp;
-	JYH_Destroy_LE(jogo);
-	jogo->mm = temp;
-	JYH_Load_MM(jogo);
-}
-void JYH_LE_goback(JYH_GameState* jogo){//é preciso saber o estado anterior na hora de sair de um nível
-	AUX_Desempilha(&jogo->state);
-	switch(AUX_Top(&jogo->state)){
-		case JYH_state_MM:
-			JYH_LE_to_MM(jogo);
-			break;
-		case JYH_state_PL:
-			JYH_LE_to_PL(jogo);
-			break;
-	}
-}
-void JYH_LE_to_EX(JYH_GameState* jogo){
-	JYH_Level_Runner temp;
-	AUX_Empilha(&jogo->state,JYH_state_EX);
-	JYH_Destroy_LE(jogo);
-	temp.lvl = jogo->le.lvl;
-	jogo->ex = temp;
-	JYH_Load_EX(jogo);
-}
 
 int JYH_Coloca_Parede(JYH_Editor* le, SDL_Point* p){
 	JYH_Camera* cam = &le->cam;
@@ -413,10 +383,10 @@ void JYH_LE_USEREVENT(JYH_GameState* jogo,SDL_UserEvent* evt){
 			JYH_Save_lvl(&jogo->le.lvl);
 			break;
 		case JYH_LE_RUN:
-			JYH_LE_to_EX(jogo);
+			JYH_Trans(jogo,JYH_state_LE,JYH_state_EX);
 			break;
 		case JYH_LE_GOBACK:
-			JYH_LE_goback(jogo);
+			JYH_GoBack(jogo);
 			break;
 	}
 }
@@ -443,7 +413,7 @@ void JYH_LE(JYH_GameState* jogo){//Atualizar
 				break;
 			case SDL_QUIT:
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
-				JYH_Destroy_LE(jogo);
+				JYH_Destroy_LE(&jogo->le);
 				break;
 		}
 	}else{
