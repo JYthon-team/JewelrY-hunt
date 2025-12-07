@@ -24,6 +24,7 @@ enum JYH_OBJ_TYPE{
 };
 
 typedef struct {
+	Uint32 type;
 	SDL_Texture* txt;
 	SDL_Rect r;
 	Uint32 s;
@@ -40,8 +41,11 @@ typedef struct JYH_Ass_Obj{
 }JYH_Ass_Obj;
 
 typedef struct {//estrutura de dados representando os objetos de uma fase.
-	Uint32 type;
 	union{
+	//};
+	//Uint32 type;
+	//union{
+		Uint32 type;
 		JYH_Obj_Player o_p;
 		JYH_Obj_Trofeu o_t;
 		JYH_Obj_Gem    o_g;

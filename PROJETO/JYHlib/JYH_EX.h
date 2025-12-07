@@ -11,7 +11,7 @@
 
 enum EX_EVENTS{
 	JYH_EX_UPDATE_FRAME,
-	JYH_EX_COLLISIONs
+	JYH_EX_COLLISION
 };
 
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível

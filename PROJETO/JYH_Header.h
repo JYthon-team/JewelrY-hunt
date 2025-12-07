@@ -11,19 +11,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include <assert.h>
-#include "JYH_ImagePaths.h"
-
-#include "JYH_MM.h"
-#include "JYH_LE.h"
-#include "JYH_LS.h"
-#include "JYH_EX.h"
-#include "JYH_WS.h"
-#include "JYH_PL.h"
-#include "JYH_Object.h"
-#include "JYH_Camera.h"
-#include "JYH_Nivel.h"
-#include "JYH_Icon.h"
-
+#include "JYHlib/JYH_Paths.h"
+#include "JYHlib/JYH_GS.h"
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms);
 SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color clr);
 void AUX_AdaptarString(char* S);

@@ -1,12 +1,4 @@
-//JYH_Camera.c
-//#include "JYH_Header.h"
-#include "JYH_Camera.h"
-#include "JYH_Nivel.h"
-#include "JYH_Object.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
-#include <stdio.h>
+#include "JYH_Header.h"
 
 void JYH_Converter_TelaMundo(SDL_Point* p,JYH_Camera* cam){
     p->x = cam->r_cam.x + p->x - cam->r_box.x;

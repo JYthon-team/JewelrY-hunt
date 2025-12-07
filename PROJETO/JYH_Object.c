@@ -1,9 +1,4 @@
-#include "JYH_Object.h"
-#include "JYH_EX.h"
-#include "JYH_Camera.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
+#include "JYH_Header.h"
 
 int JYH_Comp_Obj(const void* p1,const void* p2){
 	JYH_Objeto* obj1 = *((JYH_Objeto**)p1);
@@ -29,13 +24,13 @@ void JYH_Obj_Colisao_Parede(const int z, JYH_Nivel* lvl, SDL_Rect* ro,int* dx, i
 	
 	if((*dx) > 0){
 		if((idxTR%w<idxTL%w)||(lvl->mat[idxTR].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede à direita
-			(*dx) -= (r.x%z);
-			r.x   -= (r.x%z);
+			r.x -=(*dx);
+			(*dx) = 0;
 		}	
 	}else if((*dx) < 0){
 		if((idxTR%w<idxTL%w)||(lvl->mat[idxTL].t&16) || (lvl->mat[idxBL].t&16)){//se têm parede à esquerda
-			(*dx) += (z - r.x%z);
-			r.x += (z - r.x%z);
+			r.x -= (*dx);
+			(*dx) = 0;
 		}
 	}
 	
@@ -46,13 +41,13 @@ void JYH_Obj_Colisao_Parede(const int z, JYH_Nivel* lvl, SDL_Rect* ro,int* dx, i
 	
 	if((*dy)>0){
 		if((idxBR>=h*w)||(lvl->mat[idxBL].t&16) || (lvl->mat[idxBR].t&16)){//se têm parede abaixo
-			(*dy) -= (r.y%z);
-			r.y -= (r.y%z);
+			r.y -= (*dy);
+			(*dy)=0;
 		}
 	}else if((*dy) < 0){
 		if((idxTR < 0)||(lvl->mat[idxTL].t&16) || (lvl->mat[idxTR].t&16)){//se têm parede à esquerda
-			(*dy) += (z - r.y%z);
-			r.y += (z - r.y%z);
+			r.y -= (*dy);
+			(*dy)=0;
 		}
 	}
 	
@@ -81,7 +76,9 @@ void JYH_OBJ_PLAYER_START(JYH_Obj_Player* obj,JYH_Level_Runner* ex,  int idx){
 	obj->n_f = 4;//fazer variar com o sprite
 	obj->cam = &ex->cam;//Player manipula a câmera
 	obj->lvl = &ex->lvl;
-	JYH_Move_Camera(obj->cam,&ex->lvl,-(obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x),-(obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y));
+	JYH_Move_Camera(obj->cam,&ex->lvl,
+			-(obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x - obj->r.w/2),
+			-(obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y - obj->r.h/2));
 	memset(obj->K,0,sizeof(short)*4);
 	
 }
@@ -148,18 +145,26 @@ void JYH_OBJ_PLAYER_UPDATE(JYH_Obj_Player* obj,SDL_Event* evt){
 			switch(evt->user.code){
 				case JYH_EX_UPDATE_FRAME:
 					obj->f = (obj->f+1)%(obj->n_f);
+					int hor = 4*(obj->K[1]-obj->K[0]), ver = 4*(obj->K[3]-obj->K[2]);
+					JYH_Obj_Colisao_Parede(obj->r.w,obj->lvl,&obj->r,&hor,&ver);
+					int dist1 = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x-obj->r.w/2;
+					int dist2 = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y-obj->r.h/2;
+					JYH_Move_Camera(obj->cam,obj->lvl,-dist1,-dist2);
+					if(hor)obj->s = (hor == 4)?3:2;
+					if(ver)obj->s = (ver == 4)?0:1;
+					
+					for(int i = 1; i < obj->lvl->qtd_obj; i++){
+						if(SDL_HasIntersection(&obj->r,&obj->lvl->objetos[i].g.r)){
+							AUX_CriarEvento(JYH_EX_COLLISION,obj,&obj->lvl->objetos[i]);
+						}
+					}
+
 					break;
 			}
 		default:
 			break;
 	}
-	int hor = 4*(obj->K[1]-obj->K[0]), ver = 4*(obj->K[3]-obj->K[2]);
-	JYH_Obj_Colisao_Parede(obj->r.w,obj->lvl,&obj->r,&hor,&ver);
-	int dist1 = obj->cam->r_cam.x + obj->cam->r_cam.w/2 - obj->r.x-obj->r.w/2;
-	int dist2 = obj->cam->r_cam.y + obj->cam->r_cam.h/2 - obj->r.y-obj->r.h/2;
-	JYH_Move_Camera(obj->cam,obj->lvl,-dist1,-dist2);
-	if(hor)obj->s = (hor == 4)?3:2;
-	if(ver)obj->s = (ver == 4)?0:1;
+	//colisão com as paredes
 }
 
 void JYH_OBJ_GEM_UPDATE(JYH_Obj_Gem* obj,SDL_Event* evt){
@@ -198,8 +203,8 @@ void JYH_OBJ_ENEMY_UPDATE(JYH_Obj_Enemy* obj,SDL_Event* evt){
 					int stepX = -(obj->r.x - obj->target->x);
 					int stepY = -(obj->r.y - obj->target->y);
 					
-					if(stepX)stepX = 4 *(stepX/abs(stepX));
-					if(stepY)stepY = 4 *(stepY/abs(stepY));
+					if(stepX)stepX = 2 *(stepX/abs(stepX));
+					if(stepY)stepY = 2 *(stepY/abs(stepY));
 					JYH_Obj_Colisao_Parede(obj->r.w,obj->lvl,&obj->r,&stepX,&stepY);
 					break;
 			}
@@ -212,6 +217,7 @@ void JYH_OBJ_ENEMY_UPDATE(JYH_Obj_Enemy* obj,SDL_Event* evt){
 //Globais - Funções que podem ser chamadas por todos
 
 void JYH_Update_Obj(JYH_Objeto* obj, SDL_Event* evt){
+
 	switch(obj->type){
 		case JYH_OBJ_PLAYER:
 			JYH_OBJ_PLAYER_UPDATE(&obj->o_p,evt);
@@ -230,8 +236,10 @@ void JYH_Update_Obj(JYH_Objeto* obj, SDL_Event* evt){
 			break;
 			
 	}
+
 }
 void JYH_Start_Obj(JYH_Objeto* obj,JYH_Level_Runner* ex,  int idx){
+
 	switch(obj->type){
 		case JYH_OBJ_PLAYER:
 			JYH_OBJ_PLAYER_START(&obj->o_p,ex,idx);
@@ -249,4 +257,5 @@ void JYH_Start_Obj(JYH_Objeto* obj,JYH_Level_Runner* ex,  int idx){
 			JYH_OBJ_GENERIC_START(&obj->g,ex,idx);
 			break;
 	}
+
 }

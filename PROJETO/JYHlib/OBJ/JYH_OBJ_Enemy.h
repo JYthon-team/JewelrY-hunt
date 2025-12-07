@@ -4,6 +4,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 typedef struct JYH_Obj_Enemy{
+	Uint32 type;
 	SDL_Texture* txt;
 	SDL_Rect r;
 	Uint32 s;

@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 
 typedef struct JYH_Obj_Player{
+	Uint32 type;
 	SDL_Texture* txt;
 	SDL_Rect r;
 	Uint32 s;

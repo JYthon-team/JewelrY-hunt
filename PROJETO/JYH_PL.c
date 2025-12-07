@@ -84,7 +84,7 @@ void JYH_Load_PL(JYH_GameState* jogo){
     assert(jogo->pl.txt_lvl_icon!=NULL);
     
     fscanf(arq,"%d",&jogo->pl.n);
-    fscanf(arq,"%s",S);//lê path windows
+    fscanf(arq,"%s",S);
     AUX_AdaptarString(S);
     jogo->pl.txt_lvl_icon =  IMG_LoadTexture(jogo->ren, S);
 

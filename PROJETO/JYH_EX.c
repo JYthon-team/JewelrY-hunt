@@ -58,6 +58,7 @@ void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
 void JYH_EX(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	JYH_DRAW_EX(jogo->ren,&jogo->ex);
+	JYH_Objeto* obj1;JYH_Objeto* obj2;
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
@@ -77,18 +78,35 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 				AUX_Empilha(&jogo->state,JYH_END_GAME);
 				JYH_Destroy_EX(&jogo->ex);
 				return;
+			case SDL_USEREVENT:
+				switch(jogo->evt.user.code){
+					case JYH_EX_COLLISION:
+						obj1 = jogo->evt.user.data1;
+						obj2 = jogo->evt.user.data2;
+						if(obj1->type == JYH_OBJ_PLAYER && obj2->type == JYH_OBJ_GEM){
+							jogo->ex.gem_collected++;
+							obj2->g.r.y += 100000;//para sair da tela
+							obj2->type == N_OBJECTS;
+							JYH_EX_Atualiza_GemCount(jogo->ren,jogo->fnt,&jogo->ex);
+						}
+						break;
+					
+					
+					
+				}
 		}
 		//Atualiza as entidades
 		for(int i = 0; i < jogo->ex.lvl.qtd_obj; i++)JYH_Update_Obj(&jogo->ex.lvl.objetos[i],&(jogo->evt));
 	}else{
 		//eventos baseados em tempo
 		jogo->espera = 10;
-		jogo->ex.tempo_restante -= 10;
+		if(jogo->ex.tempo_restante)jogo->ex.tempo_restante -= 10;
 		SDL_DestroyTexture(jogo->ex.txt_tempo);
 		JYH_EX_Atualiza_Timer(jogo->ren,jogo->fnt,&jogo->ex);
 		AUX_CriarEvento(JYH_EX_UPDATE_FRAME,NULL,NULL);
 	}
 	qsort(jogo->ex.lvl.l_obj,jogo->ex.lvl.qtd_obj,sizeof(JYH_Objeto*),JYH_Comp_Obj);
+
 }
 void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
 	char S[100],nome[50];
