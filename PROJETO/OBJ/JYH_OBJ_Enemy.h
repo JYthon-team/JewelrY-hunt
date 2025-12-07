@@ -9,5 +9,8 @@ typedef struct JYH_Obj_Enemy{
 	Uint32 s;
 	Uint32 f;
 	Uint32 n_f;
+	
+	SDL_Rect* target;//o jogador
+	JYH_Nivel* lvl;
 }JYH_Obj_Enemy;
 #endif

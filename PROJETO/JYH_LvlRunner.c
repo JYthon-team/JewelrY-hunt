@@ -15,6 +15,8 @@ void JYH_Destroy_EX(JYH_GameState* jogo){
     free(jogo->ex.lvl.objetos);
     for(int i = 0; i < N_OBJECTS; i++)SDL_DestroyTexture(jogo->ex.txts[i]);//desaloca texturas
     free(jogo->ex.txts);
+    
+    free(jogo->ex.lvl.l_obj);
 }
 
 void JYH_EX_to_LS(JYH_GameState* jogo){
@@ -76,8 +78,7 @@ void JYH_EX_Atualiza_GemCount(SDL_Renderer* ren,TTF_Font* fnt, JYH_Level_Runner*
 void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
 	SDL_SetRenderDrawColor(ren,0xff,0xff,0xff,0x00);//background
 	SDL_RenderClear(ren);
-	
-	JYH_Draw_Grade_EX(ren, &ex->lvl, &ex->cam, ex->lvl.objetos);
+	JYH_Draw_Grade_EX(ren, &ex->lvl, &ex->cam, ex->lvl.l_obj);
 	
     AUX_Draw_Icon(ren,&ex->tb);
     
@@ -97,7 +98,6 @@ void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
 void JYH_EX(JYH_GameState* jogo){//Atualizar
 	static SDL_Point p;
 	JYH_DRAW_EX(jogo->ren,&jogo->ex);
-	
 	if(AUX_WaitEventTimeoutCount(&(jogo->evt),&(jogo->espera))){//trocar por exercicio
 		switch(jogo->evt.type){
 			case SDL_MOUSEBUTTONUP://verifica os cliques do botão
@@ -125,7 +125,7 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 		JYH_EX_Atualiza_Timer(jogo->ren,jogo->fnt,&jogo->ex);
 		AUX_CriarEvento(JYH_EX_UPDATE_FRAME,NULL,NULL);
 	}
-	qsort(jogo->ex.lvl.objetos,jogo->ex.lvl.qtd_obj,sizeof(JYH_Objeto),JYH_Comp_Obj);
+	qsort(jogo->ex.lvl.l_obj,jogo->ex.lvl.qtd_obj,sizeof(JYH_Objeto*),JYH_Comp_Obj);
 }
 void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
 	char S[100],nome[50];
@@ -145,16 +145,25 @@ void JYH_EX_Load_Txts(SDL_Renderer* ren, SDL_Texture*** txts){
 
 void JYH_EX_Start_Obj(JYH_Level_Runner* ex,Uint32 z,SDL_Texture** txts){
 	ex->lvl.objetos = (JYH_Objeto*)malloc(sizeof(JYH_Objeto)*(ex->lvl.qtd_obj));
+	ex->lvl.l_obj = (JYH_Objeto**)malloc(sizeof(JYH_Objeto*)*(ex->lvl.qtd_obj));
 
 	JYH_Objeto* l_obj = ex->lvl.objetos;
 	JYH_Tile* mat = ex->lvl.mat;
 	int k = 0;
 	int w = ex->lvl.w;
 	int l = (ex->lvl.h)*(ex->lvl.w);
+	for(int i = 0; i < l; i++)if(mat[i].o == JYH_OBJ_PLAYER){
+		l_obj[k].type = mat[i].o;
+		ex->lvl.l_obj[k] = &l_obj[k];
+		JYH_Start_Obj(&l_obj[k],ex,i);
+		k++;
+		mat[i].o = N_OBJECTS;
+		break;//só existe 1 player
+	}
 	for(int i = 0; i < l; i++){
 		if(mat[i].o != N_OBJECTS){
-			ex->gem_total += (mat[i].o == JYH_OBJ_GEM);
 			l_obj[k].type = mat[i].o;
+			ex->lvl.l_obj[k] = &l_obj[k];
 			JYH_Start_Obj(&l_obj[k],ex,i);
 			k++;
 			mat[i].o = N_OBJECTS;
@@ -191,5 +200,4 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	JYH_EX_Atualiza_GemCount(jogo->ren,jogo->fnt,&jogo->ex);
 	
 	JYH_EX_Atualiza_Timer(jogo->ren,jogo->fnt,&jogo->ex);
-
 }
