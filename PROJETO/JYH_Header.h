@@ -29,7 +29,7 @@ SDL_Texture* AUX_CriarTexto(SDL_Renderer* ren,TTF_Font* fnt,char* str,SDL_Color 
 void AUX_AdaptarString(char* S);
 void AUX_Start_Icon(SDL_Renderer* ren, JYH_Icon* i, char* txt_name, SDL_Rect r, Uint32 n);
 void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i);
-void AUX_CriarEvento(int code, void* data);
+void AUX_CriarEvento(int code, void* data1, void* data2);
 
 enum GAME_STATE{
 	JYH_END_GAME = 0,//estado para encerrar o jogo
@@ -86,8 +86,6 @@ void JYH_Load_LE(JYH_GameState* jogo);
 
 void JYH_Draw_Grade_Cam(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Ass_Obj* obj);
 void JYH_Draw_Grade_EX(SDL_Renderer* ren,JYH_Nivel* lvl, JYH_Camera* cam, JYH_Objeto* obj);
-//void JYH_Move_Camera(JYH_Camera* cam,JYH_Nivel* lvl,int dx,int dy);
-//void JYH_Inicia_Camera(JYH_Camera* cam,SDL_Rect r_box,SDL_Rect r_cam, Uint32 zoom);
 
 void JYH_Read_lvl(JYH_Nivel* lvl);
 //Controle principal

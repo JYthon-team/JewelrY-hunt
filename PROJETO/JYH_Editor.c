@@ -300,10 +300,22 @@ void JYH_LE_MOUSEBUTTONDOWN(JYH_Editor* le,SDL_MouseButtonEvent* evt){
 	if(SDL_PointInRect(&p,&le->cam.r_box)){
 		switch(le->pincel){
             case PINCEL_PINTANDO:
-                le->botao_S.f &= JYH_Coloca_Parede(le,&p);
+				if(evt->button == SDL_BUTTON_LEFT){
+					le->botao_S.f &= JYH_Coloca_Parede(le,&p);
+				}
+				else if (evt->button == SDL_BUTTON_RIGHT){
+					le->pincel = PINCEL_MOVER_CAMERA;
+					le->botao_P.f = 0;
+				}
                 break;
 			case PINCEL_APAGANDO:
-                le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
+                if(evt->button == SDL_BUTTON_LEFT){
+					le->botao_S.f &= JYH_Apaga_Parede(&le->cam,&le->lvl,&p);
+				}
+				else if (evt->button == SDL_BUTTON_RIGHT){
+					le->pincel = PINCEL_MOVER_CAMERA;
+					le->botao_A.f = 0;
+				}
             	break;
 			case PINCEL_DESOCUPADO:
                 if (evt->button == SDL_BUTTON_LEFT){//arrastar para outra posição
@@ -339,11 +351,11 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
 	}
 	else if (!le->botao_S.f && SDL_PointInRect(&p,&le->botao_S.r)){
 		le->botao_S.f = 1;
-		AUX_CriarEvento(JYH_LE_SAVE,NULL);
+		AUX_CriarEvento(JYH_LE_SAVE,NULL,NULL);
 	}
 	else if (!le->botao_R.f && SDL_PointInRect(&p,&le->botao_R.r)){
 		le->botao_R.f = 1;
-		AUX_CriarEvento(JYH_LE_RUN,NULL);
+		AUX_CriarEvento(JYH_LE_RUN,NULL,NULL);
 	}
 	else if (SDL_PointInRect(&p,&le->botao_P.r)){
 		le->pincel = (le->pincel == PINCEL_PINTANDO)?PINCEL_DESOCUPADO:PINCEL_PINTANDO;
@@ -371,7 +383,7 @@ void JYH_LE_MOUSEBUTTONUP(JYH_Editor* le, SDL_MouseButtonEvent* evt){
 	}
 	else if(SDL_PointInRect(&p,&le->botao_V.r)){
 		le->botao_V.f = 1;
-		AUX_CriarEvento(JYH_LE_GOBACK,NULL);
+		AUX_CriarEvento(JYH_LE_GOBACK,NULL,NULL);
 	}
     else if(le->pincel == PINCEL_ARRASTANDO){
         //dropar na grade

@@ -9,6 +9,11 @@
 #include "JYH_Icon.h"
 #include "JYH_Camera.h"
 
+enum EX_EVENTS{
+	JYH_EX_UPDATE_FRAME,
+	JYH_EX_COLLISIONs
+};
+
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
 	JYH_Nivel lvl;//Nivel que está sendo jogado
 	JYH_Camera cam;
@@ -24,10 +29,9 @@ typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execu�
     SDL_Texture* txt_tempo;
 
 	SDL_Texture** txts;
-
-	Uint32 gemas_coletadas;//gemas coletadas até o momento no nível
-	Uint32 tesouro_pego;//se o artefato do nível foi pego
-	Uint32 tempo_de_jogo;//tempo que o nível está sendo jogado
-	Uint32 timer;//tempo restante para sair com o artefato após pegar o tesouro
+	Uint32 gem_total;
+	Uint32 gem_collected;
+	Uint32 trofeu_pego;
+	Uint32 tempo_restante;
 }JYH_Level_Runner;
 #endif

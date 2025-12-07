@@ -43,11 +43,12 @@ void AUX_Draw_Icon(SDL_Renderer* ren,JYH_Icon* i){
 	SDL_RenderCopy(ren,i->txt,&c,&i->r);
 }
 
-void AUX_CriarEvento(int code, void* data){
+void AUX_CriarEvento(int code, void* data1, void* data2){
 	SDL_Event evt;
 	evt.type = SDL_USEREVENT;
 	evt.user.code = code;
-	evt.user.data1 = data;
+	evt.user.data1 = data1;
+	evt.user.data2 = data2;
 	SDL_PushEvent(&evt);
 }
 
