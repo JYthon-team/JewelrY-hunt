@@ -32,6 +32,7 @@
 	#define IMG_PL_TITLE "img\\geral\\Biblioteca_Jogador_JYH.png"
 	//temas
 	#define IMG_THEME_1 "img\\geral\\tile-Sheet.png"
+	#define IMG_STAR "img\\geral\\estrela.png"
 	
 	//Paths importantes
 	#define PATH_WS "JYH\\mundos.txt"
@@ -81,6 +82,7 @@
 	#define IMG_PL_TITLE "./img/geral/Biblioteca_Jogador_JYH.png"
 	//temas
 	#define IMG_THEME_1 "./img/geral/tile-Sheet.png"
+	#define IMG_STAR "./img/geral/estrela.png"
 	
 	//Paths importantes
 	#define PATH_WS "./JYH/mundos.txt"

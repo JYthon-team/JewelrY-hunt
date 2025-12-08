@@ -10,6 +10,9 @@ void JYH_Destroy_EX(JYH_Level_Runner* ex){
     SDL_DestroyTexture(ex->botao_R.txt);
     SDL_DestroyTexture(ex->clock.txt);
     SDL_DestroyTexture(ex->gem.txt);
+    SDL_DestroyTexture(ex->txt_defeat);
+    SDL_DestroyTexture(ex->txt_victory);
+    SDL_DestroyTexture(ex->txt_star);
     
     free(ex->lvl.mat);//temporario
     free(ex->lvl.objetos);
@@ -40,6 +43,29 @@ void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
 	SDL_RenderClear(ren);
 	JYH_Draw_Grade_EX(ren, &ex->lvl, &ex->cam, ex->lvl.l_obj);
 	
+	if(ex->state == EX_VICTORY){
+		SDL_Rect r = {100,200,1000,500};
+		SDL_Rect c = {0,0,64,64};
+		SDL_RenderCopy(ren,ex->txt_victory,NULL,&r);
+		//desenhar estrelas
+		
+		r = (SDL_Rect){600 -108,132 ,64,64};
+		c.x = 64*((ex->goal&4)==0);
+		SDL_RenderCopy(ren,ex->txt_star,&c,&r);
+		
+		r.x = 600 - 32;
+		c.x = 64*((ex->goal&2)==0);
+		SDL_RenderCopy(ren,ex->txt_star,&c,&r);
+		
+		r.x = 600 + 48;
+		c.x = 64*((ex->goal&1)==0);
+		SDL_RenderCopy(ren,ex->txt_star,&c,&r);
+		
+	}else if(ex->state == EX_DEFEAT){
+		SDL_Rect r = {100,200,1000,500};
+		SDL_RenderCopy(ren,ex->txt_defeat,NULL,&r);
+	}
+	
     AUX_Draw_Icon(ren,&ex->tb);
     
     AUX_Draw_Icon(ren,&ex->gem);
@@ -52,6 +78,8 @@ void JYH_DRAW_EX(SDL_Renderer* ren, JYH_Level_Runner* ex){
 	
     AUX_Draw_Icon(ren,&ex->botao_R);
     AUX_Draw_Icon(ren,&ex->botao_V);
+    
+    
 }
 
 
@@ -87,20 +115,27 @@ void JYH_EX(JYH_GameState* jogo){//Atualizar
 							jogo->ex.gem_collected++;
 							obj2->g.r.y += 100000;//para sair da tela
 							obj2->type == N_OBJECTS;
+							if(jogo->ex.gem_collected == jogo->ex.gem_total)jogo->ex.goal |=2;
 							JYH_EX_Atualiza_GemCount(jogo->ren,jogo->fnt,&jogo->ex);
 						}
+						else if(obj1->type == JYH_OBJ_PLAYER && obj2->type == JYH_OBJ_TROFEU){
+							jogo->ex.state = EX_VICTORY;
+						}else if(obj1->type == JYH_OBJ_PLAYER && obj2->type == JYH_OBJ_INIMIGO){
+							jogo->ex.state = EX_DEFEAT;
+							jogo->ex.goal = 0;
+						}
 						break;
-					
-					
-					
 				}
 		}
 		//Atualiza as entidades
-		for(int i = 0; i < jogo->ex.lvl.qtd_obj; i++)JYH_Update_Obj(&jogo->ex.lvl.objetos[i],&(jogo->evt));
+		if(jogo->ex.state == EX_RUNNING)for(int i = 0; i < jogo->ex.lvl.qtd_obj; i++)JYH_Update_Obj(&jogo->ex.lvl.objetos[i],&(jogo->evt));
 	}else{
 		//eventos baseados em tempo
 		jogo->espera = 10;
-		if(jogo->ex.tempo_restante)jogo->ex.tempo_restante -= 10;
+		if(jogo->ex.tempo_restante && jogo->ex.state == EX_RUNNING){
+			jogo->ex.tempo_restante -= 10;
+			if(!jogo->ex.tempo_restante)jogo->ex.goal -= 4;//retira o bit do tempo
+		}
 		SDL_DestroyTexture(jogo->ex.txt_tempo);
 		JYH_EX_Atualiza_Timer(jogo->ren,jogo->fnt,&jogo->ex);
 		AUX_CriarEvento(JYH_EX_UPDATE_FRAME,NULL,NULL);
@@ -158,8 +193,10 @@ void JYH_Load_EX(JYH_GameState* jogo){
 	SDL_Color clr = {0xff,0x00,0x00,0x00};
 	JYH_Read_lvl(&jogo->ex.lvl);
 	JYH_EX_Load_Txts(jogo->ren,&jogo->ex.txts);
-	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,0,1200,700},(SDL_Rect){0,0,1200,700},64);
+	JYH_Inicia_Camera(&jogo->ex.cam,(SDL_Rect){0,100,1200,700},(SDL_Rect){0,0,1200,700},64);
 	jogo->ex.gem_total = 0;
+	jogo->ex.state = EX_RUNNING;
+	jogo->ex.goal = 5;//3 bits marcados, começa 101,(tempo, joias,completar o nível)
 	JYH_EX_Start_Obj(&jogo->ex,64,jogo->ex.txts);
 
 	jogo->ex.contagem_gemas =(SDL_Rect){250,25,100,50};//onde é escrita a razão entre as gemas do nível e as gemas coletadas
@@ -173,6 +210,9 @@ void JYH_Load_EX(JYH_GameState* jogo){
     
 	sprintf(S,IMG_GET_THEME,jogo->ex.lvl.tema);
 	jogo->ex.lvl.txt_theme = IMG_LoadTexture(jogo->ren,S);
+	jogo->ex.txt_star = IMG_LoadTexture(jogo->ren,IMG_STAR);
+	jogo->ex.txt_defeat = AUX_CriarTexto(jogo->ren,jogo->fnt,"Derrota!",clr);
+	jogo->ex.txt_victory = AUX_CriarTexto(jogo->ren,jogo->fnt,"Vitoria!",clr);
 
 	jogo->ex.gem_collected = 0;
 	jogo->ex.trofeu_pego = 0;

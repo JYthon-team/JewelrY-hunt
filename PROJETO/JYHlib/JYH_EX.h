@@ -14,7 +14,18 @@ enum EX_EVENTS{
 	JYH_EX_COLLISION
 };
 
+enum EX_STATE{
+	EX_RUNNING,
+	EX_DEFEAT,
+	EX_VICTORY
+};
+
 typedef struct JYH_Level_Runner{//Guarda os elementos necessários para a execução de um nível
+	enum EX_STATE state;
+	short goal;
+	SDL_Texture* txt_victory;
+	SDL_Texture* txt_defeat;
+	SDL_Texture* txt_star;
 	JYH_Nivel lvl;//Nivel que está sendo jogado
 	JYH_Camera cam;
 	JYH_Icon tb;
